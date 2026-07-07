@@ -13,8 +13,21 @@
  *  - General Stadium Operations Center Dashboard with live operational metrics and predictive AI outlook.
  */
 
+import { useState } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
-import { Brain, Sparkles, AlertTriangle, ShieldCheck, Activity, Gauge, TrendingUp } from 'lucide-react';
+import { 
+  Brain, 
+  Sparkles, 
+  AlertTriangle, 
+  ShieldCheck, 
+  Activity, 
+  Gauge, 
+  TrendingUp,
+  ChevronDown,
+  ChevronUp,
+  ChevronRight
+} from 'lucide-react';
+import { cn } from '@/utils/cn';
 import { DecisionCard } from '@/components/cards/DecisionCard';
 import type { Incident, IncidentAnalysis } from '@/types/incident';
 import type { StadiumTelemetry } from '@/types/telemetry';
@@ -26,6 +39,108 @@ interface AIContextPanelProps {
   onDismiss: (incidentId: string, recommendationId: string) => void;
   telemetry?: StadiumTelemetry | null;
   incidents?: Incident[];
+  onCollapseClick?: () => void;
+}
+
+interface ExpandableAICardProps {
+  title: string;
+  icon: React.ReactNode;
+  prose: string;
+  theme: 'neutral' | 'warning' | 'info' | 'success';
+}
+
+function ExpandableAICard({ title, icon, prose, theme }: ExpandableAICardProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  // Split prose into sentences
+  const sentences = prose.split(/[.!?]+/).map((s) => s.trim()).filter(Boolean);
+  
+  // Headline: first sentence, capped to 8 words
+  let headline = sentences[0] || 'Operational review active.';
+  const headlineWords = headline.split(/\s+/);
+  if (headlineWords.length > 8) {
+    headline = headlineWords.slice(0, 7).join(' ') + '...';
+  } else if (!headline.endsWith('.')) {
+    headline = headline + '.';
+  }
+
+  // Supporting line: second sentence or default
+  const supporting = sentences[1] ? sentences[1] + '.' : 'Telemetry parameters verified.';
+
+  // Theme styles mapping
+  const themeStyles = {
+    neutral: {
+      bg: 'bg-(--surface-2) border-(--border)',
+      titleText: 'text-(--foreground) font-mono',
+      iconText: 'text-(--primary)',
+      proseText: 'text-(--foreground-muted)',
+    },
+    warning: {
+      bg: 'bg-amber-950/20 border-amber-900/50',
+      titleText: 'text-amber-300 font-mono',
+      iconText: 'text-amber-500',
+      proseText: 'text-amber-250',
+    },
+    info: {
+      bg: 'bg-blue-950/20 border-blue-900/50',
+      titleText: 'text-blue-300 font-mono',
+      iconText: 'text-blue-400',
+      proseText: 'text-blue-250',
+    },
+    success: {
+      bg: 'bg-emerald-950/20 border-emerald-900/50',
+      titleText: 'text-emerald-300 font-mono',
+      iconText: 'text-emerald-400',
+      proseText: 'text-emerald-250',
+    },
+  };
+
+  const style = themeStyles[theme];
+
+  return (
+    <div className={cn('border rounded-md p-2.5 transition-all shadow-sm', style.bg)}>
+      <div 
+        className="flex items-center justify-between cursor-pointer select-none"
+        onClick={() => setIsExpanded(!isExpanded)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setIsExpanded(!isExpanded);
+          }
+        }}
+        aria-expanded={isExpanded}
+      >
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className={style.iconText}>{icon}</span>
+          <span className={cn('text-[9px] font-bold uppercase tracking-wide truncate', style.titleText)}>
+            {title}
+          </span>
+        </div>
+        <div className="text-(--foreground-subtle) hover:text-(--foreground) shrink-0 p-0.5 ml-1">
+          {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+        </div>
+      </div>
+      
+      {/* Short Summary (when collapsed) */}
+      {!isExpanded ? (
+        <div className="mt-1.5 space-y-0.5">
+          <p className="text-[10.5px] font-bold text-(--foreground) leading-snug">
+            {headline}
+          </p>
+          <p className="text-[9px] text-(--foreground-subtle) leading-normal truncate">
+            {supporting}
+          </p>
+        </div>
+      ) : (
+        /* Full Prose (when expanded) */
+        <p className={cn('text-[10px] leading-relaxed mt-2 animate-fade-in', style.proseText)}>
+          {prose}
+        </p>
+      )}
+    </div>
+  );
 }
 
 export function AIContextPanel({
@@ -35,6 +150,7 @@ export function AIContextPanel({
   onDismiss,
   telemetry,
   incidents = [],
+  onCollapseClick,
 }: AIContextPanelProps) {
   const activeRecommendations = activeAnalysis?.recommendations.filter(
     (r) => !r.dismissed && !r.executed,
@@ -55,11 +171,23 @@ export function AIContextPanel({
             <Brain size={13} className="text-(--primary)" aria-hidden="true" />
             <span className="text-[10px] font-mono font-bold text-(--foreground) uppercase tracking-wider">AI Operations Analyst</span>
           </div>
-          <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-(--primary-muted) border border-(--primary-light)">
-            <Sparkles size={9} className="text-(--primary)" aria-hidden="true" />
-            <span className="text-[8px] font-semibold text-(--primary) uppercase tracking-wide font-mono">
-              Live Feed
-            </span>
+          <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-(--primary-muted) border border-(--primary-light)">
+              <Sparkles size={9} className="text-(--primary)" aria-hidden="true" />
+              <span className="text-[8px] font-semibold text-(--primary) uppercase tracking-wide font-mono">
+                Live Feed
+              </span>
+            </div>
+            {onCollapseClick && (
+              <button
+                onClick={onCollapseClick}
+                className="w-8 h-8 border border-(--border) rounded-md flex items-center justify-center bg-(--surface-1) text-(--foreground-muted) hover:text-(--foreground) hover:bg-(--surface-3) transition-colors cursor-pointer"
+                title="Collapse panel"
+                aria-label="Collapse panel"
+              >
+                <ChevronRight size={16} />
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -87,44 +215,29 @@ export function AIContextPanel({
                 )}
               </div>
 
-              {/* ── Operational Summary ─────────────────────────────── */}
-              <div className="bg-(--surface-2) border border-(--border) rounded-md p-2.5 space-y-2">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <Activity size={10} className="text-(--primary)" aria-hidden="true" />
-                  <span className="text-[9px] font-bold text-(--foreground) uppercase tracking-wide font-mono">
-                    Operational Summary
-                  </span>
-                </div>
-                <p className="text-[10px] text-(--foreground-muted) leading-relaxed">
-                  {activeAnalysis.aiSituationSummary.explanation}
-                </p>
-              </div>
+              {/* ── Operational Summary Card ─────────────────────────────── */}
+              <ExpandableAICard
+                title="Operational Summary"
+                icon={<Activity size={10} aria-hidden="true" />}
+                prose={activeAnalysis.aiSituationSummary.explanation}
+                theme="neutral"
+              />
 
-              {/* ── Predicted Risk ──────────────────────────────────── */}
-              <div className="bg-amber-50 border border-amber-200 rounded-md p-2.5 space-y-1">
-                <div className="flex items-center gap-1.5">
-                  <AlertTriangle size={10} className="text-amber-600" aria-hidden="true" />
-                  <span className="text-[9px] font-bold text-amber-700 uppercase tracking-wide font-mono">
-                    Predicted Risk
-                  </span>
-                </div>
-                <p className="text-[10px] text-amber-700 leading-relaxed">
-                  {activeAnalysis.aiSituationSummary.expectedRisks}
-                </p>
-              </div>
+              {/* ── Predicted Risk Card ──────────────────────────────────── */}
+              <ExpandableAICard
+                title="Predicted Risk"
+                icon={<AlertTriangle size={10} aria-hidden="true" />}
+                prose={activeAnalysis.aiSituationSummary.expectedRisks}
+                theme="warning"
+              />
 
-              {/* ── Suggested Next Action ───────────────────────────── */}
-              <div className="bg-emerald-50 border border-emerald-200 rounded-md p-2.5 space-y-1">
-                <div className="flex items-center gap-1.5">
-                  <ShieldCheck size={10} className="text-emerald-700" aria-hidden="true" />
-                  <span className="text-[9px] font-bold text-emerald-700 uppercase tracking-wide font-mono">
-                    Suggested Next Action
-                  </span>
-                </div>
-                <p className="text-[10px] text-emerald-800 leading-relaxed">
-                  {activeAnalysis.aiSituationSummary.recommendedResponse}
-                </p>
-              </div>
+              {/* ── Suggested Next Action Card ───────────────────────────── */}
+              <ExpandableAICard
+                title="Suggested Next Action"
+                icon={<ShieldCheck size={10} aria-hidden="true" />}
+                prose={activeAnalysis.aiSituationSummary.recommendedResponse}
+                theme="success"
+              />
 
               {/* ── Estimated Impact ────────────────────────────────── */}
               <div className="text-[10px] text-(--foreground-muted) bg-(--surface-2) border border-(--border) rounded px-2.5 py-1.5">
@@ -192,48 +305,33 @@ export function AIContextPanel({
                 </div>
                 <div className="p-2 rounded bg-(--surface-2) border border-(--border)">
                   <span className="text-[7.5px] font-bold font-mono text-(--foreground-subtle) uppercase block">Critical Alerts</span>
-                  <span className="text-sm font-black text-red-600 font-mono">{criticalCount}</span>
+                  <span className="text-sm font-black text-red-650 font-mono">{criticalCount}</span>
                 </div>
               </div>
 
-              {/* ── Operational Summary ─────────────────────────────── */}
-              <div className="bg-(--surface-2) border border-(--border) rounded-md p-2.5 space-y-1.5">
-                <div className="flex items-center gap-1.5">
-                  <Activity size={10} className="text-(--primary)" aria-hidden="true" />
-                  <span className="text-[9px] font-bold text-(--foreground) uppercase tracking-wide font-mono">
-                    Global Status Summary
-                  </span>
-                </div>
-                <p className="text-[10px] text-(--foreground-muted) leading-relaxed">
-                  Stadium crowd distribution is stable at {telemetry?.stadiumCapacity.value ?? 62}% nominal threshold. All emergency routes and gates are operating in normal parameters. Staffing distribution is optimal at 98% duty strength.
-                </p>
-              </div>
+              {/* ── Global Status Summary Card ─────────────────────────────── */}
+              <ExpandableAICard
+                title="Global Status Summary"
+                icon={<Activity size={10} aria-hidden="true" />}
+                prose={`Stadium crowd distribution is stable at ${telemetry?.stadiumCapacity.value ?? 62}% nominal threshold. All emergency routes and gates are operating in normal parameters. Staffing distribution is optimal at 98% duty strength.`}
+                theme="neutral"
+              />
 
-              {/* ── Predicted Risk ──────────────────────────────────── */}
-              <div className="bg-blue-50 border border-blue-200 dark:bg-blue-950/20 dark:border-blue-900 rounded-md p-2.5 space-y-1">
-                <div className="flex items-center gap-1.5">
-                  <TrendingUp size={10} className="text-blue-600" aria-hidden="true" />
-                  <span className="text-[9px] font-bold text-blue-700 dark:text-blue-300 uppercase tracking-wide font-mono">
-                    Predictive Outlook (AI)
-                  </span>
-                </div>
-                <p className="text-[10px] text-blue-800 dark:text-blue-200 leading-relaxed">
-                  Low structural risk. No critical congestion events predicted for the next 15 minutes. Heavy foot ingress flow at Gate D will continue until kickoff.
-                </p>
-              </div>
+              {/* ── Predictive Outlook Card ──────────────────────────────────── */}
+              <ExpandableAICard
+                title="Predictive Outlook (AI)"
+                icon={<TrendingUp size={10} aria-hidden="true" />}
+                prose="Low structural risk. No critical congestion events predicted for the next 15 minutes. Heavy foot ingress flow at Gate D will continue until kickoff."
+                theme="info"
+              />
 
-              {/* ── Suggested Next Action ───────────────────────────── */}
-              <div className="bg-emerald-50 border border-emerald-200 dark:bg-emerald-950/20 dark:border-emerald-900 rounded-md p-2.5 space-y-1">
-                <div className="flex items-center gap-1.5">
-                  <ShieldCheck size={10} className="text-emerald-700" aria-hidden="true" />
-                  <span className="text-[9px] font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wide font-mono">
-                    System Recommendation
-                  </span>
-                </div>
-                <p className="text-[10px] text-emerald-800 dark:text-emerald-200 leading-relaxed">
-                  Keep active focus on the Incident Queue. Monitor Gate D CCTV camera cones for queuing congestion.
-                </p>
-              </div>
+              {/* ── System Recommendation Card ───────────────────────────── */}
+              <ExpandableAICard
+                title="System Recommendation"
+                icon={<ShieldCheck size={10} aria-hidden="true" />}
+                prose="Keep active focus on the Incident Queue. Monitor Gate D CCTV camera cones for queuing congestion."
+                theme="success"
+              />
 
               <div className="text-[9.5px] text-center text-(--foreground-subtle) border border-dashed border-(--border) rounded-md py-3.5 px-2 bg-(--surface-1)">
                 Select any incident queue item or zone section above to filter individual analytics and dispatcher controls.

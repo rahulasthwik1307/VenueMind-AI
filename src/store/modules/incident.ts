@@ -10,6 +10,7 @@ export interface IncidentState {
   incidents: Incident[];
   analyses: Record<string, IncidentAnalysis>;
   activeIncidentId: string | null;
+  hoveredIncidentId: string | null;
   filter: 'all' | 'critical' | 'open' | 'investigating' | 'resolved';
   searchQuery: string;
   activities: ActivityItem[];
@@ -23,6 +24,7 @@ export interface IncidentState {
   };
   setIncidents: (incidents: Incident[]) => void;
   setActiveIncidentId: (id: string | null) => void;
+  setHoveredIncidentId: (id: string | null) => void;
   setFilter: (filter: 'all' | 'critical' | 'open' | 'investigating' | 'resolved') => void;
   setSearchQuery: (query: string) => void;
   dispatchAction: (incidentId: string, recommendationId: string) => void;
@@ -53,6 +55,7 @@ export const useIncidentStore = create<IncidentState>((set) => ({
   incidents: MOCK_INCIDENTS,
   analyses: MOCK_ANALYSES,
   activeIncidentId: null,
+  hoveredIncidentId: null,
   filter: 'all',
   searchQuery: '',
   activities: [],
@@ -62,6 +65,7 @@ export const useIncidentStore = create<IncidentState>((set) => ({
 
   setIncidents: (incidents) => set({ incidents }),
   setActiveIncidentId: (id) => set({ activeIncidentId: id }),
+  setHoveredIncidentId: (id) => set({ hoveredIncidentId: id }),
   setFilter: (filter) => set({ filter }),
   setSearchQuery: (searchQuery) => set({ searchQuery }),
 

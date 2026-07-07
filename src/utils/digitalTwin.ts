@@ -360,3 +360,11 @@ export function getActivityTimeGroup(isoTimestamp: string): ActivityTimeGroup {
   if (minutes <= 30) return 'recent';
   return 'earlier';
 }
+
+/** Small jitter to spread markers in same zone slightly */
+export const ZONE_OFFSETS: Record<string, Array<{ dx: number; dy: number }>> = {
+  'north-stand': [{ dx: 0, dy: 0 }, { dx: 25, dy: -5 }, { dx: -20, dy: 8 }],
+  'south-stand': [{ dx: 0, dy: 0 }, { dx: -20, dy: 5 }, { dx: 25, dy: -8 }],
+  'east-stand': [{ dx: 0, dy: 0 }, { dx: 5, dy: 25 }, { dx: -5, dy: -20 }],
+  'west-stand': [{ dx: 0, dy: 0 }, { dx: -5, dy: -20 }, { dx: 5, dy: 22 }],
+};

@@ -1,6 +1,7 @@
 import { PageContainer } from '@/components/layout/PageContainer';
 import { SectionHeader } from '@/components/shared/SectionHeader';
 import { Settings } from 'lucide-react';
+import { AppFooter } from '@/components/layout/AppFooter';
 
 export default function SettingsPage() {
   return (
@@ -18,7 +19,7 @@ export default function SettingsPage() {
             <Settings size={36} className="text-(--primary) opacity-65 mb-3" />
             <h2 className="text-sm font-bold text-(--foreground) uppercase tracking-wide">System Core Config</h2>
             <p className="text-xs text-(--foreground-muted) max-w-lg mt-1.5 leading-relaxed">
-              Tweak AI models sensitivity (default 80% confidence trigger), local database syncing rates, and system theme preferences (Light / Dark / System).
+              Tweak AI models sensitivity (default 80% confidence trigger), local database syncing rates, and system theme preferences.
             </p>
             <div className="mt-4 flex gap-2">
               <span className="text-[10px] font-semibold text-(--primary) bg-(--primary-muted) px-2 py-0.5 rounded border border-(--primary-light) font-mono">
@@ -34,6 +35,11 @@ export default function SettingsPage() {
             <span>CONSOLE STATUS: LOCKED</span>
             <span>FIFA WORLD CUP 2026</span>
           </div>
+        </div>
+
+        {/* Relocated project attribution info */}
+        <div className="border border-(--border) rounded-card overflow-hidden">
+          <AppFooter />
         </div>
       </div>
     </PageContainer>

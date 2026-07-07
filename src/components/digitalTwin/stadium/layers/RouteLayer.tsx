@@ -46,11 +46,33 @@ const ROUTE_TYPE_LABELS: Record<RouteType, string> = {
   evacuation: 'EVAC',
 };
 
+function getRouteFlowSpeed(type: RouteType): string {
+  switch (type) {
+    case 'evacuation': return '0.7s';
+    case 'medical': return '0.9s';
+    case 'security': return '1.2s';
+    case 'transport': return '1.5s';
+    case 'volunteer': return '1.8s';
+    case 'vip': return '2.0s';
+    default: return '1.2s';
+  }
+}
+
 export function RouteLayer({ routes, isVisible }: RouteLayerProps) {
   if (!isVisible) return null;
 
   return (
     <g aria-label="Operational routes">
+      <style>{`
+        @keyframes routeFlow {
+          to {
+            stroke-dashoffset: -20;
+          }
+        }
+        .animated-route-flow {
+          animation: routeFlow 1.2s linear infinite;
+        }
+      `}</style>
       <AnimatePresence>
         {routes
           .filter((r) => r.isActive)
@@ -82,6 +104,10 @@ export function RouteLayer({ routes, isVisible }: RouteLayerProps) {
                   fill="none"
                   strokeDasharray={dashPattern}
                   strokeLinecap="round"
+                  className="animated-route-flow"
+                  style={{
+                    animationDuration: getRouteFlowSpeed(route.type)
+                  }}
                   initial={{ pathLength: 0, opacity: 0 }}
                   animate={{ pathLength: 1, opacity: 0.9 }}
                   exit={{ pathLength: 0, opacity: 0 }}

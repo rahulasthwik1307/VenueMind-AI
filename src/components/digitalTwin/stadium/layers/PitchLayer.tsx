@@ -51,8 +51,8 @@ export function PitchLayer() {
         width={PITCH.w}
         height={PITCH.h}
         fill="none"
-        stroke="rgba(255,255,255,0.7)"
-        strokeWidth={1.2}
+        stroke="rgba(255,255,255,0.95)"
+        strokeWidth={1.8}
         rx={2}
       />
 
@@ -62,8 +62,8 @@ export function PitchLayer() {
         y1={PITCH.y}
         x2={CX}
         y2={PITCH.y + PITCH.h}
-        stroke="rgba(255,255,255,0.6)"
-        strokeWidth={1}
+        stroke="rgba(255,255,255,0.95)"
+        strokeWidth={1.8}
       />
 
       {/* Center circle */}
@@ -72,12 +72,12 @@ export function PitchLayer() {
         cy={CY}
         r={CENTER_R}
         fill="none"
-        stroke="rgba(255,255,255,0.6)"
-        strokeWidth={1}
+        stroke="rgba(255,255,255,0.95)"
+        strokeWidth={1.8}
       />
 
       {/* Center spot */}
-      <circle cx={CX} cy={CY} r={2} fill="rgba(255,255,255,0.8)" />
+      <circle cx={CX} cy={CY} r={2.5} fill="rgba(255,255,255,0.95)" />
 
       {/* North penalty area */}
       <rect
@@ -86,8 +86,8 @@ export function PitchLayer() {
         width={PENALTY_W}
         height={PENALTY_H / 2}
         fill="none"
-        stroke="rgba(255,255,255,0.6)"
-        strokeWidth={1}
+        stroke="rgba(255,255,255,0.95)"
+        strokeWidth={1.8}
       />
 
       {/* North goal area */}
@@ -97,16 +97,16 @@ export function PitchLayer() {
         width={GOAL_W}
         height={GOAL_H / 2}
         fill="none"
-        stroke="rgba(255,255,255,0.6)"
-        strokeWidth={1}
+        stroke="rgba(255,255,255,0.95)"
+        strokeWidth={1.8}
       />
 
       {/* North penalty spot */}
       <circle
         cx={CX}
         cy={PITCH.y + 24}
-        r={1.5}
-        fill="rgba(255,255,255,0.7)"
+        r={1.8}
+        fill="rgba(255,255,255,0.95)"
       />
 
       {/* South penalty area */}
@@ -116,8 +116,8 @@ export function PitchLayer() {
         width={PENALTY_W}
         height={PENALTY_H / 2}
         fill="none"
-        stroke="rgba(255,255,255,0.6)"
-        strokeWidth={1}
+        stroke="rgba(255,255,255,0.95)"
+        strokeWidth={1.8}
       />
 
       {/* South goal area */}
@@ -127,28 +127,29 @@ export function PitchLayer() {
         width={GOAL_W}
         height={GOAL_H / 2}
         fill="none"
-        stroke="rgba(255,255,255,0.6)"
-        strokeWidth={1}
+        stroke="rgba(255,255,255,0.95)"
+        strokeWidth={1.8}
       />
 
       {/* South penalty spot */}
       <circle
         cx={CX}
         cy={PITCH.y + PITCH.h - 24}
-        r={1.5}
-        fill="rgba(255,255,255,0.7)"
+        r={1.8}
+        fill="rgba(255,255,255,0.95)"
       />
 
-      {/* Pitch label */}
+      {/* Relocated Pitch label (above playing surface) */}
       <text
         x={CX}
-        y={CY + 46}
+        y={212}
         textAnchor="middle"
-        fontSize={7}
-        fontWeight={600}
-        fill="rgba(255,255,255,0.35)"
+        dominantBaseline="middle"
+        fontSize={8.5}
+        fontWeight={750}
+        fill="rgba(255,255,255,0.85)"
         fontFamily="var(--font-mono, monospace)"
-        letterSpacing={2}
+        letterSpacing={2.5}
       >
         AL BAYT STADIUM
       </text>

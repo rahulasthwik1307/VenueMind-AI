@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { AppHeader } from './AppHeader';
 import { AppSidebar } from './AppSidebar';
 import { RightPanel } from './RightPanel';
-import { AppFooter } from './AppFooter';
 import { MobileSidebarOverlay } from './MobileSidebarOverlay';
 import { IncidentDrawer } from '@/components/incident/IncidentDrawer';
 import { ToastContainer } from '@/components/shared/ToastContainer';
@@ -65,9 +64,6 @@ export function AppShell({ children }: AppShellProps) {
         {/* Right Context Panel */}
         <RightPanel />
       </div>
-
-      {/* Bottom Footer */}
-      <AppFooter />
 
       {/* Mobile Navigation Drawer */}
       <MobileSidebarOverlay

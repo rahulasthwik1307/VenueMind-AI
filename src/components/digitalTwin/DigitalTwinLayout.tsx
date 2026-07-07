@@ -23,8 +23,9 @@ import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { 
   ChevronLeft, 
   ChevronRight, 
-  ChevronDown, 
-  ChevronUp 
+  ChevronUp,
+  AlertTriangle,
+  Cpu
 } from 'lucide-react';
 
 import { DigitalTwinToolbar } from './DigitalTwinToolbar';
@@ -66,13 +67,16 @@ export function DigitalTwinLayout() {
 
   // Load operator layout preferences on mount
   useEffect(() => {
-    try {
-      setIsLeftCollapsed(localStorage.getItem('layout_left_collapsed') === 'true');
-      setIsRightCollapsed(localStorage.getItem('layout_right_collapsed') === 'true');
-      setIsBottomCollapsed(localStorage.getItem('layout_bottom_collapsed') === 'true');
-    } catch (e) {
-      // ignore
-    }
+    const timer = setTimeout(() => {
+      try {
+        setIsLeftCollapsed(localStorage.getItem('layout_left_collapsed') === 'true');
+        setIsRightCollapsed(localStorage.getItem('layout_right_collapsed') === 'true');
+        setIsBottomCollapsed(localStorage.getItem('layout_bottom_collapsed') === 'true');
+      } catch {
+        // ignore
+      }
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   // Save layout helpers
@@ -81,7 +85,7 @@ export function DigitalTwinLayout() {
     setIsLeftCollapsed(next);
     try {
       localStorage.setItem('layout_left_collapsed', String(next));
-    } catch (e) {
+    } catch {
       // ignore
     }
   };
@@ -91,7 +95,7 @@ export function DigitalTwinLayout() {
     setIsRightCollapsed(next);
     try {
       localStorage.setItem('layout_right_collapsed', String(next));
-    } catch (e) {
+    } catch {
       // ignore
     }
   };
@@ -101,7 +105,7 @@ export function DigitalTwinLayout() {
     setIsBottomCollapsed(next);
     try {
       localStorage.setItem('layout_bottom_collapsed', String(next));
-    } catch (e) {
+    } catch {
       // ignore
     }
   };
@@ -185,66 +189,53 @@ export function DigitalTwinLayout() {
           transition={stageTransition(0.08)}
           className={cn(
             'shrink-0 flex flex-col border-r border-(--border) overflow-visible transition-all duration-300 relative bg-(--surface-1)',
-            isLeftCollapsed ? 'w-0 border-r-0' : 'w-72'
+            isLeftCollapsed ? 'w-14' : 'w-72'
           )}
         >
-          <div className="w-72 h-full flex flex-col overflow-hidden">
-            <IncidentQueuePanel
-              incidents={dt.sortedIncidents}
-              activeIncidentId={dt.activeIncidentId}
-              onIncidentClick={dt.handleIncidentClick}
-            />
-          </div>
-          
-          {/* Collapse Handle on Border */}
-          {!isLeftCollapsed && (
-            <button
-              onClick={toggleLeft}
-              className="absolute top-1/2 -right-3 -translate-y-1/2 z-30 flex items-center justify-center w-5 h-5 bg-(--surface-1) border border-(--border) rounded-full shadow-sm text-(--foreground-subtle) hover:text-(--foreground) hover:bg-(--surface-2) transition-all"
-              title="Collapse Panel (Ctrl+[)"
-            >
-              <ChevronLeft size={11} />
-            </button>
+          {isLeftCollapsed ? (
+            <div className="w-14 h-full flex flex-col items-center py-4 gap-6 bg-(--surface-1)">
+              <button
+                onClick={toggleLeft}
+                className="w-9 h-9 border border-(--border) rounded-md flex items-center justify-center bg-(--surface-1) text-(--foreground-muted) hover:text-(--foreground) hover:bg-(--surface-3) transition-colors cursor-pointer"
+                title="Expand panel"
+                aria-label="Expand panel"
+              >
+                <ChevronRight size={18} />
+              </button>
+              <div className="flex flex-col gap-4 items-center">
+                <div className="relative flex items-center justify-center w-8 h-8 rounded-full bg-(--surface-2) border border-(--border) text-amber-500" title={`${openIncidentCount} Active Incidents`}>
+                  <AlertTriangle size={15} />
+                  {openIncidentCount > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-amber-500 text-white text-[9px] font-black font-mono">
+                      {openIncidentCount}
+                    </span>
+                  )}
+                </div>
+                {criticalCount > 0 && (
+                  <div 
+                    className="flex items-center justify-center w-8 h-8 rounded-full bg-red-950/40 border border-red-500/50 text-red-500 animate-pulse" 
+                    title={`${criticalCount} Critical Incidents`}
+                  >
+                    <AlertTriangle size={15} className="fill-red-500/10" />
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="w-72 h-full flex flex-col overflow-hidden">
+              <IncidentQueuePanel
+                incidents={dt.sortedIncidents}
+                activeIncidentId={dt.activeIncidentId}
+                onIncidentClick={dt.handleIncidentClick}
+                onCollapseClick={toggleLeft}
+              />
+            </div>
           )}
         </m.div>
 
         {/* ── Center: Stadium + Zone Details ────────────────────────── */}
         <div className="flex-1 flex flex-col overflow-hidden min-w-0 relative">
           
-          {/* Expand Left Floating Tab */}
-          {isLeftCollapsed && (
-            <button
-              onClick={toggleLeft}
-              className="absolute top-1/2 left-0 -translate-y-1/2 z-30 flex items-center justify-center w-3.5 h-12 bg-(--surface-1) border-y border-r border-(--border) rounded-r shadow-sm text-(--foreground-subtle) hover:text-(--foreground) hover:bg-(--surface-2) transition-all"
-              title="Expand Panel (Ctrl+[)"
-            >
-              <ChevronRight size={10} />
-            </button>
-          )}
-
-          {/* Expand Right Floating Tab */}
-          {isRightCollapsed && (
-            <button
-              onClick={toggleRight}
-              className="absolute top-1/2 right-0 -translate-y-1/2 z-30 flex items-center justify-center w-3.5 h-12 bg-(--surface-1) border-y border-l border-(--border) rounded-l shadow-sm text-(--foreground-subtle) hover:text-(--foreground) hover:bg-(--surface-2) transition-all"
-              title="Expand Panel (Ctrl+])"
-            >
-              <ChevronLeft size={10} />
-            </button>
-          )}
-
-          {/* Expand Bottom Floating Tab */}
-          {isBottomCollapsed && (
-            <button
-              onClick={toggleBottom}
-              className="absolute bottom-2 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5 px-3 py-1 bg-(--surface-1) border border-(--border) rounded-full shadow text-(--foreground-subtle) hover:text-(--foreground) hover:bg-(--surface-2) transition-all text-[8.5px] font-bold font-mono uppercase"
-              title="Expand Details (Ctrl+\)"
-            >
-              <ChevronUp size={9} />
-              <span>Expand Zone Analytics</span>
-            </button>
-          )}
-
           {/* Stadium Canvas (entrance: third) */}
           <m.div
             variants={stageVariants}
@@ -278,28 +269,41 @@ export function DigitalTwinLayout() {
             transition={stageTransition(0.24)}
             className={cn(
               'shrink-0 overflow-visible transition-all duration-300 relative bg-(--surface-1)',
-              isBottomCollapsed ? 'h-0' : 'h-44'
+              isBottomCollapsed ? 'h-11' : 'h-44'
             )}
           >
-            <div className="h-44 w-full overflow-hidden">
-              <ZoneDetailsPanel
-                selectedZone={dt.selectedZone}
-                incidentsInZone={dt.incidentsInSelectedZone}
-                zoneCrowdDensity={dt.zoneCrowdDensity}
-                onIncidentClick={dt.handleIncidentClick}
-                allIncidents={dt.incidents}
-              />
-            </div>
-            
-            {/* Collapse handle for bottom */}
-            {!isBottomCollapsed && (
-              <button
-                onClick={toggleBottom}
-                className="absolute -top-2.5 right-5 z-30 flex items-center justify-center w-5 h-5 bg-(--surface-1) border border-(--border) rounded-full shadow-sm text-(--foreground-subtle) hover:text-(--foreground) hover:bg-(--surface-2) transition-all"
-                title="Collapse Details (Ctrl+\)"
-              >
-                <ChevronDown size={11} />
-              </button>
+            {isBottomCollapsed ? (
+              <div className="h-11 w-full flex items-center justify-between px-4 border-t border-(--border) bg-(--surface-1)">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={toggleBottom}
+                    className="w-9 h-9 border border-(--border) rounded-md flex items-center justify-center bg-(--surface-1) text-(--foreground-muted) hover:text-(--foreground) hover:bg-(--surface-3) transition-colors cursor-pointer"
+                    title="Expand panel"
+                    aria-label="Expand panel"
+                  >
+                    <ChevronUp size={16} />
+                  </button>
+                  <span className="text-[10px] font-mono font-bold text-(--foreground-muted) uppercase tracking-wide">
+                    {dt.selectedZone ? `Zone Monitor: ${dt.selectedZone.name}` : 'Stadium Monitor Active'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-4 text-[9px] font-mono text-(--foreground-subtle)">
+                  <span>CROWD CAPACITY: {dt.selectedZone ? `${(dt.zoneCrowdDensity[dt.selectedZone.id] ?? 30).toFixed(0)}%` : `${Math.round(Object.values(dt.zoneCrowdDensity).reduce((a,b)=>a+b,0) / Math.max(1, Object.keys(dt.zoneCrowdDensity).length))}%`}</span>
+                  <span>•</span>
+                  <span>INCIDENTS: {dt.selectedZone ? dt.incidentsInSelectedZone.filter(i=>i.status!=='resolved').length : dt.incidents.filter(i=>i.status!=='resolved').length} Active</span>
+                </div>
+              </div>
+            ) : (
+              <div className="h-44 w-full overflow-hidden">
+                <ZoneDetailsPanel
+                  selectedZone={dt.selectedZone}
+                  incidentsInZone={dt.incidentsInSelectedZone}
+                  zoneCrowdDensity={dt.zoneCrowdDensity}
+                  onIncidentClick={dt.handleIncidentClick}
+                  allIncidents={dt.incidents}
+                  onCollapseClick={toggleBottom}
+                />
+              </div>
             )}
           </m.div>
         </div>
@@ -312,42 +316,63 @@ export function DigitalTwinLayout() {
           transition={stageTransition(0.08)}
           className={cn(
             'shrink-0 flex flex-col border-l border-(--border) overflow-visible transition-all duration-300 relative bg-(--surface-1)',
-            isRightCollapsed ? 'w-0 border-l-0' : 'w-72'
+            isRightCollapsed ? 'w-14' : 'w-72'
           )}
         >
-          <div className="w-72 h-full flex flex-col overflow-hidden bg-(--surface-1)">
-            {/* AI Context Panel — scrollable, takes available space */}
-            <div className="flex-1 overflow-hidden flex flex-col">
-              <AIContextPanel
-                activeIncident={dt.activeIncident}
-                activeAnalysis={dt.activeAnalysis}
-                onDispatch={dt.handleDispatch}
-                onDismiss={dt.handleDismiss}
-                telemetry={dt.telemetry}
-                incidents={dt.incidents}
-              />
+          {isRightCollapsed ? (
+            <div className="w-14 h-full flex flex-col items-center py-4 gap-6 bg-(--surface-1)">
+              <button
+                onClick={toggleRight}
+                className="w-9 h-9 border border-(--border) rounded-md flex items-center justify-center bg-(--surface-1) text-(--foreground-muted) hover:text-(--foreground) hover:bg-(--surface-3) transition-colors cursor-pointer"
+                title="Expand panel"
+                aria-label="Expand panel"
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <div className="flex flex-col gap-4 items-center">
+                {/* System Health */}
+                <div 
+                  className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-950/40 border border-emerald-500/50 text-emerald-450"
+                  title="System Health: 100% Nominal"
+                >
+                  <Cpu size={15} />
+                </div>
+                {/* Occupancy Indicator */}
+                <div 
+                  className="flex items-center justify-center w-8 h-8 rounded-full bg-(--surface-2) border border-(--border) text-(--foreground-muted)"
+                  title={`Stadium Occupancy: ${dt.telemetry?.stadiumCapacity.value ?? 62}%`}
+                >
+                  <span className="text-[8.5px] font-mono font-bold leading-none">
+                    {dt.telemetry?.stadiumCapacity.value ?? 62}%
+                  </span>
+                </div>
+              </div>
             </div>
+          ) : (
+            <div className="w-72 h-full flex flex-col overflow-hidden bg-(--surface-1)">
+              {/* AI Context Panel — scrollable, takes available space */}
+              <div className="flex-1 overflow-hidden flex flex-col">
+                <AIContextPanel
+                  activeIncident={dt.activeIncident}
+                  activeAnalysis={dt.activeAnalysis}
+                  onDispatch={dt.handleDispatch}
+                  onDismiss={dt.handleDismiss}
+                  telemetry={dt.telemetry}
+                  incidents={dt.incidents}
+                  onCollapseClick={toggleRight}
+                />
+              </div>
 
-            {/* Live Metrics — fixed compact section */}
-            <div className="shrink-0">
-              <LiveMetricsPanel telemetry={dt.telemetry} />
+              {/* Live Metrics — fixed compact section */}
+              <div className="shrink-0">
+                <LiveMetricsPanel telemetry={dt.telemetry} />
+              </div>
+
+              {/* Activity Feed — fixed-height bottom section */}
+              <div className="h-44 shrink-0 border-t border-(--border) overflow-hidden">
+                <ActivityFeedPanel activities={dt.activities} />
+              </div>
             </div>
-
-            {/* Activity Feed — fixed-height bottom section */}
-            <div className="h-44 shrink-0 border-t border-(--border) overflow-hidden">
-              <ActivityFeedPanel activities={dt.activities} />
-            </div>
-          </div>
-
-          {/* Collapse Handle on Border */}
-          {!isRightCollapsed && (
-            <button
-              onClick={toggleRight}
-              className="absolute top-1/2 -left-3 -translate-y-1/2 z-30 flex items-center justify-center w-5 h-5 bg-(--surface-1) border border-(--border) rounded-full shadow-sm text-(--foreground-subtle) hover:text-(--foreground) hover:bg-(--surface-2) transition-all"
-              title="Collapse Panel (Ctrl+])"
-            >
-              <ChevronRight size={11} />
-            </button>
           )}
         </m.div>
       </div>

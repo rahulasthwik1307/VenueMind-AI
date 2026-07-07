@@ -40,6 +40,17 @@ export function GateLayer({
 
   return (
     <g aria-label="Stadium gates">
+      <style>{`
+        @keyframes gateFlow {
+          to {
+            stroke-dashoffset: -12;
+          }
+        }
+        .animated-gate-flow {
+          animation: gateFlow 1s linear infinite;
+        }
+      `}</style>
+
       {gateZones.map((zone, idx) => {
         const isSelected = selectedZoneId === zone.id;
         const isHovered = hoveredZoneId === zone.id;
@@ -69,16 +80,31 @@ export function GateLayer({
             {/* Gate rectangle */}
             <path
               d={zone.svgPath}
-              fill={isSelected ? '#0f5132' : isHovered ? '#1e6b4a' : '#374151'}
-              stroke={isSelected ? '#0f5132' : statusColor}
+              fill={isSelected ? '#15803d' : isHovered ? '#1e293b' : '#111827'}
+              stroke={isSelected ? '#10b981' : statusColor}
               strokeWidth={isSelected ? 2 : 1.5}
               rx={2}
             />
 
+            {/* Marching ants flow around selected gate */}
+            {isSelected && (
+              <path
+                d={zone.svgPath}
+                fill="none"
+                stroke="#ffffff"
+                strokeWidth={2.2}
+                strokeDasharray="4 2"
+                className="animated-gate-flow"
+                style={{
+                  animationDuration: `${Math.max(0.3, 1.5 - (density / 100) * 1.2)}s`
+                }}
+              />
+            )}
+
             {/* Gate status dot */}
             <circle
               cx={zone.labelPosition.x}
-              cy={zone.labelPosition.y - 14}
+              cy={zone.labelPosition.y - 15}
               r={3.5}
               fill={statusColor}
               opacity={0.9}
@@ -90,9 +116,9 @@ export function GateLayer({
               y={zone.labelPosition.y}
               textAnchor="middle"
               dominantBaseline="middle"
-              fontSize={7.5}
-              fontWeight={600}
-              fill={isSelected ? '#0f5132' : '#374151'}
+              fontSize={10}
+              fontWeight={700}
+              fill={isSelected ? '#10b981' : 'rgba(255, 255, 255, 0.75)'}
               fontFamily="var(--font-mono, monospace)"
               letterSpacing={0.5}
               pointerEvents="none"

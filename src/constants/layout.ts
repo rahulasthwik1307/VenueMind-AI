@@ -18,3 +18,5 @@ export const BREAKPOINTS = {
   xl: 1280,
   '2xl': 1536,
 } as const;
+
+export const ZOOM_DETAIL_THRESHOLD = 1.6 as const;

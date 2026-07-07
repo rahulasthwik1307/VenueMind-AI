@@ -14,7 +14,7 @@
  */
 
 import { m, AnimatePresence } from 'framer-motion';
-import { MapPin, AlertTriangle, Shield, Brain, ChevronRight, Users } from 'lucide-react';
+import { MapPin, AlertTriangle, Shield, Brain, ChevronRight, ChevronDown, Users } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import type { StadiumZoneConfig, ZoneStatus } from '@/types/digitalTwin';
 import type { Incident } from '@/types/incident';
@@ -26,6 +26,7 @@ interface ZoneDetailsPanelProps {
   zoneCrowdDensity: Record<string, number>;
   onIncidentClick: (id: string) => void;
   allIncidents?: Incident[];
+  onCollapseClick?: () => void;
 }
 
 const STATUS_LABELS: Record<ZoneStatus, string> = {
@@ -85,6 +86,7 @@ export function ZoneDetailsPanel({
   zoneCrowdDensity,
   onIncidentClick,
   allIncidents = [],
+  onCollapseClick,
 }: ZoneDetailsPanelProps) {
   // Derive overall stadium stats for empty/fallback state
   const totalCapacity = 80000;
@@ -97,7 +99,17 @@ export function ZoneDetailsPanel({
   const activeIncidents = allIncidents.filter((i) => i.status !== 'resolved');
 
   return (
-    <div className="flex flex-col h-full overflow-hidden border-t border-(--border) bg-(--surface-1)">
+    <div className="flex flex-col h-full overflow-hidden border-t border-(--border) bg-(--surface-1) relative">
+      {onCollapseClick && (
+        <button
+          onClick={onCollapseClick}
+          className="absolute top-2.5 right-4 w-8 h-8 border border-(--border) rounded-md flex items-center justify-center bg-(--surface-1) text-(--foreground-muted) hover:text-(--foreground) hover:bg-(--surface-3) transition-colors cursor-pointer z-30 shadow-sm"
+          title="Collapse panel"
+          aria-label="Collapse panel"
+        >
+          <ChevronDown size={16} />
+        </button>
+      )}
       <AnimatePresence mode="wait">
         {selectedZone ? (
           <m.div

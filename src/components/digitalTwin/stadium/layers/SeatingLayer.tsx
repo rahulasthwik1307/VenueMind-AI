@@ -13,6 +13,7 @@
 
 import { m } from 'framer-motion';
 import { StadiumZoneConfig, ZoneStatus } from '@/types/digitalTwin';
+import { ZOOM_DETAIL_THRESHOLD } from '@/constants/layout';
 
 interface SeatingLayerProps {
   zones: StadiumZoneConfig[];
@@ -21,6 +22,8 @@ interface SeatingLayerProps {
   onZoneClick: (zoneId: string) => void;
   onZoneHover: (zoneId: string | null) => void;
   zoneStatuses: Record<string, ZoneStatus>;
+  zoneCrowdDensity: Record<string, number>;
+  zoomLevel?: number;
 }
 
 const SEATING_ZONE_IDS = new Set([
@@ -83,8 +86,20 @@ export function SeatingLayer({
   onZoneClick,
   onZoneHover,
   zoneStatuses,
+  zoneCrowdDensity,
+  zoomLevel = 1,
 }: SeatingLayerProps) {
   const seatingZones = zones.filter((z) => SEATING_ZONE_IDS.has(z.id));
+  const showSectionLabels = zoomLevel >= ZOOM_DETAIL_THRESHOLD;
+
+  function getAmbientCrowdColor(density: number): string {
+    // Premium low-saturation heat glow from charcoal slate (#1f2937) to dark copper (#5c2e2b)
+    const t = Math.min(100, Math.max(0, density)) / 100;
+    const r = Math.round(31 + (92 - 31) * t);
+    const g = Math.round(41 + (46 - 41) * t);
+    const b = Math.round(55 + (43 - 55) * t);
+    return `rgb(${r}, ${g}, ${b})`;
+  }
 
   return (
     <g aria-label="Seating stands">
@@ -102,13 +117,14 @@ export function SeatingLayer({
         const isSelected = selectedZoneId === zone.id;
         const isHovered = hoveredZoneId === zone.id;
         const status = zoneStatuses[zone.id] ?? 'normal';
+        const density = zoneCrowdDensity[zone.id] ?? 30;
 
         return (
           <m.path
             key={zone.id}
             d={zone.svgPath}
-            fill={zone.defaultColor}
-            stroke={isSelected ? 'var(--primary, #0f5132)' : STATUS_STROKE[status]}
+            fill={isSelected ? '#15803d' : getAmbientCrowdColor(density)}
+            stroke={isSelected ? '#10b981' : STATUS_STROKE[status]}
             strokeWidth={isSelected ? 2 : status !== 'normal' ? 1.2 : 0.8}
             opacity={isHovered && !isSelected ? 0.85 : 1}
             style={{ cursor: 'pointer' }}
@@ -184,8 +200,8 @@ export function SeatingLayer({
         );
       })}
 
-      {/* Monospaced Section Labels */}
-      {SECTIONS.map((sec) => {
+      {/* Monospaced Section Labels (zoom-dependent visibility) */}
+      {showSectionLabels && SECTIONS.map((sec) => {
         const rad = (sec.ang * Math.PI) / 180;
         const x = 400 + sec.rx * Math.cos(rad);
         const y = 308 + sec.ry * Math.sin(rad);
@@ -196,10 +212,9 @@ export function SeatingLayer({
             y={y}
             textAnchor="middle"
             dominantBaseline="middle"
-            fontSize={4.5}
+            fontSize={8}
             fontWeight={600}
-            fill="rgba(0,0,0,0.3)"
-            className="dark:fill-white/30"
+            fill="rgba(255,255,255,0.5)"
             fontFamily="var(--font-mono, monospace)"
             pointerEvents="none"
             style={{ userSelect: 'none' }}
@@ -219,10 +234,9 @@ export function SeatingLayer({
             y={zone.labelPosition.y}
             textAnchor="middle"
             dominantBaseline="middle"
-            fontSize={zone.type === 'seating' ? 8 : 6.5}
-            fontWeight={isSelected ? 700 : 600}
-            fill={isSelected ? '#0f5132' : '#374151'}
-            className="dark:fill-gray-300"
+            fontSize={zone.type === 'seating' ? 11 : 9.5}
+            fontWeight={isSelected ? 750 : 600}
+            fill={isSelected ? '#10b981' : 'rgba(255, 255, 255, 0.75)'}
             fontFamily="var(--font-mono, monospace)"
             letterSpacing={0.5}
             pointerEvents="none"
@@ -233,14 +247,14 @@ export function SeatingLayer({
         );
       })}
 
-      {/* Track / concourse area (inner oval minus pitch zone) */}
+      {/* Track / concourse area (inner oval minus pitch zone) - Darkened */}
       <ellipse
         cx={400}
         cy={308}
         rx={242}
         ry={186}
-        fill="#dde3e0"
-        stroke="rgba(0,0,0,0.06)"
+        fill="#141922"
+        stroke="rgba(255,255,255,0.06)"
         strokeWidth={1}
         pointerEvents="none"
         style={{ zIndex: -1 }}
@@ -253,7 +267,7 @@ export function SeatingLayer({
         rx={242}
         ry={186}
         fill="none"
-        stroke="rgba(120,150,130,0.2)"
+        stroke="rgba(255,255,255,0.12)"
         strokeWidth={3}
         pointerEvents="none"
       />

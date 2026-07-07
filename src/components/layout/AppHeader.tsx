@@ -5,9 +5,6 @@ import {
   Bell,
   Search,
   Settings,
-  Sun,
-  Moon,
-  Monitor,
   Menu,
   Cpu,
   Shield,
@@ -21,7 +18,6 @@ import {
 import { m, AnimatePresence } from 'framer-motion';
 import { cn } from '@/utils/cn';
 import { HEADER_HEIGHT } from '@/constants/layout';
-import { useTheme } from '@/components/providers/ThemeProvider';
 import { useIncidentStore } from '@/store/modules/incident';
 
 interface AppHeaderProps {
@@ -63,10 +59,10 @@ function useLiveDate() {
 }
 
 export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
-  const { theme, setTheme } = useTheme();
   const searchQuery = useIncidentStore((state) => state.searchQuery);
   const setSearchQuery = useIncidentStore((state) => state.setSearchQuery);
   const activities = useIncidentStore((state) => state.activities);
+  const telemetry = useIncidentStore((state) => state.telemetry);
   const time = useLiveTime();
   const date = useLiveDate();
 
@@ -77,14 +73,17 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
   const [activeTab, setActiveTab] = useState<NotifCategory>('All');
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('read_notifications');
-      if (saved) {
-        setReadNotifIds(JSON.parse(saved));
+    const timer = setTimeout(() => {
+      try {
+        const saved = localStorage.getItem('read_notifications');
+        if (saved) {
+          setReadNotifIds(JSON.parse(saved));
+        }
+      } catch {
+        // ignore
       }
-    } catch (e) {
-      // ignore
-    }
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const markAsRead = (id: string) => {
@@ -137,25 +136,6 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
   }).slice(0, 25);
 
   const unreadCount = activities.filter((a) => !readNotifIds.includes(a.id)).length;
-
-  const cycleTheme = () => {
-    const next: Record<typeof theme, typeof theme> = {
-      light: 'dark',
-      dark: 'system',
-      system: 'light',
-    };
-    setTheme(next[theme]);
-  };
-
-  const ThemeIcon =
-    theme === 'dark' ? Moon : theme === 'light' ? Sun : Monitor;
-
-  const themeLabel =
-    theme === 'dark'
-      ? 'Switch to system theme'
-      : theme === 'light'
-        ? 'Switch to dark theme'
-        : 'Switch to light theme';
 
   return (
     <header
@@ -243,6 +223,48 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
 
       {/* --- Right: Controls --- */}
       <div className="flex items-center gap-1 shrink-0">
+        {/* Stadium Occupancy Gauge */}
+        {(() => {
+          const occupancyPercent = telemetry?.stadiumCapacity.value ?? 62;
+          return (
+            <div 
+              className="flex items-center gap-2 mr-3 px-2 py-0.5 rounded bg-(--surface-2) border border-(--border)"
+              title={`Global Stadium Occupancy: ${occupancyPercent}% capacity`}
+              role="img"
+              aria-label={`Global Stadium Occupancy: ${occupancyPercent}%`}
+            >
+              <div className="relative w-6 h-6 flex items-center justify-center shrink-0">
+                <svg className="w-full h-full transform -rotate-90">
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="9"
+                    className="stroke-(--border-strong)"
+                    strokeWidth="2"
+                    fill="transparent"
+                  />
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="9"
+                    className="stroke-(--primary)"
+                    strokeWidth="2"
+                    fill="transparent"
+                    strokeDasharray={`${2 * Math.PI * 9}`}
+                    strokeDashoffset={`${2 * Math.PI * 9 * (1 - occupancyPercent / 100)}`}
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <span className="absolute text-[7.5px] font-black font-mono text-(--foreground)">{occupancyPercent}%</span>
+              </div>
+              <div className="flex flex-col text-right">
+                <span className="text-[7px] font-bold font-mono text-(--foreground-subtle) uppercase leading-none">Global Cap</span>
+                <span className="text-[8.5px] font-extrabold font-mono text-(--foreground) leading-tight mt-0.5">{(80000 * occupancyPercent / 100).toLocaleString()} pax</span>
+              </div>
+            </div>
+          );
+        })()}
+
         {/* Date/Time */}
         <div
           className="hidden lg:flex flex-col items-end mr-2"
@@ -256,20 +278,6 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
             {date}
           </span>
         </div>
-
-        {/* Theme Toggle */}
-        <button
-          onClick={cycleTheme}
-          className={cn(
-            'flex items-center justify-center w-9 h-9 rounded-md',
-            'text-(--foreground-muted) hover:bg-(--surface-3) hover:text-(--foreground)',
-            'transition-colors duration-150'
-          )}
-          aria-label={themeLabel}
-          title={themeLabel}
-        >
-          <ThemeIcon size={16} strokeWidth={1.75} aria-hidden="true" />
-        </button>
 
         {/* Notifications */}
         <div className="relative">

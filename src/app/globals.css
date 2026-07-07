@@ -32,29 +32,29 @@
   --color-info: #2563eb;
   --color-info-bg: #dbeafe;
 
-  /* --- Surface Palette --- */
-  --background: #f4f6f5; /* Slightly warm off-white */
-  --surface-0: #f4f6f5; /* Page background */
-  --surface-1: #ffffff; /* Cards */
-  --surface-2: #f9fafb; /* Subtle inset areas */
-  --surface-3: #f0f2f1; /* Hover surfaces */
+  /* --- Surface Palette (Shifted to Charcoal/Deep-Neutral) --- */
+  --background: #0f1219; /* Deep charcoal background */
+  --surface-0: #0f1219;
+  --surface-1: #151a24; /* Elevated panel container */
+  --surface-2: #1e2533; /* Inset hover / active items */
+  --surface-3: #263042;
 
   /* --- Foreground / Text --- */
-  --foreground: #111827; /* Near-black */
-  --foreground-muted: #6b7280; /* Medium grey */
-  --foreground-subtle: #9ca3af; /* Light grey */
-  --foreground-inverse: #ffffff;
+  --foreground: #f3f4f6; /* Off-white */
+  --foreground-muted: #9ca3af;
+  --foreground-subtle: #6b7280;
+  --foreground-inverse: #0f1219;
 
   /* --- Border System --- */
-  --border: rgba(0, 0, 0, 0.06);
-  --border-strong: rgba(0, 0, 0, 0.12);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.15);
   --border-focus: var(--primary);
 
-  /* --- Shadow System (tinted to background hue) --- */
-  --shadow-xs: 0 1px 2px rgba(15, 81, 50, 0.04);
-  --shadow-sm: 0 1px 3px rgba(15, 81, 50, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 12px rgba(15, 81, 50, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 8px 24px rgba(15, 81, 50, 0.10), 0 4px 8px rgba(0, 0, 0, 0.04);
+  /* --- Shadow System (3-tier elevation shadows) --- */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.4), 0 3px 6px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5), 0 6px 12px rgba(0, 0, 0, 0.3);
 
   /* --- Border Radius --- */
   --radius-sm: 6px;
@@ -87,34 +87,34 @@
   --focus-ring-offset: 2px;
 
   /* --- Sidebar Specific --- */
-  --sidebar-bg: #ffffff;
-  --sidebar-border: rgba(15, 81, 50, 0.08);
-  --sidebar-item-hover: rgba(15, 81, 50, 0.06);
-  --sidebar-item-active-bg: rgba(15, 81, 50, 0.10);
-  --sidebar-item-active-text: var(--primary);
+  --sidebar-bg: #151a24;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-item-hover: rgba(255, 255, 255, 0.04);
+  --sidebar-item-active-bg: rgba(15, 81, 50, 0.25);
+  --sidebar-item-active-text: #4ade80;
 }
 
-/* --- Dark Mode Overrides --- */
+/* --- Dark Mode Overrides (Matching Cosmic Charcoal Theme) --- */
 .dark {
-  --background: #0f1611;
-  --surface-0: #0f1611;
-  --surface-1: #1a2420;
-  --surface-2: #1f2d28;
-  --surface-3: #243329;
+  --background: #0a0c10;
+  --surface-0: #0a0c10;
+  --surface-1: #10141e;
+  --surface-2: #161c28;
+  --surface-3: #1f2736;
 
-  --foreground: #f3f4f6;
-  --foreground-muted: #9ca3af;
-  --foreground-subtle: #6b7280;
+  --foreground: #f9fafb;
+  --foreground-muted: #cbd5e1;
+  --foreground-subtle: #94a3b8;
 
   --border: rgba(255, 255, 255, 0.07);
   --border-strong: rgba(255, 255, 255, 0.12);
 
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5), 0 4px 8px rgba(0, 0, 0, 0.3);
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.5), 0 3px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.6), 0 6px 12px rgba(0, 0, 0, 0.4);
 
-  --sidebar-bg: #1a2420;
+  --sidebar-bg: #10141e;
   --sidebar-border: rgba(255, 255, 255, 0.06);
   --sidebar-item-hover: rgba(255, 255, 255, 0.04);
   --sidebar-item-active-bg: rgba(15, 81, 50, 0.25);

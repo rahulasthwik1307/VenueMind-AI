@@ -18,6 +18,7 @@ import {
 import { StadiumSVG } from './StadiumSVG';
 import { StadiumZoneConfig, OperationalRoute, ZoneStatus } from '@/types/digitalTwin';
 import type { Incident } from '@/types/incident';
+import { mapIncidentLocationToZoneId, ZONE_OFFSETS } from '@/utils/digitalTwin';
 
 interface StadiumCanvasProps {
   zones: StadiumZoneConfig[];
@@ -72,34 +73,83 @@ export function StadiumCanvas({
 
   // Viewport rectangle coordinates in 800x620 SVG space
   const [viewportRect, setViewportRect] = useState({ x: 0, y: 0, w: 800, h: 620 });
+  const [zoomLevel, setZoomLevel] = useState(1);
 
-  // ── Programmatic camera focus when selectedZone changes ───────────────────
+  // ── Programmatic camera focus when selectedZone/activeIncident changes ───────────────────
   const prevZoneId = useRef<string | null>(null);
+  const prevActiveIncidentId = useRef<string | null>(null);
 
   useEffect(() => {
-    if (selectedZoneId === prevZoneId.current) return;
+    const isIncidentChanged = activeIncidentId !== prevActiveIncidentId.current;
+    const isZoneChanged = selectedZoneId !== prevZoneId.current;
+    
+    if (!isIncidentChanged && !isZoneChanged) return;
+    
     prevZoneId.current = selectedZoneId;
+    prevActiveIncidentId.current = activeIncidentId;
 
-    if (!selectedZoneId) return;
-    const zone = zones.find((z) => z.id === selectedZoneId);
-    if (!zone || !transformRef.current || !containerRef.current) return;
+    if (!transformRef.current || !containerRef.current) return;
 
-    const { offsetWidth: cw, offsetHeight: ch } = containerRef.current;
-    const scale = zone.focusPoint.zoom;
+    let targetX = 0;
+    let targetY = 0;
+    let scale = 1;
+    let shouldFocus = false;
 
-    // Compute translation to center the focus point in the container
-    // SVG viewBox is 800x620, so we need to scale SVG coords to container coords
-    const svgW = 800;
-    const svgH = 620;
-    const containerScale = Math.min(cw / svgW, ch / svgH);
-    const scaledX = zone.focusPoint.x * containerScale;
-    const scaledY = zone.focusPoint.y * containerScale;
+    if (activeIncidentId) {
+      const incident = incidents.find((i) => i.id === activeIncidentId);
+      if (incident) {
+        const zoneId = mapIncidentLocationToZoneId(incident.location.zone);
+        const zone = zoneId ? zones.find((z) => z.id === zoneId) : null;
+        if (zone) {
+          shouldFocus = true;
+          // Calculate offset position for marker to center camera precisely on it
+          const activeIncidents = incidents.filter((i) => i.status !== 'resolved');
+          const zoneMarkerIndex: Record<string, number> = {};
+          targetX = zone.focusPoint.x;
+          targetY = zone.focusPoint.y;
 
-    const newX = cw / 2 - scaledX * scale;
-    const newY = ch / 2 - scaledY * scale;
+          for (const activeInc of activeIncidents) {
+            const zId = mapIncidentLocationToZoneId(activeInc.location.zone);
+            if (zId) {
+              const count = zoneMarkerIndex[zId] ?? 0;
+              zoneMarkerIndex[zId] = count + 1;
+              if (activeInc.id === activeIncidentId) {
+                const offsets = ZONE_OFFSETS[zId] ?? [{ dx: 0, dy: 0 }];
+                const offset = offsets[count % offsets.length];
+                targetX = zone.focusPoint.x + (offset?.dx ?? 0);
+                targetY = zone.focusPoint.y + (offset?.dy ?? 0);
+                break;
+              }
+            }
+          }
+          // Zoom in closely on the marker
+          scale = Math.max(zone.focusPoint.zoom, 2.2);
+        }
+      }
+    } else if (selectedZoneId) {
+      const zone = zones.find((z) => z.id === selectedZoneId);
+      if (zone) {
+        shouldFocus = true;
+        targetX = zone.focusPoint.x;
+        targetY = zone.focusPoint.y;
+        scale = zone.focusPoint.zoom;
+      }
+    }
 
-    transformRef.current.setTransform(newX, newY, scale, 600, 'easeInOutQuad');
-  }, [selectedZoneId, zones]);
+    if (shouldFocus) {
+      const { offsetWidth: cw, offsetHeight: ch } = containerRef.current;
+      const svgW = 800;
+      const svgH = 620;
+      const containerScale = Math.min(cw / svgW, ch / svgH);
+      const scaledX = targetX * containerScale;
+      const scaledY = targetY * containerScale;
+
+      const newX = cw / 2 - scaledX * scale;
+      const newY = ch / 2 - scaledY * scale;
+
+      transformRef.current.setTransform(newX, newY, scale, 500, 'easeInOutQuad');
+    }
+  }, [selectedZoneId, activeIncidentId, zones, incidents]);
 
   // ── Expose controls to toolbar via ref ───────────────────────────────────
   const handleZoomIn = useCallback(() => {
@@ -133,6 +183,8 @@ export function StadiumCanvas({
     const tx = ref.state.positionX;
     const ty = ref.state.positionY;
 
+    setZoomLevel(scale);
+
     const svgW = 800;
     const svgH = 620;
     const containerScale = Math.min(cw / svgW, ch / svgH);
@@ -152,7 +204,7 @@ export function StadiumCanvas({
     <div
       ref={containerRef}
       className="w-full h-full relative overflow-hidden"
-      style={{ background: 'linear-gradient(135deg, #f0f4f2 0%, #e8ede9 100%)' }}
+      style={{ background: 'linear-gradient(135deg, #11141d 0%, #0c0e14 100%)' }}
     >
       <TransformWrapper
         ref={transformRef}
@@ -184,6 +236,7 @@ export function StadiumCanvas({
               onZoneClick={onZoneClick}
               onZoneHover={onZoneHover}
               onIncidentClick={onIncidentClick}
+              zoomLevel={zoomLevel}
             />
           </div>
         </TransformComponent>
@@ -191,11 +244,11 @@ export function StadiumCanvas({
 
       {/* ── Mini Map Overview Overlay ───────────────────────────────────────── */}
       <div 
-        className="absolute bottom-3 left-3 w-32 h-[99px] bg-white/70 dark:bg-gray-950/70 backdrop-blur border border-gray-200 dark:border-gray-800 rounded-md overflow-hidden shadow-md select-none cursor-pointer group z-20"
+        className="absolute bottom-3 left-3 w-32 h-[99px] bg-slate-900/80 backdrop-blur border border-slate-800 rounded-md overflow-hidden shadow-md select-none cursor-pointer group z-20"
         onClick={handleReset}
         title="Click to reset stadium view"
       >
-        <svg viewBox="0 0 800 620" className="w-full h-full opacity-60 dark:opacity-40">
+        <svg viewBox="0 0 800 620" className="w-full h-full opacity-40">
           {/* Outer perimeter outline */}
           <ellipse
             cx={400}
@@ -236,15 +289,80 @@ export function StadiumCanvas({
 
         {/* Click to Reset Prompt Overlay */}
         <div className="absolute inset-0 bg-black/5 dark:bg-white/5 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity pointer-events-none">
-          <span className="text-[8px] font-bold font-mono text-(--primary) bg-white dark:bg-gray-900 px-1 py-0.5 rounded shadow border border-gray-100 dark:border-gray-800">
+          <span className="text-[8px] font-bold font-mono text-(--primary) bg-slate-950 px-1 py-0.5 rounded shadow border border-slate-800">
             RESET VIEW
           </span>
         </div>
       </div>
 
+      {/* ── Operational Legend ────────────────────────────────────────────────── */}
+      <div 
+        className="absolute bottom-12 right-3 p-2.5 bg-slate-955/90 backdrop-blur border border-slate-800 rounded-md shadow-lg select-none pointer-events-auto z-20 flex flex-col gap-1.5 max-w-[130px]"
+        role="region"
+        aria-label="Map Legend"
+      >
+        <span className="text-[8px] font-bold font-mono text-(--foreground-subtle) uppercase tracking-wider border-b border-slate-850 pb-0.5">
+          Blueprint Legend
+        </span>
+        
+        {/* Colors (Severity) */}
+        <div className="flex flex-col gap-0.5">
+          <span className="text-[7px] font-mono text-(--foreground-subtle) uppercase">Severity</span>
+          <div className="grid grid-cols-2 gap-x-1 gap-y-0.5">
+            <div className="flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+              <span className="text-[7.5px] text-(--foreground-muted) font-mono leading-none">Crit</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+              <span className="text-[7.5px] text-(--foreground-muted) font-mono leading-none">Elev</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              <span className="text-[7.5px] text-(--foreground-muted) font-mono leading-none">Norm</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+              <span className="text-[7.5px] text-(--foreground-muted) font-mono leading-none">Info</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Shapes (Category) */}
+        <div className="flex flex-col gap-0.5 pt-1 border-t border-slate-800">
+          <span className="text-[7px] font-mono text-(--foreground-subtle) uppercase">Shapes</span>
+          <div className="flex flex-col gap-0.5">
+            <div className="flex items-center gap-1">
+              <svg className="w-2 h-2 text-gray-400 fill-current" viewBox="0 0 24 24">
+                <path d="M12 2L3 5v6c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V5l-9-3z" />
+              </svg>
+              <span className="text-[7.5px] text-(--foreground-muted) font-mono leading-none">Security</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <svg className="w-2 h-2 text-gray-400 fill-current" viewBox="0 0 24 24">
+                <path d="M19 10.5h-5.5V5h-3v5.5H5v3h5.5V19h3v-5.5H19v-3z" />
+              </svg>
+              <span className="text-[7.5px] text-(--foreground-muted) font-mono leading-none">Medical</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <svg className="w-2 h-2 text-gray-400 fill-current" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" />
+              </svg>
+              <span className="text-[7.5px] text-(--foreground-muted) font-mono leading-none">Volunteer</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <svg className="w-2 h-2 text-gray-400 fill-current" viewBox="0 0 24 24">
+                <path d="M12 2L2 12l10 10 10-10L12 2z" />
+              </svg>
+              <span className="text-[7.5px] text-(--foreground-muted) font-mono leading-none">Transport</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Scale/Pan HUD instructions */}
       <div
-        className="absolute bottom-3 right-3 text-[9px] font-mono text-gray-400 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm px-2 py-1 rounded border border-gray-200 dark:border-gray-800"
+        className="absolute bottom-3 right-3 text-[9px] font-mono text-gray-450 bg-slate-900/60 backdrop-blur-sm px-2 py-1 rounded border border-slate-800"
         aria-hidden="true"
       >
         Scroll to zoom · Drag to pan

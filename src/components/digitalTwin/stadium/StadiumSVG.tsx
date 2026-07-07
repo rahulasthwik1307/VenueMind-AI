@@ -44,6 +44,7 @@ interface StadiumSVGProps {
   onZoneClick: (zoneId: string) => void;
   onZoneHover: (zoneId: string | null) => void;
   onIncidentClick: (incidentId: string) => void;
+  zoomLevel?: number;
 }
 
 export function StadiumSVG({
@@ -59,6 +60,7 @@ export function StadiumSVG({
   onZoneClick,
   onZoneHover,
   onIncidentClick,
+  zoomLevel = 1,
 }: StadiumSVGProps) {
   return (
     <svg
@@ -71,7 +73,7 @@ export function StadiumSVG({
       {/* Definitions: filters and markers */}
       <defs>
         <filter id="stadium-shadow" x="-10%" y="-10%" width="120%" height="120%">
-          <feDropShadow dx="0" dy="2" stdDeviation="6" floodColor="rgba(0,0,0,0.12)" />
+          <feDropShadow dx="0" dy="2" stdDeviation="6" floodColor="rgba(0,0,0,0.3)" />
         </filter>
         <filter id="marker-glow" x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="3" result="blur" />
@@ -81,8 +83,8 @@ export function StadiumSVG({
           </feMerge>
         </filter>
         <radialGradient id="stadium-bg" cx="50%" cy="50%" r="70%">
-          <stop offset="0%" stopColor="#f0f4f2" />
-          <stop offset="100%" stopColor="#e4ebe7" />
+          <stop offset="0%" stopColor="#131722" />
+          <stop offset="100%" stopColor="#0b0d13" />
         </radialGradient>
       </defs>
 
@@ -95,8 +97,8 @@ export function StadiumSVG({
         cy={308}
         rx={320}
         ry={252}
-        fill="rgba(255,255,255,0.6)"
-        stroke="rgba(15,81,50,0.08)"
+        fill="rgba(20,24,35,0.7)"
+        stroke="rgba(255,255,255,0.05)"
         strokeWidth={1}
         filter="url(#stadium-shadow)"
       />
@@ -120,6 +122,8 @@ export function StadiumSVG({
         onZoneClick={onZoneClick}
         onZoneHover={onZoneHover}
         zoneStatuses={zoneStatuses}
+        zoneCrowdDensity={zoneCrowdDensity}
+        zoomLevel={zoomLevel}
       />
 
       {/* Layer 3: Pitch */}
@@ -166,6 +170,7 @@ export function StadiumSVG({
         activeIncidentId={activeIncidentId}
         isVisible={overlays.incidents}
         onIncidentClick={onIncidentClick}
+        zoomLevel={zoomLevel}
       />
 
       {/* Layer 9: Selection highlight (topmost interactive layer) */}
@@ -188,10 +193,10 @@ export function StadiumSVG({
 function CompassRose() {
   return (
     <g transform="translate(762, 50)" aria-label="Compass — North indicator">
-      <circle cx={0} cy={0} r={12} fill="rgba(255,255,255,0.7)" stroke="rgba(15,81,50,0.2)" strokeWidth={1} />
-      <polygon points="0,-9 3,-3 -3,-3" fill="#0f5132" />
-      <polygon points="0,9 3,3 -3,3" fill="#9ca3af" />
-      <text x={0} y={-13} textAnchor="middle" fontSize={6} fontWeight={700} fill="#0f5132" fontFamily="var(--font-mono, monospace)">N</text>
+      <circle cx={0} cy={0} r={12} fill="rgba(15,23,42,0.8)" stroke="rgba(255,255,255,0.1)" strokeWidth={1} />
+      <polygon points="0,-9 3,-3 -3,-3" fill="#10b981" />
+      <polygon points="0,9 3,3 -3,3" fill="#475569" />
+      <text x={0} y={-13} textAnchor="middle" fontSize={6} fontWeight={700} fill="#10b981" fontFamily="var(--font-mono, monospace)">N</text>
     </g>
   );
 }

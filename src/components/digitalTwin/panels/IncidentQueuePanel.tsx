@@ -19,16 +19,19 @@ import {
   Search,
   Filter,
   ChevronRight,
+  ChevronLeft,
   Clock,
   MapPin,
 } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import type { Incident } from '@/types/incident';
+import { useIncidentStore } from '@/store/modules/incident';
 
 interface IncidentQueuePanelProps {
   incidents: Incident[];
   activeIncidentId: string | null;
   onIncidentClick: (id: string) => void;
+  onCollapseClick?: () => void;
 }
 
 type FilterCategory = 'all' | 'crowd' | 'medical' | 'security' | 'transport' | 'infrastructure';
@@ -67,29 +70,47 @@ export function IncidentQueuePanel({
   incidents,
   activeIncidentId,
   onIncidentClick,
+  onCollapseClick,
 }: IncidentQueuePanelProps) {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<FilterCategory>('all');
   const [showResolved, setShowResolved] = useState(false);
 
+  const hoveredIncidentId = useIncidentStore((s) => s.hoveredIncidentId);
+  const setHoveredIncidentId = useIncidentStore((s) => s.setHoveredIncidentId);
+
+  // Scroll active or hovered card into view
+  useEffect(() => {
+    const targetId = activeIncidentId || hoveredIncidentId;
+    if (targetId) {
+      const el = document.getElementById(`incident-card-${targetId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+  }, [activeIncidentId, hoveredIncidentId]);
+
   // Load from local storage on mount
   useEffect(() => {
-    try {
-      const savedFilter = localStorage.getItem('incident_filter');
-      if (savedFilter) setFilter(savedFilter as FilterCategory);
+    const timer = setTimeout(() => {
+      try {
+        const savedFilter = localStorage.getItem('incident_filter');
+        if (savedFilter) setFilter(savedFilter as FilterCategory);
 
-      const savedShowResolved = localStorage.getItem('incident_show_resolved');
-      if (savedShowResolved) setShowResolved(savedShowResolved === 'true');
-    } catch (e) {
-      // ignore
-    }
+        const savedShowResolved = localStorage.getItem('incident_show_resolved');
+        if (savedShowResolved) setShowResolved(savedShowResolved === 'true');
+      } catch {
+        // ignore
+      }
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleFilterChange = (cat: FilterCategory) => {
     setFilter(cat);
     try {
       localStorage.setItem('incident_filter', cat);
-    } catch (e) {
+    } catch {
       // ignore
     }
   };
@@ -99,7 +120,7 @@ export function IncidentQueuePanel({
     setShowResolved(next);
     try {
       localStorage.setItem('incident_show_resolved', String(next));
-    } catch (e) {
+    } catch {
       // ignore
     }
   };
@@ -140,6 +161,16 @@ export function IncidentQueuePanel({
             <span className="text-[10px] font-mono text-(--foreground-subtle)">
               {openCount} active
             </span>
+            {onCollapseClick && (
+              <button
+                onClick={onCollapseClick}
+                className="w-8 h-8 ml-1.5 border border-(--border) rounded-md flex items-center justify-center bg-(--surface-1) text-(--foreground-muted) hover:text-(--foreground) hover:bg-(--surface-3) transition-colors cursor-pointer"
+                title="Collapse panel"
+                aria-label="Collapse panel"
+              >
+                <ChevronLeft size={16} />
+              </button>
+            )}
           </div>
         </div>
 
@@ -188,18 +219,24 @@ export function IncidentQueuePanel({
           ) : (
             filtered.map((incident, idx) => {
               const isActive = incident.id === activeIncidentId;
+              const isHovered = incident.id === hoveredIncidentId;
               const severity = SEVERITY_COLORS[incident.severity] ?? SEVERITY_COLORS.low;
 
               return (
                 <m.button
                   key={incident.id}
+                  id={`incident-card-${incident.id}`}
                   onClick={() => onIncidentClick(incident.id)}
+                  onMouseEnter={() => setHoveredIncidentId(incident.id)}
+                  onMouseLeave={() => setHoveredIncidentId(null)}
                   className={cn(
                     'w-full text-left border rounded-md p-2.5 transition-all duration-150',
                     'focus:outline-none focus-visible:ring-2 focus-visible:ring-(--primary)',
                     isActive
                       ? 'bg-(--primary-muted) border-(--primary-light) ring-1 ring-(--primary-light)'
-                      : `${severity.bg} hover:brightness-95`,
+                      : isHovered
+                        ? 'bg-(--surface-3) border-(--border-strong) shadow-sm'
+                        : `${severity.bg} hover:brightness-95`,
                   )}
                   initial={{ opacity: 0, x: -6 }}
                   animate={{ opacity: 1, x: 0 }}
