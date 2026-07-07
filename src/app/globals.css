@@ -1,0 +1,71 @@
+@import 'tailwindcss';
+
+:root {
+  /* Core palette */
+  --primary: #0f5132; /* Deep Emerald */
+  --secondary: #4682b4; /* Steel Blue */
+  --accent: #ffbf00; /* Warm Amber */
+  --background: #f8f9fa; /* Soft Off-White */
+  --card: #ffffff; /* Pure White */
+  --foreground: #1a1a1a;
+
+  /* Custom Border Radius */
+  --radius-custom: 16px;
+
+  /* Focus outlines */
+  --focus-ring: 2px solid var(--primary);
+  --focus-ring-offset: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #121212;
+    --card: #1e1e1e;
+    --foreground: #f8f9fa;
+  }
+}
+
+@theme {
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-background: var(--background);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+
+  --radius-custom: var(--radius-custom);
+
+  --font-sans: 'Geist', 'Inter', sans-serif;
+}
+
+/* Base Accessibility overrides */
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Accessibility Focus Visible */
+*:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-delay: -1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    background-attachment: initial !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+  }
+}

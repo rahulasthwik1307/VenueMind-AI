@@ -1,0 +1,17 @@
+[
+  {
+    "id": "inc-001",
+    "title": "Medical Assist at Gate A",
+    "description": "Fan experiencing heat exhaustion near Gate A entrance.",
+    "status": "investigating",
+    "severity": "medium",
+    "location": {
+      "lat": 25.7617,
+      "lng": -80.1918,
+      "zone": "Gate A"
+    },
+    "reporterId": "vol-101",
+    "createdAt": "2026-07-06T12:00:00Z",
+    "updatedAt": "2026-07-06T12:05:00Z"
+  }
+]

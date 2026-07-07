@@ -1,0 +1,21 @@
+{
+  "name": "Hard Rock Stadium",
+  "city": "Miami",
+  "capacity": 65000,
+  "zones": [
+    {
+      "id": "zone-north",
+      "name": "North Stand",
+      "capacity": 15000,
+      "currentOccupancy": 12000,
+      "securityLevel": "normal"
+    },
+    {
+      "id": "zone-south",
+      "name": "South Stand",
+      "capacity": 15000,
+      "currentOccupancy": 14500,
+      "securityLevel": "elevated"
+    }
+  ]
+}

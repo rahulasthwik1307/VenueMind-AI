@@ -1,0 +1,17 @@
+[
+  {
+    "id": "fan",
+    "name": "Stadium Fan",
+    "description": "Spectators seeking navigation and match schedules."
+  },
+  {
+    "id": "volunteer",
+    "name": "Event Volunteer",
+    "description": "On-ground volunteers assisting with crowd management."
+  },
+  {
+    "id": "operations",
+    "name": "Operations Team",
+    "description": "Central operations center managing resources."
+  }
+]
