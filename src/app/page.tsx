@@ -1,29 +1,49 @@
-export default function Home() {
+import { PageContainer } from '@/components/layout/PageContainer';
+import { WelcomeBanner } from '@/components/operations/WelcomeBanner';
+import { QuickStats } from '@/components/operations/QuickStats';
+import { CriticalIncidents } from '@/components/operations/CriticalIncidents';
+import { AIRecommendations } from '@/components/operations/AIRecommendations';
+import { RecentActivity } from '@/components/operations/RecentActivity';
+import { LiveStadiumOverview } from '@/components/operations/LiveStadiumOverview';
+
+/**
+ * Dashboard — VenueMind AI Operations Command Center home page.
+ *
+ * Layout:
+ * ┌────────────────────────────────┐
+ * │        Welcome Banner          │
+ * ├──────────────────┬─────────────┤
+ * │   Quick Stats (4 columns)      │
+ * ├──────────────────┬─────────────┤
+ * │ Critical         │ AI Recs     │
+ * │ Incidents        │             │
+ * ├──────────────────┬─────────────┤
+ * │ Live Stadium     │ Recent      │
+ * │ Overview         │ Activity    │
+ * └──────────────────┴─────────────┘
+ */
+export default function DashboardPage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center p-6 text-center bg-background font-sans">
-      <main className="w-full max-w-xl p-8 bg-card rounded-custom shadow-md border border-zinc-200">
-        <h1 className="text-3xl font-extrabold text-primary tracking-tight">VenueMind AI</h1>
-        <p className="mt-2 text-lg font-medium text-secondary">
-          One AI Brain. Every Stadium Decision.
-        </p>
-        <div className="mt-6 p-4 rounded-lg bg-zinc-50 border border-zinc-100 text-sm text-zinc-600 text-left space-y-2">
-          <p>
-            <strong>GenAI-powered Stadium Operations Copilot</strong> designed for FIFA World Cup
-            2026.
-          </p>
-          <ul className="list-disc pl-5 space-y-1">
-            <li>
-              <strong>Fans:</strong> Navigation, safety updates, schedules
-            </li>
-            <li>
-              <strong>Volunteers:</strong> Incident reporting, crowd management support
-            </li>
-            <li>
-              <strong>Operations:</strong> Real-time alerts, dashboard, timeline tracking
-            </li>
-          </ul>
+    <PageContainer>
+      <div className="space-y-(--card-gap) animate-fade-in">
+        {/* Welcome Banner */}
+        <WelcomeBanner />
+
+        {/* Quick Statistics */}
+        <QuickStats />
+
+        {/* Main two-column grid */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-(--card-gap)">
+          <CriticalIncidents />
+          <AIRecommendations />
         </div>
-      </main>
-    </div>
+
+        {/* Bottom two-column grid */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-(--card-gap)">
+          <LiveStadiumOverview />
+          <RecentActivity />
+        </div>
+      </div>
+    </PageContainer>
   );
 }
