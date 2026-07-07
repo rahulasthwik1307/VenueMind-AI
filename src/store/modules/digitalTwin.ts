@@ -49,6 +49,7 @@ const DEFAULT_OVERLAYS: Record<OverlayType, boolean> = {
   weather: false,
   parking: false,
   transport: false,
+  network: false,
 };
 
 const DEFAULT_STATE: DigitalTwinUIState = {

@@ -10,7 +10,15 @@ import {
   Monitor,
   Menu,
   Cpu,
+  Shield,
+  Bus,
+  Cloud,
+  Clock,
+  Activity,
+  Info,
+  X
 } from 'lucide-react';
+import { m, AnimatePresence } from 'framer-motion';
 import { cn } from '@/utils/cn';
 import { HEADER_HEIGHT } from '@/constants/layout';
 import { useTheme } from '@/components/providers/ThemeProvider';
@@ -58,8 +66,77 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
   const { theme, setTheme } = useTheme();
   const searchQuery = useIncidentStore((state) => state.searchQuery);
   const setSearchQuery = useIncidentStore((state) => state.setSearchQuery);
+  const activities = useIncidentStore((state) => state.activities);
   const time = useLiveTime();
   const date = useLiveDate();
+
+  // Notification center state
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [readNotifIds, setReadNotifIds] = useState<string[]>([]);
+  type NotifCategory = 'All' | 'Critical' | 'Operational' | 'Simulation' | 'System' | 'Transport' | 'Weather';
+  const [activeTab, setActiveTab] = useState<NotifCategory>('All');
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('read_notifications');
+      if (saved) {
+        setReadNotifIds(JSON.parse(saved));
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
+  const markAsRead = (id: string) => {
+    if (readNotifIds.includes(id)) return;
+    const next = [...readNotifIds, id];
+    setReadNotifIds(next);
+    localStorage.setItem('read_notifications', JSON.stringify(next));
+  };
+
+  const markAllAsRead = () => {
+    const allIds = activities.map((a) => a.id);
+    setReadNotifIds(allIds);
+    localStorage.setItem('read_notifications', JSON.stringify(allIds));
+  };
+
+  const getNotifCategory = (actor: string, message: string, severity?: string): NotifCategory => {
+    if (severity === 'critical') return 'Critical';
+    const a = actor.toLowerCase();
+    const m = message.toLowerCase();
+    if (a.includes('weather') || m.includes('weather') || m.includes('storm') || m.includes('lightning') || m.includes('rain')) {
+      return 'Weather';
+    }
+    if (a.includes('transit') || a.includes('transport') || m.includes('transport') || m.includes('route') || m.includes('metro') || m.includes('bus') || a.includes('gps')) {
+      return 'Transport';
+    }
+    if (a.includes('system') || a.includes('turnstile') || m.includes('system') || m.includes('scada') || m.includes('ticketing') || m.includes('cctv') || a.includes('monitor')) {
+      return 'System';
+    }
+    if (a.includes('director') || a.includes('match') || m.includes('scenario') || m.includes('phase') || m.includes('goal')) {
+      return 'Simulation';
+    }
+    return 'Operational';
+  };
+
+  const getCategoryIcon = (cat: NotifCategory) => {
+    switch (cat) {
+      case 'Critical': return <Shield className="text-red-500 shrink-0" size={12} />;
+      case 'Operational': return <Activity className="text-blue-500 shrink-0" size={12} />;
+      case 'Simulation': return <Clock className="text-emerald-500 shrink-0" size={12} />;
+      case 'System': return <Cpu className="text-gray-500 shrink-0" size={12} />;
+      case 'Transport': return <Bus className="text-amber-500 shrink-0" size={12} />;
+      case 'Weather': return <Cloud className="text-sky-500 shrink-0" size={12} />;
+      default: return <Info className="text-gray-400 shrink-0" size={12} />;
+    }
+  };
+
+  const filteredNotifs = activities.filter((a) => {
+    if (activeTab === 'All') return true;
+    return getNotifCategory(a.actor, a.message, a.severity) === activeTab;
+  }).slice(0, 25);
+
+  const unreadCount = activities.filter((a) => !readNotifIds.includes(a.id)).length;
 
   const cycleTheme = () => {
     const next: Record<typeof theme, typeof theme> = {
@@ -195,20 +272,153 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
         </button>
 
         {/* Notifications */}
-        <button
-          className={cn(
-            'relative flex items-center justify-center w-9 h-9 rounded-md',
-            'text-(--foreground-muted) hover:bg-(--surface-3) hover:text-(--foreground)',
-            'transition-colors duration-150'
-          )}
-          aria-label="View notifications (3 unread)"
-        >
-          <Bell size={16} strokeWidth={1.75} aria-hidden="true" />
-          <span
-            className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-(--color-error) border-2 border-(--surface-1) live-indicator"
-            aria-hidden="true"
-          />
-        </button>
+        <div className="relative">
+          <button
+            onClick={() => setIsNotifOpen(!isNotifOpen)}
+            className={cn(
+              'relative flex items-center justify-center w-9 h-9 rounded-md',
+              'text-(--foreground-muted) hover:bg-(--surface-3) hover:text-(--foreground)',
+              isNotifOpen && 'bg-(--surface-3) text-(--foreground)',
+              'transition-colors duration-150'
+            )}
+            aria-label={`View notifications (${unreadCount} unread)`}
+            aria-expanded={isNotifOpen}
+          >
+            <Bell size={16} strokeWidth={1.75} aria-hidden="true" />
+            {unreadCount > 0 && (
+              <span
+                className="absolute top-1.5 right-1.5 flex items-center justify-center min-w-3.5 h-3.5 px-0.5 rounded-full bg-red-500 border border-(--surface-1) text-[8px] font-bold font-mono text-white"
+                aria-label={`${unreadCount} unread`}
+              >
+                {unreadCount}
+              </span>
+            )}
+          </button>
+
+          <AnimatePresence>
+            {isNotifOpen && (
+              <>
+                {/* Click outside backdrop */}
+                <div 
+                  className="fixed inset-0 z-40" 
+                  onClick={() => setIsNotifOpen(false)}
+                />
+                
+                <m.div
+                  initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 5, scale: 0.97 }}
+                  transition={{ duration: 0.15, ease: 'easeOut' }}
+                  className="absolute right-0 mt-2 w-80 bg-(--surface-1) border border-(--border) rounded-lg shadow-xl z-50 flex flex-col max-h-[420px] overflow-hidden"
+                  role="dialog"
+                  aria-label="Notification center"
+                >
+                  {/* Dropdown Header */}
+                  <div className="flex items-center justify-between px-3.5 py-2.5 border-b border-(--border) shrink-0 bg-(--surface-2)">
+                    <span className="text-[10px] font-bold text-(--foreground) uppercase tracking-wide font-mono">
+                      Notification Center
+                    </span>
+                    <div className="flex items-center gap-2">
+                      {unreadCount > 0 && (
+                        <button
+                          onClick={markAllAsRead}
+                          className="text-[9px] font-semibold text-(--primary) hover:underline"
+                        >
+                          Mark all read
+                        </button>
+                      )}
+                      <button 
+                        onClick={() => setIsNotifOpen(false)}
+                        className="text-(--foreground-subtle) hover:text-(--foreground) p-0.5"
+                        aria-label="Close"
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Tabs bar */}
+                  <div className="flex gap-0.5 px-2 py-1.5 border-b border-(--border) overflow-x-auto shrink-0 bg-(--surface-2) scrollbar-none">
+                    {(['All', 'Critical', 'Operational', 'Simulation', 'System', 'Transport', 'Weather'] as const).map((tab) => {
+                      const count = tab === 'All' 
+                        ? activities.length 
+                        : activities.filter(a => getNotifCategory(a.actor, a.message, a.severity) === tab).length;
+                      if (count === 0 && tab !== 'All') return null;
+
+                      return (
+                        <button
+                          key={tab}
+                          onClick={() => setActiveTab(tab)}
+                          className={cn(
+                            'px-2 py-0.5 rounded text-[8px] font-semibold font-mono uppercase tracking-wide whitespace-nowrap transition-colors border',
+                            activeTab === tab
+                              ? 'bg-(--primary) text-white border-(--primary)'
+                              : 'bg-(--surface-3) text-(--foreground-subtle) hover:bg-(--surface-4) border-(--border)'
+                          )}
+                        >
+                          {tab} {count > 0 && `(${count})`}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Notification List */}
+                  <div className="flex-1 overflow-y-auto p-1.5 space-y-1 min-h-[180px]">
+                    {filteredNotifs.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-10 text-center">
+                        <Info size={16} className="text-(--foreground-subtle) opacity-30 mb-1" />
+                        <p className="text-[10px] text-(--foreground-subtle)">No alerts in this category</p>
+                      </div>
+                    ) : (
+                      filteredNotifs.map((item) => {
+                        const isRead = readNotifIds.includes(item.id);
+                        const cat = getNotifCategory(item.actor, item.message, item.severity);
+
+                        return (
+                          <div
+                            key={item.id}
+                            onClick={() => markAsRead(item.id)}
+                            className={cn(
+                              'flex items-start gap-2 p-2 rounded cursor-pointer transition-colors border',
+                              isRead 
+                                ? 'bg-transparent border-transparent hover:bg-(--surface-2)' 
+                                : 'bg-(--primary-muted)/40 border-(--primary-light)/20 hover:bg-(--primary-muted)/60'
+                            )}
+                          >
+                            <div className="mt-0.5 shrink-0">
+                              {getCategoryIcon(cat)}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className={cn(
+                                'text-[10px] leading-snug break-words',
+                                isRead ? 'text-(--foreground-muted)' : 'text-(--foreground) font-semibold'
+                              )}>
+                                {item.message}
+                              </p>
+                              <div className="flex items-center gap-1.5 mt-1 text-[8px] font-mono text-(--foreground-subtle)">
+                                <span className="truncate font-semibold">{item.actor}</span>
+                                <span>·</span>
+                                <span>
+                                  {new Date(item.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                                </span>
+                              </div>
+                            </div>
+                            {!isRead && (
+                              <span 
+                                className="w-1.5 h-1.5 rounded-full bg-(--primary) shrink-0 mt-1" 
+                                aria-hidden="true" 
+                              />
+                            )}
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </m.div>
+              </>
+            )}
+          </AnimatePresence>
+        </div>
 
         {/* Settings */}
         <button

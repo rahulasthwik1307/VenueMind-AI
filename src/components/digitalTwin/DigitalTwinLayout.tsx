@@ -4,20 +4,28 @@
  * DigitalTwinLayout — Master Digital Twin Page Layout
  *
  * Three-column enterprise layout:
- *   Left (280px): Incident Queue Panel
- *   Center (flex-1): Stadium Canvas + Zone Details
- *   Right (280px): AI Context Panel + Live Metrics + Activity Feed
+ *   Left (280px): Incident Queue Panel (Collapsible)
+ *   Center (flex-1): Stadium Canvas + Zone Details (Collapsible)
+ *   Right (280px): AI Context Panel + Live Metrics + Activity Feed (Collapsible)
  *
- * Staged entrance animation: toolbar → panels → stadium → overlays
- * Each step ~100ms apart for a total entrance of ~500ms.
+ * Persists layout preferences (isLeftCollapsed, isRightCollapsed, isBottomCollapsed)
+ * inside localStorage. Supports keyboard shortcuts (Ctrl+[, Ctrl+], Ctrl+\).
  */
 
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useState, useEffect } from 'react';
 import { m } from 'framer-motion';
 import { useDigitalTwin } from '@/hooks/useDigitalTwin';
 import { STADIUM_ZONES } from '@/data/stadium/stadiumZones';
 import { deriveZoneStatus } from '@/utils/digitalTwin';
 import type { ZoneStatus } from '@/types/digitalTwin';
+import { cn } from '@/utils/cn';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { 
+  ChevronLeft, 
+  ChevronRight, 
+  ChevronDown, 
+  ChevronUp 
+} from 'lucide-react';
 
 import { DigitalTwinToolbar } from './DigitalTwinToolbar';
 import { StadiumCanvas } from './stadium/StadiumCanvas';
@@ -50,6 +58,77 @@ export function DigitalTwinLayout() {
     zoomOut: () => void;
     reset: () => void;
   } | null>(null);
+
+  // Panel Collapsible states
+  const [isLeftCollapsed, setIsLeftCollapsed] = useState(false);
+  const [isRightCollapsed, setIsRightCollapsed] = useState(false);
+  const [isBottomCollapsed, setIsBottomCollapsed] = useState(false);
+
+  // Load operator layout preferences on mount
+  useEffect(() => {
+    try {
+      setIsLeftCollapsed(localStorage.getItem('layout_left_collapsed') === 'true');
+      setIsRightCollapsed(localStorage.getItem('layout_right_collapsed') === 'true');
+      setIsBottomCollapsed(localStorage.getItem('layout_bottom_collapsed') === 'true');
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
+  // Save layout helpers
+  const toggleLeft = () => {
+    const next = !isLeftCollapsed;
+    setIsLeftCollapsed(next);
+    try {
+      localStorage.setItem('layout_left_collapsed', String(next));
+    } catch (e) {
+      // ignore
+    }
+  };
+
+  const toggleRight = () => {
+    const next = !isRightCollapsed;
+    setIsRightCollapsed(next);
+    try {
+      localStorage.setItem('layout_right_collapsed', String(next));
+    } catch (e) {
+      // ignore
+    }
+  };
+
+  const toggleBottom = () => {
+    const next = !isBottomCollapsed;
+    setIsBottomCollapsed(next);
+    try {
+      localStorage.setItem('layout_bottom_collapsed', String(next));
+    } catch (e) {
+      // ignore
+    }
+  };
+
+  // Bind Keyboard Hotkeys
+  useKeyboardShortcuts({
+    onToggleLeft: toggleLeft,
+    onToggleAI: toggleRight,
+    onToggleOps: toggleBottom,
+    onZoomIn: () => canvasControlsRef.current?.zoomIn(),
+    onZoomOut: () => canvasControlsRef.current?.zoomOut(),
+    onResetView: () => canvasControlsRef.current?.reset(),
+    onToggleOverlay: (overlay) => dt.toggleOverlay(overlay),
+  });
+
+  // Responsive Auto-Collapsing: hide secondary side panels on small screens
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1200) {
+        setIsLeftCollapsed(true);
+        setIsRightCollapsed(true);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Pre-compute zone statuses (one pass, not per-component)
   const zoneStatuses = useMemo<Record<string, ZoneStatus>>(() => {
@@ -96,7 +175,7 @@ export function DigitalTwinLayout() {
       </m.div>
 
       {/* ── Main body ────────────────────────────────────────────────── */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
 
         {/* ── Left panel (entrance: second) ──────────────────────────── */}
         <m.div
@@ -104,17 +183,68 @@ export function DigitalTwinLayout() {
           initial="hidden"
           animate="visible"
           transition={stageTransition(0.08)}
-          className="w-72 shrink-0 flex flex-col border-r border-(--border) overflow-hidden"
+          className={cn(
+            'shrink-0 flex flex-col border-r border-(--border) overflow-visible transition-all duration-300 relative bg-(--surface-1)',
+            isLeftCollapsed ? 'w-0 border-r-0' : 'w-72'
+          )}
         >
-          <IncidentQueuePanel
-            incidents={dt.sortedIncidents}
-            activeIncidentId={dt.activeIncidentId}
-            onIncidentClick={dt.handleIncidentClick}
-          />
+          <div className="w-72 h-full flex flex-col overflow-hidden">
+            <IncidentQueuePanel
+              incidents={dt.sortedIncidents}
+              activeIncidentId={dt.activeIncidentId}
+              onIncidentClick={dt.handleIncidentClick}
+            />
+          </div>
+          
+          {/* Collapse Handle on Border */}
+          {!isLeftCollapsed && (
+            <button
+              onClick={toggleLeft}
+              className="absolute top-1/2 -right-3 -translate-y-1/2 z-30 flex items-center justify-center w-5 h-5 bg-(--surface-1) border border-(--border) rounded-full shadow-sm text-(--foreground-subtle) hover:text-(--foreground) hover:bg-(--surface-2) transition-all"
+              title="Collapse Panel (Ctrl+[)"
+            >
+              <ChevronLeft size={11} />
+            </button>
+          )}
         </m.div>
 
         {/* ── Center: Stadium + Zone Details ────────────────────────── */}
-        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        <div className="flex-1 flex flex-col overflow-hidden min-w-0 relative">
+          
+          {/* Expand Left Floating Tab */}
+          {isLeftCollapsed && (
+            <button
+              onClick={toggleLeft}
+              className="absolute top-1/2 left-0 -translate-y-1/2 z-30 flex items-center justify-center w-3.5 h-12 bg-(--surface-1) border-y border-r border-(--border) rounded-r shadow-sm text-(--foreground-subtle) hover:text-(--foreground) hover:bg-(--surface-2) transition-all"
+              title="Expand Panel (Ctrl+[)"
+            >
+              <ChevronRight size={10} />
+            </button>
+          )}
+
+          {/* Expand Right Floating Tab */}
+          {isRightCollapsed && (
+            <button
+              onClick={toggleRight}
+              className="absolute top-1/2 right-0 -translate-y-1/2 z-30 flex items-center justify-center w-3.5 h-12 bg-(--surface-1) border-y border-l border-(--border) rounded-l shadow-sm text-(--foreground-subtle) hover:text-(--foreground) hover:bg-(--surface-2) transition-all"
+              title="Expand Panel (Ctrl+])"
+            >
+              <ChevronLeft size={10} />
+            </button>
+          )}
+
+          {/* Expand Bottom Floating Tab */}
+          {isBottomCollapsed && (
+            <button
+              onClick={toggleBottom}
+              className="absolute bottom-2 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5 px-3 py-1 bg-(--surface-1) border border-(--border) rounded-full shadow text-(--foreground-subtle) hover:text-(--foreground) hover:bg-(--surface-2) transition-all text-[8.5px] font-bold font-mono uppercase"
+              title="Expand Details (Ctrl+\)"
+            >
+              <ChevronUp size={9} />
+              <span>Expand Zone Analytics</span>
+            </button>
+          )}
+
           {/* Stadium Canvas (entrance: third) */}
           <m.div
             variants={stageVariants}
@@ -146,14 +276,31 @@ export function DigitalTwinLayout() {
             initial="hidden"
             animate="visible"
             transition={stageTransition(0.24)}
-            className="h-44 shrink-0 overflow-hidden"
+            className={cn(
+              'shrink-0 overflow-visible transition-all duration-300 relative bg-(--surface-1)',
+              isBottomCollapsed ? 'h-0' : 'h-44'
+            )}
           >
-            <ZoneDetailsPanel
-              selectedZone={dt.selectedZone}
-              incidentsInZone={dt.incidentsInSelectedZone}
-              zoneCrowdDensity={dt.zoneCrowdDensity}
-              onIncidentClick={dt.handleIncidentClick}
-            />
+            <div className="h-44 w-full overflow-hidden">
+              <ZoneDetailsPanel
+                selectedZone={dt.selectedZone}
+                incidentsInZone={dt.incidentsInSelectedZone}
+                zoneCrowdDensity={dt.zoneCrowdDensity}
+                onIncidentClick={dt.handleIncidentClick}
+                allIncidents={dt.incidents}
+              />
+            </div>
+            
+            {/* Collapse handle for bottom */}
+            {!isBottomCollapsed && (
+              <button
+                onClick={toggleBottom}
+                className="absolute -top-2.5 right-5 z-30 flex items-center justify-center w-5 h-5 bg-(--surface-1) border border-(--border) rounded-full shadow-sm text-(--foreground-subtle) hover:text-(--foreground) hover:bg-(--surface-2) transition-all"
+                title="Collapse Details (Ctrl+\)"
+              >
+                <ChevronDown size={11} />
+              </button>
+            )}
           </m.div>
         </div>
 
@@ -163,27 +310,45 @@ export function DigitalTwinLayout() {
           initial="hidden"
           animate="visible"
           transition={stageTransition(0.08)}
-          className="w-72 shrink-0 flex flex-col border-l border-(--border) overflow-hidden"
+          className={cn(
+            'shrink-0 flex flex-col border-l border-(--border) overflow-visible transition-all duration-300 relative bg-(--surface-1)',
+            isRightCollapsed ? 'w-0 border-l-0' : 'w-72'
+          )}
         >
-          {/* AI Context Panel — scrollable, takes available space */}
-          <div className="flex-1 overflow-hidden flex flex-col">
-            <AIContextPanel
-              activeIncident={dt.activeIncident}
-              activeAnalysis={dt.activeAnalysis}
-              onDispatch={dt.handleDispatch}
-              onDismiss={dt.handleDismiss}
-            />
+          <div className="w-72 h-full flex flex-col overflow-hidden bg-(--surface-1)">
+            {/* AI Context Panel — scrollable, takes available space */}
+            <div className="flex-1 overflow-hidden flex flex-col">
+              <AIContextPanel
+                activeIncident={dt.activeIncident}
+                activeAnalysis={dt.activeAnalysis}
+                onDispatch={dt.handleDispatch}
+                onDismiss={dt.handleDismiss}
+                telemetry={dt.telemetry}
+                incidents={dt.incidents}
+              />
+            </div>
+
+            {/* Live Metrics — fixed compact section */}
+            <div className="shrink-0">
+              <LiveMetricsPanel telemetry={dt.telemetry} />
+            </div>
+
+            {/* Activity Feed — fixed-height bottom section */}
+            <div className="h-44 shrink-0 border-t border-(--border) overflow-hidden">
+              <ActivityFeedPanel activities={dt.activities} />
+            </div>
           </div>
 
-          {/* Live Metrics — fixed compact section */}
-          <div className="shrink-0">
-            <LiveMetricsPanel telemetry={dt.telemetry} />
-          </div>
-
-          {/* Activity Feed — fixed-height bottom section */}
-          <div className="h-44 shrink-0 border-t border-(--border) overflow-hidden">
-            <ActivityFeedPanel activities={dt.activities} />
-          </div>
+          {/* Collapse Handle on Border */}
+          {!isRightCollapsed && (
+            <button
+              onClick={toggleRight}
+              className="absolute top-1/2 -left-3 -translate-y-1/2 z-30 flex items-center justify-center w-5 h-5 bg-(--surface-1) border border-(--border) rounded-full shadow-sm text-(--foreground-subtle) hover:text-(--foreground) hover:bg-(--surface-2) transition-all"
+              title="Collapse Panel (Ctrl+])"
+            >
+              <ChevronRight size={11} />
+            </button>
+          )}
         </m.div>
       </div>
     </div>

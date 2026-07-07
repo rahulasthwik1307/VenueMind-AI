@@ -20,6 +20,7 @@ import { IncidentMarkerLayer } from './layers/IncidentMarkerLayer';
 import { RouteLayer } from './layers/RouteLayer';
 import { SelectionLayer } from './layers/SelectionLayer';
 import { ZoneTooltip } from './ZoneTooltip';
+import { StructuralDetailLayer } from './layers/StructuralDetailLayer';
 
 interface StadiumSVGProps {
   zones: StadiumZoneConfig[];
@@ -38,6 +39,7 @@ interface StadiumSVGProps {
     weather: boolean;
     transport: boolean;
     parking: boolean;
+    network: boolean;
   };
   onZoneClick: (zoneId: string) => void;
   onZoneHover: (zoneId: string | null) => void;
@@ -140,6 +142,12 @@ export function StadiumSVG({
         zoneCrowdDensity={zoneCrowdDensity}
         onZoneClick={onZoneClick}
         onZoneHover={onZoneHover}
+      />
+
+      {/* Layer 5.5: Structural Blueprints (VIP, tunnels, camera FOVs, network overlay) */}
+      <StructuralDetailLayer
+        camerasOverlayActive={overlays.cameras}
+        networkOverlayActive={overlays.network}
       />
 
       {/* Layer 6: Crowd density heat overlay */}

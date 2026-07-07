@@ -124,10 +124,6 @@ class SimulationService {
       `Match Phase Transitioned: Entered ${nextName.toUpperCase()} scenario`,
       'System Director'
     );
-    useIncidentStore.getState().addToast(
-      `Stadium Operations: Phase entered "${nextName.toUpperCase()}"`,
-      'info'
-    );
 
     // Force operations re-process
     operationsService.processTick(initializedTelemetry);

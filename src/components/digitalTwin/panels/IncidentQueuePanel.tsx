@@ -6,9 +6,13 @@
  * Left panel showing all incidents sorted by severity and status.
  * Clicking an incident focuses the stadium camera and activates
  * AI analysis panel — via the useDigitalTwin hook.
+ *
+ * Local Storage Mappings:
+ * - incident_filter: Selected category filter.
+ * - incident_show_resolved: Toggle for resolved items.
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
 import {
   AlertTriangle,
@@ -68,6 +72,38 @@ export function IncidentQueuePanel({
   const [filter, setFilter] = useState<FilterCategory>('all');
   const [showResolved, setShowResolved] = useState(false);
 
+  // Load from local storage on mount
+  useEffect(() => {
+    try {
+      const savedFilter = localStorage.getItem('incident_filter');
+      if (savedFilter) setFilter(savedFilter as FilterCategory);
+
+      const savedShowResolved = localStorage.getItem('incident_show_resolved');
+      if (savedShowResolved) setShowResolved(savedShowResolved === 'true');
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
+  const handleFilterChange = (cat: FilterCategory) => {
+    setFilter(cat);
+    try {
+      localStorage.setItem('incident_filter', cat);
+    } catch (e) {
+      // ignore
+    }
+  };
+
+  const handleToggleResolved = () => {
+    const next = !showResolved;
+    setShowResolved(next);
+    try {
+      localStorage.setItem('incident_show_resolved', String(next));
+    } catch (e) {
+      // ignore
+    }
+  };
+
   const filtered = incidents.filter((i) => {
     if (!showResolved && i.status === 'resolved') return false;
     if (filter !== 'all' && i.category !== filter) return false;
@@ -84,7 +120,7 @@ export function IncidentQueuePanel({
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Panel header */}
-      <div className="px-3 pt-3 pb-2 border-b border-(--border) shrink-0">
+      <div className="px-3 pt-3 pb-2 border-b border-(--border) shrink-0 bg-(--surface-2)">
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-1.5">
             <AlertTriangle size={13} className="text-(--primary)" aria-hidden="true" />
@@ -115,7 +151,7 @@ export function IncidentQueuePanel({
             placeholder="Search incidents…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-6 pr-2 py-1.5 text-[11px] bg-(--surface-2) border border-(--border) rounded-md outline-none focus:ring-1 focus:ring-(--primary-light) placeholder:text-(--foreground-subtle) text-(--foreground)"
+            className="w-full pl-6 pr-2 py-1.5 text-[11px] bg-(--surface-1) border border-(--border) rounded-md outline-none focus:ring-1 focus:ring-(--primary-light) placeholder:text-(--foreground-subtle) text-(--foreground)"
             aria-label="Search incidents"
           />
         </div>
@@ -125,12 +161,12 @@ export function IncidentQueuePanel({
           {CATEGORY_FILTERS.map((f) => (
             <button
               key={f.id}
-              onClick={() => setFilter(f.id)}
+              onClick={() => handleFilterChange(f.id)}
               className={cn(
-                'px-2 py-0.5 rounded text-[9px] font-semibold font-mono uppercase tracking-wide transition-colors',
+                'px-2 py-0.5 rounded text-[9px] font-semibold font-mono uppercase tracking-wide transition-colors border',
                 filter === f.id
-                  ? 'bg-(--primary) text-white'
-                  : 'bg-(--surface-2) text-(--foreground-subtle) hover:bg-(--surface-3) border border-(--border)',
+                  ? 'bg-(--primary) text-white border-(--primary)'
+                  : 'bg-(--surface-1) text-(--foreground-subtle) hover:bg-(--surface-3) border-(--border)',
               )}
               aria-pressed={filter === f.id}
               aria-label={`Filter by ${f.label}`}
@@ -142,7 +178,7 @@ export function IncidentQueuePanel({
       </div>
 
       {/* Incident list */}
-      <div className="flex-1 overflow-y-auto px-2 py-1.5 space-y-1.5">
+      <div className="flex-1 overflow-y-auto px-2 py-1.5 space-y-1.5 bg-(--surface-1)">
         <AnimatePresence>
           {filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
@@ -222,9 +258,9 @@ export function IncidentQueuePanel({
       </div>
 
       {/* Show resolved toggle */}
-      <div className="px-3 py-2 border-t border-(--border) shrink-0">
+      <div className="px-3 py-2 border-t border-(--border) shrink-0 bg-(--surface-2)">
         <button
-          onClick={() => setShowResolved((v) => !v)}
+          onClick={handleToggleResolved}
           className="w-full text-[10px] font-semibold text-(--foreground-subtle) hover:text-(--foreground) transition-colors text-center"
           aria-pressed={showResolved}
         >

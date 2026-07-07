@@ -15,7 +15,8 @@ export type OverlayType =
   | 'cameras'
   | 'weather'
   | 'parking'
-  | 'transport';
+  | 'transport'
+  | 'network';
 
 // ─── Routes ──────────────────────────────────────────────────────────────────
 

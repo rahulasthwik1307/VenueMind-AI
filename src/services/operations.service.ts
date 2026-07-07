@@ -32,7 +32,15 @@ class OperationsService {
     }
 
     // 3. Dispatch global toast notifications through the store
-    if (event.type === 'RecommendationExecuted') {
+    if (event.type === 'IncidentCreated') {
+      const incident = event.payload;
+      const addToast = useIncidentStore.getState().addToast;
+      if (incident.severity === 'critical') {
+        addToast(`CRITICAL INCIDENT: ${incident.title} in ${incident.location.zone}`, 'error');
+      } else if (incident.severity === 'high' || incident.severity === 'medium') {
+        addToast(`Incident Alert: ${incident.title} (${incident.location.zone})`, 'warning');
+      }
+    } else if (event.type === 'RecommendationExecuted') {
       const { recTitle } = event.payload;
       const addToast = useIncidentStore.getState().addToast;
       addToast(`Dispatched Tactical Action: ${recTitle}`, 'success');

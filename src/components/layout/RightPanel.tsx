@@ -1,4 +1,5 @@
 import { cn } from '@/utils/cn';
+import { usePathname } from 'next/navigation';
 import { SectionHeader } from '@/components/shared/SectionHeader';
 import { SkeletonLine } from '@/components/shared/SkeletonLine';
 import { StatusBadge } from '@/components/shared/StatusBadge';
@@ -205,6 +206,9 @@ function RecentAlerts() {
 }
 
 export function RightPanel() {
+  const pathname = usePathname();
+  if (pathname === '/map') return null;
+
   return (
     <aside
       className={cn(
