@@ -1,6 +1,6 @@
 import { PageContainer } from '@/components/layout/PageContainer';
 import { SectionHeader } from '@/components/shared/SectionHeader';
-import { Brain, Cpu } from 'lucide-react';
+import { Brain } from 'lucide-react';
 
 export default function AICommandPage() {
   return (

@@ -1,6 +1,6 @@
 import { PageContainer } from '@/components/layout/PageContainer';
 import { SectionHeader } from '@/components/shared/SectionHeader';
-import { ShieldAlert, Flame } from 'lucide-react';
+import { ShieldAlert } from 'lucide-react';
 
 export default function EmergencyPage() {
   return (

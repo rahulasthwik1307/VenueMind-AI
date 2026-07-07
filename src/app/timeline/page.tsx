@@ -1,6 +1,6 @@
 import { PageContainer } from '@/components/layout/PageContainer';
 import { SectionHeader } from '@/components/shared/SectionHeader';
-import { Clock, ListOrdered } from 'lucide-react';
+import { Clock } from 'lucide-react';
 
 export default function TimelinePage() {
   return (

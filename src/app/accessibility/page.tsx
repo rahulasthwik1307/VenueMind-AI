@@ -1,6 +1,6 @@
 import { PageContainer } from '@/components/layout/PageContainer';
 import { SectionHeader } from '@/components/shared/SectionHeader';
-import { Accessibility, HelpCircle } from 'lucide-react';
+import { Accessibility } from 'lucide-react';
 
 export default function AccessibilityPage() {
   return (

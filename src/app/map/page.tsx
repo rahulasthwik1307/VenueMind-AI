@@ -1,6 +1,6 @@
 import { PageContainer } from '@/components/layout/PageContainer';
 import { SectionHeader } from '@/components/shared/SectionHeader';
-import { Map, Pin } from 'lucide-react';
+import { Map } from 'lucide-react';
 
 export default function InteractiveMapPage() {
   return (
@@ -15,7 +15,7 @@ export default function InteractiveMapPage() {
           </div>
           
           <div className="flex-1 flex flex-col items-center justify-center border border-dashed border-(--border) rounded-md bg-(--surface-2) p-10 text-center my-6 relative overflow-hidden">
-            <div className="absolute inset-0 opacity-5 pointer-events-none bg-[radial-gradient(#0f5132_1.5px,transparent_1.5px)] [background-size:16px_16px]" />
+            <div className="absolute inset-0 opacity-5 pointer-events-none bg-[radial-gradient(#0f5132_1.5px,transparent_1.5px)] bg-size-[16px_16px]" />
             <Map size={36} className="text-(--primary) opacity-65 mb-3" />
             <h2 className="text-sm font-bold text-(--foreground) uppercase tracking-wide">Stadium Cartography Grid</h2>
             <p className="text-xs text-(--foreground-muted) max-w-lg mt-1.5 leading-relaxed">

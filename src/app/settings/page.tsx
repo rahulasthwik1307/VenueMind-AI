@@ -1,6 +1,6 @@
 import { PageContainer } from '@/components/layout/PageContainer';
 import { SectionHeader } from '@/components/shared/SectionHeader';
-import { Settings, Sliders } from 'lucide-react';
+import { Settings } from 'lucide-react';
 
 export default function SettingsPage() {
   return (

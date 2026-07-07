@@ -1,6 +1,6 @@
 import { PageContainer } from '@/components/layout/PageContainer';
 import { SectionHeader } from '@/components/shared/SectionHeader';
-import { Bus, Navigation } from 'lucide-react';
+import { Bus } from 'lucide-react';
 
 export default function TransportPage() {
   return (

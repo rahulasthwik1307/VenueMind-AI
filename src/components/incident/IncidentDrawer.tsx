@@ -39,6 +39,15 @@ export function IncidentDrawer() {
 
   const [localNotes, setLocalNotes] = useState('');
 
+  const incident = activeIncidentId ? incidents.find((inc) => inc.id === activeIncidentId) : undefined;
+
+  // Sync local notes state when incident changes
+  useEffect(() => {
+    if (incident) {
+      setLocalNotes(incident.notes || '');
+    }
+  }, [incident?.id, incident?.notes]);
+
   // Close drawer on Escape key press
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -53,16 +62,6 @@ export function IncidentDrawer() {
   }, [activeIncidentId, setActiveIncidentId]);
 
   if (!activeIncidentId) return null;
-
-  const incident = incidents.find((inc) => inc.id === activeIncidentId);
-
-  // Sync local notes state when incident changes
-  useEffect(() => {
-    if (incident) {
-      setLocalNotes(incident.notes || '');
-    }
-  }, [incident?.id, incident?.notes]);
-
   if (!incident) return null;
 
   const handleNotesBlur = () => {

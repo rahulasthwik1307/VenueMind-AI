@@ -1,6 +1,6 @@
 import { PageContainer } from '@/components/layout/PageContainer';
 import { SectionHeader } from '@/components/shared/SectionHeader';
-import { Users, BarChart3 } from 'lucide-react';
+import { Users } from 'lucide-react';
 
 export default function CrowdMonitoringPage() {
   return (
