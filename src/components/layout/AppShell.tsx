@@ -6,6 +6,9 @@ import { AppSidebar } from './AppSidebar';
 import { RightPanel } from './RightPanel';
 import { AppFooter } from './AppFooter';
 import { MobileSidebarOverlay } from './MobileSidebarOverlay';
+import { IncidentDrawer } from '@/components/incident/IncidentDrawer';
+import { ToastContainer } from '@/components/shared/ToastContainer';
+import { DashboardSimulator } from '@/components/providers/DashboardSimulator';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -71,6 +74,15 @@ export function AppShell({ children }: AppShellProps) {
         isOpen={mobileNavOpen}
         onClose={() => setMobileNavOpen(false)}
       />
+
+      {/* Incident Details Drawer */}
+      <IncidentDrawer />
+
+      {/* Global Toast Notifications */}
+      <ToastContainer />
+
+      {/* Background Live Telemetry & Activity Simulator */}
+      <DashboardSimulator />
     </div>
   );
 }

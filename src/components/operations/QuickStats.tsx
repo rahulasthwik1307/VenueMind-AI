@@ -1,3 +1,5 @@
+'use client';
+
 import {
   AlertTriangle,
   Users,
@@ -5,53 +7,59 @@ import {
   HeartPulse,
 } from 'lucide-react';
 import { MetricCard } from '@/components/shared/MetricCard';
-
-const METRICS = [
-  {
-    label: 'Active Incidents',
-    value: '3',
-    icon: AlertTriangle,
-    accent: 'error' as const,
-    trend: 'up' as const,
-    trendLabel: '+1 from last hour',
-    description: 'Requires attention',
-  },
-  {
-    label: 'Crowd Density',
-    value: '72%',
-    icon: Users,
-    accent: 'warning' as const,
-    trend: 'up' as const,
-    trendLabel: 'Approaching high',
-    description: 'Stadium capacity',
-  },
-  {
-    label: 'Transport Status',
-    value: 'Good',
-    icon: Bus,
-    accent: 'secondary' as const,
-    trend: 'neutral' as const,
-    trendLabel: 'All routes normal',
-    description: 'Metro, Bus, Shuttle',
-  },
-  {
-    label: 'Medical Units',
-    value: '8',
-    icon: HeartPulse,
-    accent: 'primary' as const,
-    trend: 'neutral' as const,
-    trendLabel: '2 deployed',
-    description: 'On standby',
-  },
-] as const;
+import { useIncident } from '@/hooks/useIncident';
 
 export function QuickStats() {
+  const { incidents, stadiumStats } = useIncident();
+
+  const activeCount = incidents.filter((i) => i.status !== 'resolved').length;
+  const criticalCount = incidents.filter((i) => i.severity === 'critical' && i.status !== 'resolved').length;
+
+  const metrics = [
+    {
+      label: 'Active Incidents',
+      value: activeCount.toString(),
+      icon: AlertTriangle,
+      accent: 'error' as const,
+      trend: criticalCount > 0 ? ('up' as const) : ('neutral' as const),
+      trendLabel: criticalCount > 0 ? `${criticalCount} Critical active` : 'No Critical alerts',
+      description: 'Requires response dispatch',
+    },
+    {
+      label: 'Crowd Density',
+      value: `${stadiumStats.crowdDensity}%`,
+      icon: Users,
+      accent: stadiumStats.crowdDensity > 80 ? ('warning' as const) : ('primary' as const),
+      trend: 'up' as const,
+      trendLabel: stadiumStats.crowdDensity > 80 ? 'Approaching capacity' : 'Inflow within bounds',
+      description: 'Ingress flow sensors active',
+    },
+    {
+      label: 'Transport Status',
+      value: stadiumStats.transportStatus,
+      icon: Bus,
+      accent: 'secondary' as const,
+      trend: 'neutral' as const,
+      trendLabel: 'Expressway Route C active',
+      description: 'Metro and Shuttle Bus Hubs',
+    },
+    {
+      label: 'Medical Units',
+      value: stadiumStats.medicalStandby.toString(),
+      icon: HeartPulse,
+      accent: 'primary' as const,
+      trend: 'neutral' as const,
+      trendLabel: '3 dispatches active',
+      description: 'On-site response teams',
+    },
+  ];
+
   return (
     <section
       aria-label="Quick statistics overview"
       className="grid grid-cols-2 lg:grid-cols-4 gap-(--card-gap)"
     >
-      {METRICS.map((metric) => (
+      {metrics.map((metric) => (
         <MetricCard
           key={metric.label}
           label={metric.label}

@@ -14,6 +14,7 @@ import {
 import { cn } from '@/utils/cn';
 import { HEADER_HEIGHT } from '@/constants/layout';
 import { useTheme } from '@/components/providers/ThemeProvider';
+import { useIncidentStore } from '@/store/modules/incident';
 
 interface AppHeaderProps {
   onMobileMenuOpen?: () => void;
@@ -55,6 +56,8 @@ function useLiveDate() {
 
 export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
   const { theme, setTheme } = useTheme();
+  const searchQuery = useIncidentStore((state) => state.searchQuery);
+  const setSearchQuery = useIncidentStore((state) => state.setSearchQuery);
   const time = useLiveTime();
   const date = useLiveDate();
 
@@ -140,18 +143,17 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
           <input
             id="global-search"
             type="search"
-            placeholder="Search incidents, alerts…"
-            readOnly
+            placeholder="Search incidents by title, location, category…"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className={cn(
               'w-full pl-9 pr-3 py-1.5 text-sm',
               'bg-(--surface-2) border border-(--border)',
-              'rounded-md text-(--foreground-muted)',
+              'rounded-md text-(--foreground)',
               'placeholder:text-(--foreground-subtle)',
-              'cursor-not-allowed',
               'focus:outline-none focus-visible:ring-1 focus-visible:ring-(--primary)'
             )}
-            aria-label="Global search (coming soon)"
-            aria-disabled="true"
+            aria-label="Search incidents"
           />
           <span
             className="hidden lg:flex absolute right-2.5 top-1/2 -translate-y-1/2 items-center gap-0.5 text-[10px] text-(--foreground-subtle) font-mono border border-(--border) rounded px-1 py-0.5"
@@ -173,7 +175,7 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
           <span className="text-sm font-semibold text-(--foreground) leading-tight font-mono tabular-nums">
             {time || '──:──'}
           </span>
-          <span className="text-[10px] text-(--foreground-subtle) leading-tight">
+          <span className="text-[10px] text-(--foreground-subtle) leading-tight" suppressHydrationWarning>
             {date}
           </span>
         </div>

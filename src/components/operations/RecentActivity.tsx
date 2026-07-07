@@ -1,51 +1,10 @@
+'use client';
+
 import { cn } from '@/utils/cn';
 import { SectionHeader } from '@/components/shared/SectionHeader';
+import { useIncident } from '@/hooks/useIncident';
 import type { Severity } from '@/types/common';
-
-interface ActivityItem {
-  id: string;
-  message: string;
-  actor: string;
-  time: string;
-  severity?: Severity;
-}
-
-const PLACEHOLDER_ACTIVITY: ActivityItem[] = [
-  {
-    id: 'act-001',
-    message: 'Security team deployed to Gate 7',
-    actor: 'Ops Manager',
-    time: '3 min ago',
-    severity: 'high',
-  },
-  {
-    id: 'act-002',
-    message: 'Medical unit 3 responded to sector C',
-    actor: 'Medical Lead',
-    time: '9 min ago',
-    severity: 'medium',
-  },
-  {
-    id: 'act-003',
-    message: 'Lost child located — reunited with family',
-    actor: 'Volunteer Team B',
-    time: '20 min ago',
-    severity: 'low',
-  },
-  {
-    id: 'act-004',
-    message: 'Transport Line 2 delay resolved',
-    actor: 'Transport Coordinator',
-    time: '32 min ago',
-    severity: 'low',
-  },
-  {
-    id: 'act-005',
-    message: 'Sector D gates opened — capacity balanced',
-    actor: 'Operations AI',
-    time: '45 min ago',
-  },
-];
+import { m, AnimatePresence } from 'framer-motion';
 
 const SEVERITY_DOT: Record<Severity, string> = {
   critical: 'bg-red-600',
@@ -54,7 +13,30 @@ const SEVERITY_DOT: Record<Severity, string> = {
   low: 'bg-green-500',
 };
 
+function getActivityTimeAgo(isoString: string) {
+  try {
+    const now = new Date();
+    const past = new Date(isoString);
+    const diffMs = now.getTime() - past.getTime();
+    const diffMins = Math.round(diffMs / 60000);
+    
+    if (diffMins < 1) return 'Just now';
+    if (diffMins === 1) return '1m ago';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    
+    const diffHours = Math.round(diffMins / 60);
+    if (diffHours === 1) return '1h ago';
+    if (diffHours < 24) return `${diffHours}h ago`;
+    
+    return past.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  } catch {
+    return isoString;
+  }
+}
+
 export function RecentActivity() {
+  const { activities } = useIncident();
+
   return (
     <section
       className={cn(
@@ -67,41 +49,49 @@ export function RecentActivity() {
         description="Last 60 minutes"
       />
 
-      <ol className="relative space-y-0" aria-label="Activity timeline">
-        {PLACEHOLDER_ACTIVITY.map((item, index) => (
-          <li
-            key={item.id}
-            className="relative flex items-start gap-3 pb-4 last:pb-0"
-          >
-            {/* Timeline line */}
-            {index < PLACEHOLDER_ACTIVITY.length - 1 && (
-              <span
-                className="absolute left-1.75 top-4 bottom-0 w-px bg-(--border)"
-                aria-hidden="true"
-              />
-            )}
+      <div className="overflow-hidden min-h-60">
+        <ul className="relative space-y-0" aria-label="Activity timeline" role="list">
+          <AnimatePresence initial={false}>
+            {activities.slice(0, 5).map((item, index) => (
+              <m.li
+                key={item.id}
+                initial={{ opacity: 0, height: 0, y: -10 }}
+                animate={{ opacity: 1, height: 'auto', y: 0 }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.25 }}
+                className="relative flex items-start gap-3 pb-4 last:pb-0"
+              >
+                {/* Timeline line */}
+                {index < Math.min(activities.length, 5) - 1 && (
+                  <span
+                    className="absolute left-1.75 top-4 bottom-0 w-px bg-(--border)"
+                    aria-hidden="true"
+                  />
+                )}
 
-            {/* Dot */}
-            <span
-              className={cn(
-                'mt-1 w-3.5 h-3.5 rounded-full border-2 border-(--surface-1) shrink-0',
-                item.severity ? SEVERITY_DOT[item.severity] : 'bg-(--border-strong)'
-              )}
-              aria-hidden="true"
-            />
+                {/* Dot */}
+                <span
+                  className={cn(
+                    'mt-1 w-3.5 h-3.5 rounded-full border-2 border-(--surface-1) shrink-0 z-10',
+                    item.severity ? SEVERITY_DOT[item.severity] : 'bg-gray-400'
+                  )}
+                  aria-hidden="true"
+                />
 
-            {/* Content */}
-            <div className="flex-1 min-w-0">
-              <p className="text-xs text-(--foreground) leading-snug truncate-2">
-                {item.message}
-              </p>
-              <p className="text-[10px] text-(--foreground-subtle) mt-0.5">
-                {item.actor} · {item.time}
-              </p>
-            </div>
-          </li>
-        ))}
-      </ol>
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-(--foreground) leading-snug truncate-2 font-medium">
+                    {item.message}
+                  </p>
+                  <p className="text-[10px] text-(--foreground-subtle) mt-0.5" suppressHydrationWarning>
+                    {item.actor} · {getActivityTimeAgo(item.time)}
+                  </p>
+                </div>
+              </m.li>
+            ))}
+          </AnimatePresence>
+        </ul>
+      </div>
     </section>
   );
 }
