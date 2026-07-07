@@ -1,5 +1,5 @@
 export type Severity = 'low' | 'medium' | 'high' | 'critical';
-export type IncidentStatus = 'open' | 'investigating' | 'resolved';
+export type IncidentStatus = 'open' | 'investigating' | 'mitigated' | 'resolved';
 export type SystemStatusLevel = 'operational' | 'degraded' | 'critical' | 'offline';
 export type Theme = 'light' | 'dark' | 'system';
 

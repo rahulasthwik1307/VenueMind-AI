@@ -1,6 +1,6 @@
 'use client';
 
-import { Trophy, Calendar, ShieldAlert, Play, ArrowRight } from 'lucide-react';
+import { Trophy, Calendar, ShieldAlert, Play, ArrowRight, Cloud } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { useIncident } from '@/hooks/useIncident';
 
@@ -14,7 +14,7 @@ function getGreeting(): string {
 }
 
 export function WelcomeBanner() {
-  const { incidents, analyses, setActiveIncidentId } = useIncident();
+  const { incidents, analyses, setActiveIncidentId, telemetry } = useIncident();
   const greeting = getGreeting();
   
   const today = new Date().toLocaleDateString('en-US', {
@@ -23,6 +23,30 @@ export function WelcomeBanner() {
     month: 'long',
     day: 'numeric',
   });
+
+  // Match Info calculations from live telemetry
+  let matchPhaseLabel = 'Match In Ingress';
+  let matchScoreLabel = 'Brazil vs Argentina · Al Bayt Stadium';
+  let isLive = false;
+
+  if (telemetry?.matchTimeline) {
+    const { minute, period, score } = telemetry.matchTimeline.value;
+    isLive = period !== 'pre-match' && period !== 'post-match';
+    
+    if (period === 'pre-match') {
+      matchPhaseLabel = `Match In Ingress (Kickoff in ${Math.abs(minute)}m)`;
+    } else if (period === 'first-half') {
+      matchPhaseLabel = `1st Half · ${minute}'`;
+    } else if (period === 'halftime') {
+      matchPhaseLabel = `Halftime Interval`;
+    } else if (period === 'second-half') {
+      matchPhaseLabel = `2nd Half · ${minute}'`;
+    } else if (period === 'post-match') {
+      matchPhaseLabel = `Post-Match (Egress Active)`;
+    }
+    
+    matchScoreLabel = `Brazil ${score.home} - Argentina ${score.away} · Al Bayt Stadium`;
+  }
 
   const criticalCount = incidents.filter(i => i.severity === 'critical' && i.status !== 'resolved').length;
   const activeCount = incidents.filter(i => i.status !== 'resolved').length;
@@ -76,18 +100,32 @@ export function WelcomeBanner() {
           </p>
         </div>
 
-        {/* Live Match Info */}
-        <div className="flex items-center gap-3 px-3 py-2 rounded border border-(--border) bg-(--surface-2) w-fit mt-3">
-          <div className="w-6 h-6 rounded-full bg-(--primary) flex items-center justify-center shrink-0">
-            <Trophy size={12} className="text-white" />
+        <div className="flex flex-col gap-2 mt-3">
+          {/* Live Match Info */}
+          <div className="flex items-center gap-3 px-3 py-2 rounded border border-(--border) bg-(--surface-2) w-fit">
+            <div className="w-6 h-6 rounded-full bg-(--primary) flex items-center justify-center shrink-0">
+              <Trophy size={12} className="text-white" />
+            </div>
+            <div className="text-[10px]">
+              <p className="font-semibold text-(--foreground)">{matchPhaseLabel}</p>
+              <p className="text-(--foreground-muted) opacity-80 font-mono">{matchScoreLabel}</p>
+            </div>
+            {isLive && (
+              <span className="text-[8px] font-bold px-1.5 py-0.5 rounded bg-(--primary) text-white live-indicator uppercase shrink-0">
+                Live
+              </span>
+            )}
           </div>
-          <div className="text-[10px]">
-            <p className="font-semibold text-(--foreground)">Match 42 In Ingress</p>
-            <p className="text-(--foreground-muted) opacity-80 font-mono">Brazil vs Argentina · Al Bayt Stadium</p>
-          </div>
-          <span className="text-[8px] font-bold px-1.5 py-0.5 rounded bg-(--primary) text-white live-indicator uppercase shrink-0">
-            Live
-          </span>
+
+          {/* Live Weather Info */}
+          {telemetry?.weather && (
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded border border-(--border) bg-(--surface-2) w-fit">
+              <Cloud size={11} className="text-(--foreground-subtle) shrink-0" />
+              <span className="text-[9px] font-semibold text-(--foreground) font-mono uppercase">
+                {telemetry.weather.value.temperature}°C · {telemetry.weather.value.condition} · Wind {telemetry.weather.value.windSpeed} km/h
+              </span>
+            </div>
+          )}
         </div>
       </div>
 

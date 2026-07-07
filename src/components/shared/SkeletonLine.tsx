@@ -1,4 +1,5 @@
-import { cn } from '@/utils/cn';
+import { cn } from '../../utils/cn';
+
 
 interface SkeletonLineProps {
   className?: string;

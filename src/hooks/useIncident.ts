@@ -9,6 +9,7 @@ export function useIncident() {
   const activities = useIncidentStore((state) => state.activities);
   const toasts = useIncidentStore((state) => state.toasts);
   const stadiumStats = useIncidentStore((state) => state.stadiumStats);
+  const telemetry = useIncidentStore((state) => state.telemetry);
   
   const setIncidents = useIncidentStore((state) => state.setIncidents);
   const setActiveIncidentId = useIncidentStore((state) => state.setActiveIncidentId);
@@ -32,6 +33,7 @@ export function useIncident() {
     activities,
     toasts,
     stadiumStats,
+    telemetry,
     setIncidents,
     setActiveIncidentId,
     setFilter,
