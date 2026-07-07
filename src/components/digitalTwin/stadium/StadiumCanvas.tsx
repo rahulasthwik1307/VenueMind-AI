@@ -244,7 +244,7 @@ export function StadiumCanvas({
 
       {/* ── Mini Map Overview Overlay ───────────────────────────────────────── */}
       <div 
-        className="absolute bottom-3 left-3 w-32 h-[99px] bg-(--surface-1)/80 backdrop-blur border border-(--border) rounded-md overflow-hidden shadow-md select-none cursor-pointer group z-20"
+        className="absolute bottom-3 left-3 w-32 h-24.75 bg-(--surface-1)/80 backdrop-blur border border-(--border) rounded-md overflow-hidden shadow-md select-none cursor-pointer group z-20"
         onClick={handleReset}
         title="Click to reset stadium view"
       >
@@ -297,7 +297,7 @@ export function StadiumCanvas({
 
       {/* ── Operational Legend ────────────────────────────────────────────────── */}
       <div 
-        className="absolute bottom-12 right-3 p-2.5 bg-(--surface-1)/90 backdrop-blur border border-(--border) rounded-md shadow-lg select-none pointer-events-auto z-20 flex flex-col gap-1.5 max-w-[130px]"
+        className="absolute bottom-12 right-3 p-2.5 bg-(--surface-1)/90 backdrop-blur border border-(--border) rounded-md shadow-lg select-none pointer-events-auto z-20 flex flex-col gap-1.5 max-w-32.5"
         role="region"
         aria-label="Map Legend"
       >

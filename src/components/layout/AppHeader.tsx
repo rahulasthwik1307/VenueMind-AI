@@ -335,7 +335,7 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 5, scale: 0.97 }}
                   transition={{ duration: 0.15, ease: 'easeOut' }}
-                  className="absolute right-0 mt-2 w-80 bg-(--surface-1) border border-(--border) rounded-lg shadow-xl z-50 flex flex-col max-h-[420px] overflow-hidden"
+                  className="absolute right-0 mt-2 w-80 bg-(--surface-1) border border-(--border) rounded-lg shadow-xl z-50 flex flex-col max-h-105 overflow-hidden"
                   role="dialog"
                   aria-label="Notification center"
                 >
@@ -389,7 +389,7 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
                   </div>
 
                   {/* Notification List */}
-                  <div className="flex-1 overflow-y-auto p-1.5 space-y-1 min-h-[180px]">
+                  <div className="flex-1 overflow-y-auto p-1.5 space-y-1 min-h-45">
                     {filteredNotifs.length === 0 ? (
                       <div className="flex flex-col items-center justify-center py-10 text-center">
                         <Info size={16} className="text-(--foreground-subtle) opacity-30 mb-1" />
@@ -416,7 +416,7 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className={cn(
-                                'text-[10px] leading-snug break-words',
+                                'text-[10px] leading-snug wrap-break-word',
                                 isRead ? 'text-(--foreground-muted)' : 'text-(--foreground) font-semibold'
                               )}>
                                 {item.message}
