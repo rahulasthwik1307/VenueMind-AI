@@ -36,7 +36,7 @@ export const preMatchScenario: SimulationScenario = {
     const nextMin = currentMin + 1; // tick clock by 1 minute virtual time
     
     // Simulate ticketing network dropout around minute -20
-    let sysHealth = { ...telemetry.systemHealth.value };
+    const sysHealth = { ...telemetry.systemHealth.value };
     if (nextMin === -20) {
       sysHealth.ticketing = 'Degraded';
     }

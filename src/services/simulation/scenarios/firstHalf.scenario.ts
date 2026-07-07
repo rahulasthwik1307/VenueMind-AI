@@ -22,7 +22,7 @@ export const firstHalfScenario: SimulationScenario = {
     const nextMin = currentMin + 1;
     
     // Simulate Brazil scoring at minute 24!
-    let score = { ...telemetry.matchTimeline.value.score };
+    const score = { ...telemetry.matchTimeline.value.score };
     if (nextMin === 24) {
       score.home = 1;
     }

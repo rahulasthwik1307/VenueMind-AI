@@ -24,14 +24,17 @@ class IncidentService {
     this.eventPublisher = publisher;
   }
 
-  private triggerEvent(type: string, payload: any) {
+  private triggerEvent<K extends 'IncidentCreated' | 'IncidentStatusChanged' | 'IncidentResolved'>(
+    type: K,
+    payload: Extract<OperationalEvent, { type: K }>['payload']
+  ) {
     if (this.eventPublisher) {
       this.eventPublisher({
         id: `evt-${Date.now()}-${Math.random()}`,
-        type: type as any,
+        type,
         timestamp: new Date().toISOString(),
         payload,
-      });
+      } as OperationalEvent);
     }
   }
 

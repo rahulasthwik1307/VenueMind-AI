@@ -7,6 +7,18 @@ import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { useIncident } from '@/hooks/useIncident';
 import { DecisionCard } from '@/components/cards/DecisionCard';
 
+// Category Icon helper for idle briefing
+const CATEGORY_ICONS: Record<string, typeof Shield> = {
+  security: Shield,
+  medical: Activity,
+  transport: Bus,
+  volunteer: HeartHandshake,
+  accessibility: Accessibility,
+  crowd: Users,
+  infrastructure: Building,
+  weather: Cloud,
+};
+
 export function AIRecommendations() {
   const { activeIncidentId, incidents, analyses, dispatchAction, setActiveIncidentId, dismissRecommendation } = useIncident();
   const isLoading = false;
@@ -37,22 +49,7 @@ export function AIRecommendations() {
   const highestPriorityAnalysis = highestPriorityIncident ? analyses[highestPriorityIncident.id] : null;
   const primaryRec = highestPriorityAnalysis?.recommendations.find(r => !r.executed && !r.dismissed);
 
-  // Category Icon helper for idle briefing
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'security': return Shield;
-      case 'medical': return Activity;
-      case 'transport': return Bus;
-      case 'volunteer': return HeartHandshake;
-      case 'accessibility': return Accessibility;
-      case 'crowd': return Users;
-      case 'infrastructure': return Building;
-      case 'weather': return Cloud;
-      default: return HelpCircle;
-    }
-  };
-
-  const HighestPriorityIcon = highestPriorityIncident ? getCategoryIcon(highestPriorityIncident.category) : HelpCircle;
+  const HighestPriorityIcon = (highestPriorityIncident && CATEGORY_ICONS[highestPriorityIncident.category]) || HelpCircle;
 
   return (
     <section

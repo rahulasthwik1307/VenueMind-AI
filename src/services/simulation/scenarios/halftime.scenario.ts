@@ -24,7 +24,7 @@ export const halftimeScenario: SimulationScenario = {
     halftimeTicks += 1;
     
     // Simulate SCADA mechanical issue with elevator VIP at halftime tick 3
-    let sysHealth = { ...telemetry.systemHealth.value };
+    const sysHealth = { ...telemetry.systemHealth.value };
     if (halftimeTicks === 3) {
       sysHealth.scada = 'Degraded';
     }

@@ -41,12 +41,11 @@ export function IncidentDrawer() {
 
   const incident = activeIncidentId ? incidents.find((inc) => inc.id === activeIncidentId) : undefined;
 
-  // Sync local notes state when incident changes
-  useEffect(() => {
-    if (incident) {
-      setLocalNotes(incident.notes || '');
-    }
-  }, [incident?.id, incident?.notes]);
+  const [prevIncidentId, setPrevIncidentId] = useState<string | undefined>(undefined);
+  if (incident?.id !== prevIncidentId) {
+    setPrevIncidentId(incident?.id);
+    setLocalNotes(incident?.notes || '');
+  }
 
   // Close drawer on Escape key press
   useEffect(() => {

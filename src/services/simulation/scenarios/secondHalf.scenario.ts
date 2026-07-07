@@ -22,7 +22,7 @@ export const secondHalfScenario: SimulationScenario = {
     const nextMin = currentMin + 1;
 
     // Simulate Argentina scoring at minute 67 to equalize (1-1)!
-    let score = { ...telemetry.matchTimeline.value.score };
+    const score = { ...telemetry.matchTimeline.value.score };
     if (nextMin === 67) {
       score.away = 1;
     }

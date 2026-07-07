@@ -24,14 +24,17 @@ class OperationalIntelligenceService {
     this.eventPublisher = publisher;
   }
 
-  private triggerEvent(type: string, payload: any) {
+  private triggerEvent<K extends 'RecommendationExecuted' | 'RecommendationDismissed'>(
+    type: K,
+    payload: Extract<OperationalEvent, { type: K }>['payload']
+  ) {
     if (this.eventPublisher) {
       this.eventPublisher({
         id: `evt-intel-${Date.now()}-${Math.random()}`,
-        type: type as any,
+        type,
         timestamp: new Date().toISOString(),
         payload,
-      });
+      } as OperationalEvent);
     }
   }
 
