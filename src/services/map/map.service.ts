@@ -1,6 +1,6 @@
 export interface MapService {
-  getStadiumLayout: () => Promise<any>;
-  getHeatmapData: () => Promise<any>;
+  getStadiumLayout: () => Promise<unknown>;
+  getHeatmapData: () => Promise<unknown>;
 }
 
 export const mapService: MapService = {

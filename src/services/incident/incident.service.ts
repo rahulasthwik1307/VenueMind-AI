@@ -1,6 +1,6 @@
 export interface IncidentService {
-  getIncidents: () => Promise<any[]>;
-  createIncident: (incidentData: any) => Promise<any>;
+  getIncidents: () => Promise<unknown[]>;
+  createIncident: (incidentData: Record<string, unknown>) => Promise<unknown>;
 }
 
 export const incidentService: IncidentService = {

@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface ErrorProps {
   message?: string;
   onRetry?: () => void;
@@ -7,7 +5,10 @@ interface ErrorProps {
 
 export function Error({ message = 'An unexpected error occurred', onRetry }: ErrorProps) {
   return (
-    <div className="flex flex-col items-center justify-center p-6 space-y-4 text-center" role="alert">
+    <div
+      className="flex flex-col items-center justify-center p-6 space-y-4 text-center"
+      role="alert"
+    >
       <div className="text-red-500 font-semibold">⚠️ Error</div>
       <p className="text-sm text-zinc-600">{message}</p>
       {onRetry && (

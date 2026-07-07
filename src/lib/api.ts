@@ -21,12 +21,12 @@ export async function apiRequest<T>(
       status: response.status,
       data: data as T,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       status: 500,
       error: {
         code: 'NETWORK_ERROR',
-        message: error.message || 'Network error or request timeout',
+        message: error instanceof Error ? error.message : 'Network error or request timeout',
       },
     };
   }

@@ -12,7 +12,7 @@ export interface MapMarker {
   title: string;
   lat: number;
   lng: number;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface HeatmapPoint {

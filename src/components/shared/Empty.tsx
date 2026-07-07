@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface EmptyProps {
   message?: string;
   description?: string;

@@ -1,5 +1,5 @@
 export interface AssistantService {
-  sendMessage: (messageContent: string, persona: string) => Promise<any>;
+  sendMessage: (messageContent: string, persona: string) => Promise<unknown>;
 }
 
 export const assistantService: AssistantService = {

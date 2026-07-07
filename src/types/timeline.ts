@@ -4,5 +4,5 @@ export interface TimelineEvent {
   description: string;
   timestamp: string;
   category: 'incident' | 'logistics' | 'security' | 'general';
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
