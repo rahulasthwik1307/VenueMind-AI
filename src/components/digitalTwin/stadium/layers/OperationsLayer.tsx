@@ -46,7 +46,7 @@ export function OperationsLayer({
           <g className={activeClass}>
             <polygon
               points={`${cx-14},${cy} ${cx-7},${cy-10} ${cx+7},${cy-10} ${cx+14},${cy} ${cx+7},${cy+10} ${cx-7},${cy+10}`}
-              fill="#0f5132"
+              fill="var(--primary)"
               stroke="#ffffff"
               strokeWidth={1.5}
             />
@@ -214,7 +214,7 @@ export function OperationsLayer({
             {/* Zone boundary path (translucent in backend, highlighted when hovered/selected) */}
             <path
               d={zone.svgPath}
-              fill={isSelected ? "rgba(255,255,255,0.06)" : isHovered ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0)"}
+              fill={isSelected ? "var(--border-strong)" : isHovered ? "var(--border)" : "transparent"}
               stroke={isSelected ? zone.defaultColor : isHovered ? `${zone.defaultColor}cc` : `${zone.defaultColor}44`}
               strokeWidth={isSelected ? 1.5 : 1}
               strokeDasharray={isSelected ? "none" : "3 3"}
@@ -231,7 +231,7 @@ export function OperationsLayer({
                   y={zone.labelPosition.y - 24}
                   width={60}
                   height={11}
-                  fill="#111827"
+                  fill="var(--surface-3)"
                   rx={2}
                   opacity={0.88}
                 />
@@ -242,7 +242,7 @@ export function OperationsLayer({
                   dominantBaseline="middle"
                   fontSize={5.5}
                   fontWeight={600}
-                  fill="#ffffff"
+                  fill="var(--foreground)"
                 >
                   {zone.name}
                 </text>

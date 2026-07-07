@@ -12,12 +12,12 @@ const PITCH = { x: 282, y: 230, w: 236, h: 152 };
 const CX = PITCH.x + PITCH.w / 2;
 const CY = PITCH.y + PITCH.h / 2;
 
-// Relative positions inside pitch
-const PENALTY_W = 44;
-const PENALTY_H = 80;
-const GOAL_W = 12;
-const GOAL_H = 36;
-const CENTER_R = 28;
+// Relative positions inside pitch (re-scaled to match 105m x 68m realistic ratio)
+const PENALTY_W = 90;
+const PENALTY_H = 74; // so PENALTY_H / 2 = 37
+const GOAL_W = 41;
+const GOAL_H = 24; // so GOAL_H / 2 = 12
+const CENTER_R = 21;
 
 export function PitchLayer() {
   return (
@@ -32,17 +32,32 @@ export function PitchLayer() {
         rx={2}
       />
 
-      {/* Alternating grass stripes (subtle) */}
-      {Array.from({ length: 8 }).map((_, i) => (
+      {/* Alternating grass stripes (subtle horizontal mow-stripes running the length) */}
+      {Array.from({ length: 12 }).map((_, i) => (
         <rect
           key={i}
-          x={PITCH.x + (i * PITCH.w) / 8}
-          y={PITCH.y}
-          width={PITCH.w / 8}
-          height={PITCH.h}
-          fill={i % 2 === 0 ? 'rgba(0,0,0,0.035)' : 'transparent'}
+          x={PITCH.x}
+          y={PITCH.y + (i * PITCH.h) / 12}
+          width={PITCH.w}
+          height={PITCH.h / 12}
+          fill={i % 2 === 0 ? 'rgba(255,255,255,0.05)' : 'transparent'}
+          pointerEvents="none"
         />
       ))}
+
+      {/* Secondary technical/touchline boundary outline just outside the main pitch rect */}
+      <rect
+        x={PITCH.x - 6}
+        y={PITCH.y - 6}
+        width={PITCH.w + 12}
+        height={PITCH.h + 12}
+        fill="none"
+        stroke="rgba(255,255,255,0.35)"
+        strokeWidth={0.8}
+        strokeDasharray="2 3"
+        rx={3}
+        pointerEvents="none"
+      />
 
       {/* Pitch outline */}
       <rect
@@ -104,7 +119,7 @@ export function PitchLayer() {
       {/* North penalty spot */}
       <circle
         cx={CX}
-        cy={PITCH.y + 24}
+        cy={PITCH.y + 24.6}
         r={1.8}
         fill="rgba(255,255,255,0.95)"
       />
@@ -134,9 +149,39 @@ export function PitchLayer() {
       {/* South penalty spot */}
       <circle
         cx={CX}
-        cy={PITCH.y + PITCH.h - 24}
+        cy={PITCH.y + PITCH.h - 24.6}
         r={1.8}
         fill="rgba(255,255,255,0.95)"
+      />
+
+      {/* Corner arcs (quarter circles at four corners) */}
+      <path
+        d={`M ${PITCH.x + 5} ${PITCH.y} A 5 5 0 0 1 ${PITCH.x} ${PITCH.y + 5}`}
+        fill="none"
+        stroke="rgba(255,255,255,0.95)"
+        strokeWidth={1.8}
+        pointerEvents="none"
+      />
+      <path
+        d={`M ${PITCH.x + PITCH.w} ${PITCH.y + 5} A 5 5 0 0 1 ${PITCH.x + PITCH.w - 5} ${PITCH.y}`}
+        fill="none"
+        stroke="rgba(255,255,255,0.95)"
+        strokeWidth={1.8}
+        pointerEvents="none"
+      />
+      <path
+        d={`M ${PITCH.x} ${PITCH.y + PITCH.h - 5} A 5 5 0 0 1 ${PITCH.x + 5} ${PITCH.y + PITCH.h}`}
+        fill="none"
+        stroke="rgba(255,255,255,0.95)"
+        strokeWidth={1.8}
+        pointerEvents="none"
+      />
+      <path
+        d={`M ${PITCH.x + PITCH.w - 5} ${PITCH.y + PITCH.h} A 5 5 0 0 1 ${PITCH.x + PITCH.w} ${PITCH.y + PITCH.h - 5}`}
+        fill="none"
+        stroke="rgba(255,255,255,0.95)"
+        strokeWidth={1.8}
+        pointerEvents="none"
       />
 
       {/* Relocated Pitch label (above playing surface) */}

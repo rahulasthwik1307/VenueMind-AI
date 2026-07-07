@@ -80,8 +80,8 @@ export function GateLayer({
             {/* Gate rectangle */}
             <path
               d={zone.svgPath}
-              fill={isSelected ? '#15803d' : isHovered ? '#1e293b' : '#111827'}
-              stroke={isSelected ? '#10b981' : statusColor}
+              fill={isSelected ? 'var(--primary-light)' : isHovered ? 'var(--surface-3)' : 'var(--surface-1)'}
+              stroke={isSelected ? 'var(--primary)' : statusColor}
               strokeWidth={isSelected ? 2 : 1.5}
               rx={2}
             />
@@ -91,7 +91,7 @@ export function GateLayer({
               <path
                 d={zone.svgPath}
                 fill="none"
-                stroke="#ffffff"
+                stroke="var(--foreground)"
                 strokeWidth={2.2}
                 strokeDasharray="4 2"
                 className="animated-gate-flow"
@@ -118,7 +118,7 @@ export function GateLayer({
               dominantBaseline="middle"
               fontSize={10}
               fontWeight={700}
-              fill={isSelected ? '#10b981' : 'rgba(255, 255, 255, 0.75)'}
+              fill={isSelected ? 'var(--primary)' : 'var(--foreground-muted)'}
               fontFamily="var(--font-mono, monospace)"
               letterSpacing={0.5}
               pointerEvents="none"

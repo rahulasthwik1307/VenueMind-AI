@@ -17,10 +17,10 @@
   --secondary-light: #deeaf5;
   --secondary-muted: rgba(70, 130, 180, 0.08);
 
-  --accent: #e6a800; /* Warm Amber — slightly refined from raw #ffbf00 */
-  --accent-hover: #cc9500;
-  --accent-light: #fff3cc;
-  --accent-muted: rgba(230, 168, 0, 0.1);
+  --accent: #d97706; /* Warm Amber */
+  --accent-hover: #b45309;
+  --accent-light: #fef3c7;
+  --accent-muted: rgba(217, 119, 6, 0.1);
 
   /* --- Semantic Status Colors --- */
   --color-success: #16a34a;
@@ -32,29 +32,29 @@
   --color-info: #2563eb;
   --color-info-bg: #dbeafe;
 
-  /* --- Surface Palette (Shifted to Charcoal/Deep-Neutral) --- */
-  --background: #0f1219; /* Deep charcoal background */
-  --surface-0: #0f1219;
-  --surface-1: #151a24; /* Elevated panel container */
-  --surface-2: #1e2533; /* Inset hover / active items */
-  --surface-3: #263042;
+  /* --- Surface Palette (Clean, dense, low-glare neutral light grays/off-whites) --- */
+  --background: #f3f4f6; /* Off-white background */
+  --surface-0: #f3f4f6;
+  --surface-1: #ffffff; /* Clean white card container */
+  --surface-2: #e5e7eb; /* Slightly darker grey for hover / active */
+  --surface-3: #d1d5db;
 
   /* --- Foreground / Text --- */
-  --foreground: #f3f4f6; /* Off-white */
-  --foreground-muted: #9ca3af;
-  --foreground-subtle: #6b7280;
-  --foreground-inverse: #0f1219;
+  --foreground: #111827; /* Rich black/gray text */
+  --foreground-muted: #4b5563;
+  --foreground-subtle: #9ca3af;
+  --foreground-inverse: #ffffff;
 
   /* --- Border System --- */
-  --border: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.15);
+  --border: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.15);
   --border-focus: var(--primary);
 
-  /* --- Shadow System (3-tier elevation shadows) --- */
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.4), 0 3px 6px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5), 0 6px 12px rgba(0, 0, 0, 0.3);
+  /* --- Shadow System (Light mode values) --- */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.06);
 
   /* --- Border Radius --- */
   --radius-sm: 6px;
@@ -87,41 +87,59 @@
   --focus-ring-offset: 2px;
 
   /* --- Sidebar Specific --- */
-  --sidebar-bg: #151a24;
-  --sidebar-border: rgba(255, 255, 255, 0.08);
-  --sidebar-item-hover: rgba(255, 255, 255, 0.04);
-  --sidebar-item-active-bg: rgba(15, 81, 50, 0.25);
-  --sidebar-item-active-text: #4ade80;
+  --sidebar-bg: #ffffff;
+  --sidebar-border: rgba(0, 0, 0, 0.08);
+  --sidebar-item-hover: rgba(0, 0, 0, 0.03);
+  --sidebar-item-active-bg: rgba(15, 81, 50, 0.08);
+  --sidebar-item-active-text: #0f5132;
 }
 
 /* --- Dark Mode Overrides (Matching Cosmic Charcoal Theme) --- */
 .dark {
-  --background: #0a0c10;
-  --surface-0: #0a0c10;
-  --surface-1: #10141e;
-  --surface-2: #161c28;
-  --surface-3: #1f2736;
+  --primary: #10b981; /* Bright emerald for dark mode contrast */
+  --primary-hover: #059669;
+  --primary-light: rgba(16, 185, 129, 0.2);
+  --primary-muted: rgba(16, 185, 129, 0.08);
 
-  --foreground: #f9fafb;
+  --secondary: #60a5fa;
+  --secondary-hover: #3b82f6;
+  --secondary-light: rgba(96, 165, 250, 0.2);
+  --secondary-muted: rgba(96, 165, 250, 0.08);
+
+  --accent: #fbbf24;
+  --accent-hover: #f59e0b;
+  --accent-light: rgba(251, 191, 36, 0.2);
+  --accent-muted: rgba(251, 191, 36, 0.08);
+
+  /* --- Surface Palette (Dark mode slate-neutrals) --- */
+  --background: #0f1219; /* Cosmic charcoal background */
+  --surface-0: #0f1219;
+  --surface-1: #151a24; /* Elevated panel container */
+  --surface-2: #1e2533; /* Inset hover / active items */
+  --surface-3: #263042;
+
+  /* --- Foreground / Text --- */
+  --foreground: #f3f4f6; /* Off-white */
   --foreground-muted: #cbd5e1;
   --foreground-subtle: #94a3b8;
+  --foreground-inverse: #0f1219;
 
-  --border: rgba(255, 255, 255, 0.07);
-  --border-strong: rgba(255, 255, 255, 0.12);
+  /* --- Border System --- */
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.15);
 
+  /* --- Shadow System (Dark mode values) --- */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.5);
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.5), 0 3px 6px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.6), 0 6px 12px rgba(0, 0, 0, 0.4);
 
-  --sidebar-bg: #10141e;
-  --sidebar-border: rgba(255, 255, 255, 0.06);
+  /* --- Sidebar Specific --- */
+  --sidebar-bg: #151a24;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
   --sidebar-item-hover: rgba(255, 255, 255, 0.04);
-  --sidebar-item-active-bg: rgba(15, 81, 50, 0.25);
-  --sidebar-item-active-text: #4ade80;
-
-  --primary-light: rgba(15, 81, 50, 0.25);
-  --primary-muted: rgba(15, 81, 50, 0.15);
+  --sidebar-item-active-bg: rgba(16, 185, 129, 0.15);
+  --sidebar-item-active-text: #10b981;
 }
 
 /* --- Tailwind Theme Bridge --- */
@@ -302,4 +320,24 @@ body {
 
 .animate-fade-in {
   animation: fade-in var(--transition-slow) ease-out both;
+}
+
+/* Persistent thin scrollbar styling */
+.custom-scrollbar-always {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+.custom-scrollbar-always::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.custom-scrollbar-always::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar-always::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 9999px;
+}
+.custom-scrollbar-always::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground-subtle);
 }

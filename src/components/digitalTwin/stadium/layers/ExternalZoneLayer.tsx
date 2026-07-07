@@ -112,7 +112,7 @@ export function ExternalZoneLayer({
                   y={zone.labelPosition.y + 8}
                   width={44}
                   height={13}
-                  fill="#111827"
+                  fill="var(--surface-3)"
                   rx={2}
                   opacity={0.85}
                 />
@@ -122,7 +122,7 @@ export function ExternalZoneLayer({
                   textAnchor="middle"
                   dominantBaseline="middle"
                   fontSize={6}
-                  fill="#ffffff"
+                  fill="var(--foreground)"
                   pointerEvents="none"
                 >
                   {zone.shortName}

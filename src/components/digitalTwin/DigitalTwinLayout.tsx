@@ -25,6 +25,7 @@ import {
   ChevronRight, 
   ChevronUp,
   AlertTriangle,
+  Octagon,
   Cpu
 } from 'lucide-react';
 
@@ -213,10 +214,10 @@ export function DigitalTwinLayout() {
                 </div>
                 {criticalCount > 0 && (
                   <div 
-                    className="flex items-center justify-center w-8 h-8 rounded-full bg-red-950/40 border border-red-500/50 text-red-500 animate-pulse" 
+                    className="flex items-center justify-center w-8 h-8 rounded-full bg-red-955/40 border border-red-500/50 text-red-500 animate-pulse" 
                     title={`${criticalCount} Critical Incidents`}
                   >
-                    <AlertTriangle size={15} className="fill-red-500/10" />
+                    <Octagon size={15} className="fill-red-500/10" />
                   </div>
                 )}
               </div>

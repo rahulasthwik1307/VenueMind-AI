@@ -65,7 +65,7 @@ export function ActivityFeedPanel({ activities }: ActivityFeedPanelProps) {
   const groups: ActivityTimeGroup[] = ['now', 'recent', 'earlier'];
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="flex flex-col h-full overflow-hidden relative">
       {/* Header */}
       <div className="px-3 pt-2.5 pb-1.5 border-b border-(--border) shrink-0">
         <div className="flex items-center justify-between">
@@ -82,7 +82,7 @@ export function ActivityFeedPanel({ activities }: ActivityFeedPanelProps) {
       </div>
 
       {/* Feed */}
-      <div className="flex-1 overflow-y-auto px-2 py-1.5">
+      <div className="flex-1 overflow-y-auto px-2 py-1.5 custom-scrollbar-always">
         {activities.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-24 text-center">
             <Clock size={14} className="text-(--foreground-subtle) opacity-30 mb-1.5" aria-hidden="true" />
@@ -149,6 +149,9 @@ export function ActivityFeedPanel({ activities }: ActivityFeedPanelProps) {
           </div>
         )}
       </div>
+
+      {/* Bottom fade gradient to signal more content to scroll */}
+      <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-(--surface-1) to-transparent pointer-events-none z-15" />
     </div>
   );
 }

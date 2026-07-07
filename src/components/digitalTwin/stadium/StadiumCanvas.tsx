@@ -204,7 +204,7 @@ export function StadiumCanvas({
     <div
       ref={containerRef}
       className="w-full h-full relative overflow-hidden"
-      style={{ background: 'linear-gradient(135deg, #11141d 0%, #0c0e14 100%)' }}
+      style={{ background: 'linear-gradient(135deg, var(--background) 0%, var(--surface-1) 100%)' }}
     >
       <TransformWrapper
         ref={transformRef}
@@ -244,7 +244,7 @@ export function StadiumCanvas({
 
       {/* ── Mini Map Overview Overlay ───────────────────────────────────────── */}
       <div 
-        className="absolute bottom-3 left-3 w-32 h-[99px] bg-slate-900/80 backdrop-blur border border-slate-800 rounded-md overflow-hidden shadow-md select-none cursor-pointer group z-20"
+        className="absolute bottom-3 left-3 w-32 h-[99px] bg-(--surface-1)/80 backdrop-blur border border-(--border) rounded-md overflow-hidden shadow-md select-none cursor-pointer group z-20"
         onClick={handleReset}
         title="Click to reset stadium view"
       >
@@ -289,7 +289,7 @@ export function StadiumCanvas({
 
         {/* Click to Reset Prompt Overlay */}
         <div className="absolute inset-0 bg-black/5 dark:bg-white/5 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity pointer-events-none">
-          <span className="text-[8px] font-bold font-mono text-(--primary) bg-slate-950 px-1 py-0.5 rounded shadow border border-slate-800">
+          <span className="text-[8px] font-bold font-mono text-(--primary) bg-(--surface-1) px-1 py-0.5 rounded shadow border border-(--border)">
             RESET VIEW
           </span>
         </div>
@@ -297,11 +297,11 @@ export function StadiumCanvas({
 
       {/* ── Operational Legend ────────────────────────────────────────────────── */}
       <div 
-        className="absolute bottom-12 right-3 p-2.5 bg-slate-955/90 backdrop-blur border border-slate-800 rounded-md shadow-lg select-none pointer-events-auto z-20 flex flex-col gap-1.5 max-w-[130px]"
+        className="absolute bottom-12 right-3 p-2.5 bg-(--surface-1)/90 backdrop-blur border border-(--border) rounded-md shadow-lg select-none pointer-events-auto z-20 flex flex-col gap-1.5 max-w-[130px]"
         role="region"
         aria-label="Map Legend"
       >
-        <span className="text-[8px] font-bold font-mono text-(--foreground-subtle) uppercase tracking-wider border-b border-slate-850 pb-0.5">
+        <span className="text-[8px] font-bold font-mono text-(--foreground-subtle) uppercase tracking-wider border-b border-(--border) pb-0.5">
           Blueprint Legend
         </span>
         
@@ -329,7 +329,7 @@ export function StadiumCanvas({
         </div>
 
         {/* Shapes (Category) */}
-        <div className="flex flex-col gap-0.5 pt-1 border-t border-slate-800">
+        <div className="flex flex-col gap-0.5 pt-1 border-t border-(--border)">
           <span className="text-[7px] font-mono text-(--foreground-subtle) uppercase">Shapes</span>
           <div className="flex flex-col gap-0.5">
             <div className="flex items-center gap-1">
@@ -362,7 +362,7 @@ export function StadiumCanvas({
 
       {/* Scale/Pan HUD instructions */}
       <div
-        className="absolute bottom-3 right-3 text-[9px] font-mono text-gray-450 bg-slate-900/60 backdrop-blur-sm px-2 py-1 rounded border border-slate-800"
+        className="absolute bottom-3 right-3 text-[9px] font-mono text-(--foreground-subtle) bg-(--surface-1)/60 backdrop-blur-sm px-2 py-1 rounded border border-(--border)"
         aria-hidden="true"
       >
         Scroll to zoom · Drag to pan

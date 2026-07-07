@@ -83,8 +83,8 @@ export function StadiumSVG({
           </feMerge>
         </filter>
         <radialGradient id="stadium-bg" cx="50%" cy="50%" r="70%">
-          <stop offset="0%" stopColor="#131722" />
-          <stop offset="100%" stopColor="#0b0d13" />
+          <stop offset="0%" stopColor="var(--surface-1)" />
+          <stop offset="100%" stopColor="var(--background)" />
         </radialGradient>
       </defs>
 
@@ -97,8 +97,9 @@ export function StadiumSVG({
         cy={308}
         rx={320}
         ry={252}
-        fill="rgba(20,24,35,0.7)"
-        stroke="rgba(255,255,255,0.05)"
+        fill="var(--surface-2)"
+        fillOpacity={0.7}
+        stroke="var(--border)"
         strokeWidth={1}
         filter="url(#stadium-shadow)"
       />
@@ -193,10 +194,10 @@ export function StadiumSVG({
 function CompassRose() {
   return (
     <g transform="translate(762, 50)" aria-label="Compass — North indicator">
-      <circle cx={0} cy={0} r={12} fill="rgba(15,23,42,0.8)" stroke="rgba(255,255,255,0.1)" strokeWidth={1} />
-      <polygon points="0,-9 3,-3 -3,-3" fill="#10b981" />
-      <polygon points="0,9 3,3 -3,3" fill="#475569" />
-      <text x={0} y={-13} textAnchor="middle" fontSize={6} fontWeight={700} fill="#10b981" fontFamily="var(--font-mono, monospace)">N</text>
+      <circle cx={0} cy={0} r={12} fill="var(--surface-1)" fillOpacity={0.9} stroke="var(--border)" strokeWidth={1} />
+      <polygon points="0,-9 3,-3 -3,-3" fill="var(--primary)" />
+      <polygon points="0,9 3,3 -3,3" fill="var(--foreground-subtle)" />
+      <text x={0} y={-13} textAnchor="middle" fontSize={6} fontWeight={700} fill="var(--primary)" fontFamily="var(--font-mono, monospace)">N</text>
     </g>
   );
 }

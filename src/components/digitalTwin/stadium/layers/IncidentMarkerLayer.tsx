@@ -174,7 +174,7 @@ export function IncidentMarkerLayer({
                   cy={cy}
                   r={r + 4.5}
                   fill="none"
-                  stroke="#ffffff"
+                  stroke="var(--foreground)"
                   strokeWidth={1.2}
                   strokeDasharray="4 2"
                   animate={{ rotate: 360 }}

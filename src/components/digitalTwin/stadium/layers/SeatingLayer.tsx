@@ -11,6 +11,7 @@
  * - Clean monospaced section markers
  */
 
+import { useState, useEffect } from 'react';
 import { m } from 'framer-motion';
 import { StadiumZoneConfig, ZoneStatus } from '@/types/digitalTwin';
 import { ZOOM_DETAIL_THRESHOLD } from '@/constants/layout';
@@ -92,13 +93,34 @@ export function SeatingLayer({
   const seatingZones = zones.filter((z) => SEATING_ZONE_IDS.has(z.id));
   const showSectionLabels = zoomLevel >= ZOOM_DETAIL_THRESHOLD;
 
+  const [isDark, setIsDark] = useState(false);
+  useEffect(() => {
+    const checkTheme = () => {
+      setIsDark(document.documentElement.classList.contains('dark'));
+    };
+    requestAnimationFrame(checkTheme);
+    
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains('dark'));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
   function getAmbientCrowdColor(density: number): string {
-    // Premium low-saturation heat glow from charcoal slate (#1f2937) to dark copper (#5c2e2b)
     const t = Math.min(100, Math.max(0, density)) / 100;
-    const r = Math.round(31 + (92 - 31) * t);
-    const g = Math.round(41 + (46 - 41) * t);
-    const b = Math.round(55 + (43 - 55) * t);
-    return `rgb(${r}, ${g}, ${b})`;
+    if (isDark) {
+      const r = Math.round(21 + (92 - 21) * t);
+      const g = Math.round(26 + (46 - 26) * t);
+      const b = Math.round(38 + (43 - 38) * t);
+      return `rgb(${r}, ${g}, ${b})`;
+    } else {
+      // Light mode: from light gray (#e5e7eb = 229, 231, 235) to light warm copper/red (#fee2e2 = 254, 226, 226)
+      const r = Math.round(229 + (254 - 229) * t);
+      const g = Math.round(231 + (226 - 231) * t);
+      const b = Math.round(235 + (226 - 235) * t);
+      return `rgb(${r}, ${g}, ${b})`;
+    }
   }
 
   return (
@@ -123,8 +145,8 @@ export function SeatingLayer({
           <m.path
             key={zone.id}
             d={zone.svgPath}
-            fill={isSelected ? '#15803d' : getAmbientCrowdColor(density)}
-            stroke={isSelected ? '#10b981' : STATUS_STROKE[status]}
+            fill={isSelected ? 'var(--primary)' : getAmbientCrowdColor(density)}
+            stroke={isSelected ? 'var(--primary)' : STATUS_STROKE[status]}
             strokeWidth={isSelected ? 2 : status !== 'normal' ? 1.2 : 0.8}
             opacity={isHovered && !isSelected ? 0.85 : 1}
             style={{ cursor: 'pointer' }}
@@ -161,7 +183,7 @@ export function SeatingLayer({
         rx={276}
         ry={214}
         fill="none"
-        stroke="rgba(255,255,255,0.4)"
+        stroke="var(--border-strong)"
         strokeWidth={1}
         pointerEvents="none"
       />
@@ -173,7 +195,7 @@ export function SeatingLayer({
         rx={258}
         ry={198}
         fill="none"
-        stroke="rgba(255,255,255,0.2)"
+        stroke="var(--border)"
         strokeWidth={0.8}
         strokeDasharray="4 2"
         pointerEvents="none"
@@ -193,7 +215,7 @@ export function SeatingLayer({
             y1={yInner}
             x2={xOuter}
             y2={yOuter}
-            stroke="rgba(255, 255, 255, 0.45)"
+            stroke="var(--border-strong)"
             strokeWidth={1}
             pointerEvents="none"
           />
@@ -214,7 +236,7 @@ export function SeatingLayer({
             dominantBaseline="middle"
             fontSize={8}
             fontWeight={600}
-            fill="rgba(255,255,255,0.5)"
+            fill="var(--foreground-subtle)"
             fontFamily="var(--font-mono, monospace)"
             pointerEvents="none"
             style={{ userSelect: 'none' }}
@@ -236,7 +258,7 @@ export function SeatingLayer({
             dominantBaseline="middle"
             fontSize={zone.type === 'seating' ? 11 : 9.5}
             fontWeight={isSelected ? 750 : 600}
-            fill={isSelected ? '#10b981' : 'rgba(255, 255, 255, 0.75)'}
+            fill={isSelected ? 'var(--primary)' : 'var(--foreground-muted)'}
             fontFamily="var(--font-mono, monospace)"
             letterSpacing={0.5}
             pointerEvents="none"
@@ -253,8 +275,8 @@ export function SeatingLayer({
         cy={308}
         rx={242}
         ry={186}
-        fill="#141922"
-        stroke="rgba(255,255,255,0.06)"
+        fill="var(--surface-0)"
+        stroke="var(--border)"
         strokeWidth={1}
         pointerEvents="none"
         style={{ zIndex: -1 }}
@@ -267,7 +289,7 @@ export function SeatingLayer({
         rx={242}
         ry={186}
         fill="none"
-        stroke="rgba(255,255,255,0.12)"
+        stroke="var(--border-strong)"
         strokeWidth={3}
         pointerEvents="none"
       />

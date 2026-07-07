@@ -78,23 +78,23 @@ export function StructuralDetailLayer({
       {/* ── 2. Service Access Tunnels ───────────────────────────────────────── */}
       {/* Northwest Corridor */}
       <g opacity={0.35} pointerEvents="none">
-        <line x1={120} y1={120} x2={165} y2={165} stroke="#6b7280" strokeWidth={3} />
-        <line x1={125} y1={115} x2={170} y2={160} stroke="#f0f4f2" strokeWidth={1} />
+        <line x1={120} y1={120} x2={165} y2={165} stroke="var(--foreground-subtle)" strokeWidth={3} />
+        <line x1={125} y1={115} x2={170} y2={160} stroke="var(--surface-1)" strokeWidth={1} />
       </g>
       {/* Northeast Corridor */}
       <g opacity={0.35} pointerEvents="none">
-        <line x1={680} y1={120} x2={635} y2={165} stroke="#6b7280" strokeWidth={3} />
-        <line x1={675} y1={115} x2={630} y2={160} stroke="#f0f4f2" strokeWidth={1} />
+        <line x1={680} y1={120} x2={635} y2={165} stroke="var(--foreground-subtle)" strokeWidth={3} />
+        <line x1={675} y1={115} x2={630} y2={160} stroke="var(--surface-1)" strokeWidth={1} />
       </g>
       {/* Southeast Corridor */}
       <g opacity={0.35} pointerEvents="none">
-        <line x1={680} y1={496} x2={635} y2={451} stroke="#6b7280" strokeWidth={3} />
-        <line x1={675} y1={501} x2={630} y2={456} stroke="#f0f4f2" strokeWidth={1} />
+        <line x1={680} y1={496} x2={635} y2={451} stroke="var(--foreground-subtle)" strokeWidth={3} />
+        <line x1={675} y1={501} x2={630} y2={456} stroke="var(--surface-1)" strokeWidth={1} />
       </g>
       {/* Southwest Corridor */}
       <g opacity={0.35} pointerEvents="none">
-        <line x1={120} y1={496} x2={165} y2={451} stroke="#6b7280" strokeWidth={3} />
-        <line x1={125} y1={501} x2={170} y2={456} stroke="#f0f4f2" strokeWidth={1} />
+        <line x1={120} y1={496} x2={165} y2={451} stroke="var(--foreground-subtle)" strokeWidth={3} />
+        <line x1={125} y1={501} x2={170} y2={456} stroke="var(--surface-1)" strokeWidth={1} />
       </g>
 
       {/* ── 3. Emergency Exits ──────────────────────────────────────────────── */}
@@ -176,11 +176,11 @@ export function StructuralDetailLayer({
             />
 
             {/* Hub indicators */}
-            <circle cx={400} cy={558} r={3} fill="#0f5132" stroke="#ffffff" strokeWidth={1} />
-            <circle cx={683} cy={406} r={3} fill="#0f5132" stroke="#ffffff" strokeWidth={1} />
-            <circle cx={683} cy={210} r={3} fill="#0f5132" stroke="#ffffff" strokeWidth={1} />
-            <circle cx={117} cy={210} r={3} fill="#0f5132" stroke="#ffffff" strokeWidth={1} />
-            <circle cx={720} cy={500} r={3} fill="#0f5132" stroke="#ffffff" strokeWidth={1} />
+            <circle cx={400} cy={558} r={3} fill="var(--primary)" stroke="var(--foreground-inverse)" strokeWidth={1} />
+            <circle cx={683} cy={406} r={3} fill="var(--primary)" stroke="var(--foreground-inverse)" strokeWidth={1} />
+            <circle cx={683} cy={210} r={3} fill="var(--primary)" stroke="var(--foreground-inverse)" strokeWidth={1} />
+            <circle cx={117} cy={210} r={3} fill="var(--primary)" stroke="var(--foreground-inverse)" strokeWidth={1} />
+            <circle cx={720} cy={500} r={3} fill="var(--primary)" stroke="var(--foreground-inverse)" strokeWidth={1} />
           </m.g>
         )}
       </AnimatePresence>

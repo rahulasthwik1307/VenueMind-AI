@@ -92,7 +92,7 @@ function TooltipBox({
         width={130}
         height={62}
         rx={6}
-        fill="#1c2b22"
+        fill="var(--surface-1)"
         opacity={0.94}
       />
       <rect
@@ -100,7 +100,7 @@ function TooltipBox({
         height={62}
         rx={6}
         fill="none"
-        stroke="rgba(255,255,255,0.1)"
+        stroke="var(--border)"
         strokeWidth={1}
       />
 
@@ -110,7 +110,7 @@ function TooltipBox({
         y={16}
         fontSize={8.5}
         fontWeight={700}
-        fill="#ffffff"
+        fill="var(--foreground)"
         fontFamily="var(--font-sans, sans-serif)"
       >
         {zone.name}
@@ -133,7 +133,7 @@ function TooltipBox({
       </text>
 
       {/* Crowd density bar */}
-      <text x={10} y={41} fontSize={6.5} fill="rgba(255,255,255,0.55)" fontFamily="var(--font-mono, monospace)">
+      <text x={10} y={41} fontSize={6.5} fill="var(--foreground-subtle)" fontFamily="var(--font-mono, monospace)">
         CROWD
       </text>
       <text
@@ -147,7 +147,7 @@ function TooltipBox({
       >
         {Math.round(density)}%
       </text>
-      <rect x={10} y={44} width={barWidth} height={5} rx={2.5} fill="rgba(255,255,255,0.12)" />
+      <rect x={10} y={44} width={barWidth} height={5} rx={2.5} fill="var(--surface-3)" />
       <rect x={10} y={44} width={filledWidth} height={5} rx={2.5} fill={densityColor} opacity={0.9} />
 
       {/* Capacity */}
@@ -155,7 +155,7 @@ function TooltipBox({
         x={10}
         y={58}
         fontSize={6}
-        fill="rgba(255,255,255,0.4)"
+        fill="var(--foreground-subtle)"
         fontFamily="var(--font-mono, monospace)"
       >
         Cap: {zone.capacity.toLocaleString()}

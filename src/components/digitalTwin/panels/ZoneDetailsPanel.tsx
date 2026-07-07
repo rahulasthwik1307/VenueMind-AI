@@ -191,7 +191,7 @@ export function ZoneDetailsPanel({
               </div>
 
               {incidentsInZone.filter((i) => i.status !== 'resolved').length === 0 ? (
-                <div className="text-[10px] text-(--foreground-subtle) text-center py-4 border border-dashed border-(--border) rounded-md">
+                <div className="text-[10px] text-(--foreground-subtle) text-center py-2 px-2 border border-dashed border-(--border) rounded-md min-h-[52px] flex items-center justify-center text-wrap break-words">
                   No active incidents in zone
                 </div>
               ) : (
@@ -315,7 +315,7 @@ export function ZoneDetailsPanel({
               </div>
 
               {activeIncidents.length === 0 ? (
-                <div className="text-[10px] text-(--foreground-subtle) text-center py-4 border border-dashed border-(--border) rounded-md">
+                <div className="text-[10px] text-(--foreground-subtle) text-center py-2 px-2 border border-dashed border-(--border) rounded-md min-h-[52px] flex items-center justify-center text-wrap break-words">
                   Stadium is fully clear
                 </div>
               ) : (

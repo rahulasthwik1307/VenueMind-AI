@@ -35,8 +35,9 @@ export function SelectionLayer({ selectedZoneId, zones }: SelectionLayerProps) {
             <m.path
               d={selectedZone.svgPath}
               fill="none"
-              stroke="rgba(15, 81, 50, 0.5)"
+              stroke="var(--primary)"
               strokeWidth={8}
+              opacity={0.5}
               animate={{
                 strokeWidth: [8, 12, 8],
                 opacity: [0.5, 0.2, 0.5],
@@ -52,7 +53,7 @@ export function SelectionLayer({ selectedZoneId, zones }: SelectionLayerProps) {
             <m.path
               d={selectedZone.svgPath}
               fill="none"
-              stroke="#0f5132"
+              stroke="var(--primary)"
               strokeWidth={2.5}
               strokeDasharray="6 3"
               initial={{ pathLength: 0 }}
@@ -65,7 +66,7 @@ export function SelectionLayer({ selectedZoneId, zones }: SelectionLayerProps) {
               cx={selectedZone.focusPoint.x}
               cy={selectedZone.focusPoint.y}
               r={4}
-              fill="#0f5132"
+              fill="var(--primary)"
               initial={{ scale: 0 }}
               animate={{ scale: [0, 1.4, 1] }}
               transition={{ duration: 0.35, ease: 'easeOut' }}

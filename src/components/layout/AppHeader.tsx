@@ -5,6 +5,8 @@ import {
   Bell,
   Search,
   Settings,
+  Sun,
+  Moon,
   Menu,
   Cpu,
   Shield,
@@ -18,6 +20,7 @@ import {
 import { m, AnimatePresence } from 'framer-motion';
 import { cn } from '@/utils/cn';
 import { HEADER_HEIGHT } from '@/constants/layout';
+import { useTheme } from '@/components/providers/ThemeProvider';
 import { useIncidentStore } from '@/store/modules/incident';
 
 interface AppHeaderProps {
@@ -59,12 +62,17 @@ function useLiveDate() {
 }
 
 export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
+  const { theme, setTheme } = useTheme();
   const searchQuery = useIncidentStore((state) => state.searchQuery);
   const setSearchQuery = useIncidentStore((state) => state.setSearchQuery);
   const activities = useIncidentStore((state) => state.activities);
   const telemetry = useIncidentStore((state) => state.telemetry);
   const time = useLiveTime();
   const date = useLiveDate();
+
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
 
   // Notification center state
   const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -278,6 +286,16 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
             {date}
           </span>
         </div>
+
+        {/* Theme Toggle */}
+        <button
+          onClick={toggleTheme}
+          className="flex items-center justify-center w-8 h-8 rounded-md border border-(--border) bg-(--surface-1) text-(--foreground-muted) hover:text-(--foreground) hover:bg-(--surface-3) transition-colors cursor-pointer mr-2"
+          title={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
+          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
+        >
+          {theme === 'light' ? <Moon size={14} /> : <Sun size={14} />}
+        </button>
 
         {/* Notifications */}
         <div className="relative">
