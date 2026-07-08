@@ -13,7 +13,7 @@
  *  - General Stadium Operations Center Dashboard with live operational metrics and predictive AI outlook.
  */
 
-import { useState } from 'react';
+
 import { m, AnimatePresence } from 'framer-motion';
 import { 
   Brain, 
@@ -23,11 +23,9 @@ import {
   Activity, 
   Gauge, 
   TrendingUp,
-  ChevronDown,
-  ChevronUp,
   ChevronRight
 } from 'lucide-react';
-import { cn } from '@/utils/cn';
+import { ExpandableAICard } from '@/components/ai/ExpandableAICard';
 import { DecisionCard } from '@/components/cards/DecisionCard';
 import type { Incident, IncidentAnalysis } from '@/types/incident';
 import type { StadiumTelemetry } from '@/types/telemetry';
@@ -42,106 +40,7 @@ interface AIContextPanelProps {
   onCollapseClick?: () => void;
 }
 
-interface ExpandableAICardProps {
-  title: string;
-  icon: React.ReactNode;
-  prose: string;
-  theme: 'neutral' | 'warning' | 'info' | 'success';
-}
 
-function ExpandableAICard({ title, icon, prose, theme }: ExpandableAICardProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  // Split prose into sentences
-  const sentences = prose.split(/[.!?]+/).map((s) => s.trim()).filter(Boolean);
-  
-  // Headline: first sentence, capped to 8 words
-  let headline = sentences[0] || 'Operational review active.';
-  const headlineWords = headline.split(/\s+/);
-  if (headlineWords.length > 8) {
-    headline = headlineWords.slice(0, 7).join(' ') + '...';
-  } else if (!headline.endsWith('.')) {
-    headline = headline + '.';
-  }
-
-  // Supporting line: second sentence or default
-  const supporting = sentences[1] ? sentences[1] + '.' : 'Telemetry parameters verified.';
-
-  // Theme styles mapping
-  const themeStyles = {
-    neutral: {
-      bg: 'bg-(--surface-2) border-(--border)',
-      titleText: 'text-(--foreground) font-mono',
-      iconText: 'text-(--primary)',
-      proseText: 'text-(--foreground-muted)',
-    },
-    warning: {
-      bg: 'bg-amber-950/20 border-amber-900/50',
-      titleText: 'text-amber-300 font-mono',
-      iconText: 'text-amber-500',
-      proseText: 'text-amber-250',
-    },
-    info: {
-      bg: 'bg-blue-950/20 border-blue-900/50',
-      titleText: 'text-blue-300 font-mono',
-      iconText: 'text-blue-400',
-      proseText: 'text-blue-250',
-    },
-    success: {
-      bg: 'bg-emerald-950/20 border-emerald-900/50',
-      titleText: 'text-emerald-300 font-mono',
-      iconText: 'text-emerald-400',
-      proseText: 'text-emerald-250',
-    },
-  };
-
-  const style = themeStyles[theme];
-
-  return (
-    <div className={cn('border rounded-md p-2.5 transition-all shadow-sm', style.bg)}>
-      <div 
-        className="flex items-center justify-between cursor-pointer select-none"
-        onClick={() => setIsExpanded(!isExpanded)}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            setIsExpanded(!isExpanded);
-          }
-        }}
-        aria-expanded={isExpanded}
-      >
-        <div className="flex items-center gap-1.5 min-w-0">
-          <span className={style.iconText}>{icon}</span>
-          <span className={cn('text-[9px] font-bold uppercase tracking-wide truncate', style.titleText)}>
-            {title}
-          </span>
-        </div>
-        <div className="text-(--foreground-subtle) hover:text-(--foreground) shrink-0 p-0.5 ml-1">
-          {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-        </div>
-      </div>
-      
-      {/* Short Summary (when collapsed) */}
-      {!isExpanded ? (
-        <div className="mt-1.5 space-y-0.5">
-          <p className="text-[10.5px] font-bold text-(--foreground) leading-snug">
-            {headline}
-          </p>
-          <p className="text-[9px] text-(--foreground-subtle) leading-normal truncate">
-            {supporting}
-          </p>
-        </div>
-      ) : (
-        /* Full Prose (when expanded) */
-        <p className={cn('text-[10px] leading-relaxed mt-2 animate-fade-in', style.proseText)}>
-          {prose}
-        </p>
-      )}
-    </div>
-  );
-}
 
 export function AIContextPanel({
   activeIncident,

@@ -1,23 +1,35 @@
 import { z } from 'zod';
 
-const envSchema = z.object({
+// ─── Client-side Environment ──────────────────────────────────────────────────
+// Only NEXT_PUBLIC_ vars are safe to expose to the browser bundle.
+
+const clientEnvSchema = z.object({
   NEXT_PUBLIC_API_URL: z.string().url().optional().default('http://localhost:3000/api'),
-  NEXT_PUBLIC_GEMINI_API_KEY: z.string().optional(),
+  NEXT_PUBLIC_APP_NAME: z.string().optional().default('VenueMind AI'),
 });
 
-// Use safeParse to prevent crashing on initialization if variables are missing in build step
-const parsed = envSchema.safeParse({
+const parsed = clientEnvSchema.safeParse({
   NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
-  NEXT_PUBLIC_GEMINI_API_KEY: process.env.NEXT_PUBLIC_GEMINI_API_KEY,
+  NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
 });
 
 if (!parsed.success) {
-  console.warn('⚠️ Environment validation failed:', parsed.error.format());
+  // Warn but do not crash — graceful degradation in build step
+  console.warn('⚠️ Client environment validation failed:', parsed.error.format());
 }
 
 export const env = parsed.success
   ? parsed.data
   : {
       NEXT_PUBLIC_API_URL: 'http://localhost:3000/api',
-      NEXT_PUBLIC_GEMINI_API_KEY: undefined,
+      NEXT_PUBLIC_APP_NAME: 'VenueMind AI',
     };
+
+// ─── Server-side Environment ──────────────────────────────────────────────────
+// These are NEVER bundled to the client. Access only from API routes / server components.
+// Groq API key must never appear in any NEXT_PUBLIC_ variable.
+
+export const serverEnv = {
+  /** Groq API key — used exclusively in app/api/assistant/route.ts */
+  GROQ_API_KEY: process.env.GROQ_API_KEY ?? '',
+};

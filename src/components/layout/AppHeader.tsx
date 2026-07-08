@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Bell,
   Search,
@@ -15,13 +15,16 @@ import {
   Clock,
   Activity,
   Info,
-  X
+  X,
+  Languages
 } from 'lucide-react';
 import { m, AnimatePresence } from 'framer-motion';
 import { cn } from '@/utils/cn';
 import { HEADER_HEIGHT } from '@/constants/layout';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { useIncidentStore } from '@/store/modules/incident';
+import { useUIStore } from '@/store/modules/ui';
+import type { AssistantLanguage } from '@/types/assistant';
 
 interface AppHeaderProps {
   onMobileMenuOpen?: () => void;
@@ -69,6 +72,8 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
   const telemetry = useIncidentStore((state) => state.telemetry);
   const time = useLiveTime();
   const date = useLiveDate();
+  const language = useUIStore((state) => state.language);
+  const setLanguage = useUIStore((state) => state.setLanguage);
 
   const toggleTheme = () => {
     setTheme(theme === 'light' ? 'dark' : 'light');
@@ -76,6 +81,8 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
 
   // Notification center state
   const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [isLangOpen, setIsLangOpen] = useState(false);
+  const langRef = useRef<HTMLDivElement>(null);
   const [readNotifIds, setReadNotifIds] = useState<string[]>([]);
   type NotifCategory = 'All' | 'Critical' | 'Operational' | 'Simulation' | 'System' | 'Transport' | 'Weather';
   const [activeTab, setActiveTab] = useState<NotifCategory>('All');
@@ -85,7 +92,7 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
       try {
         const saved = localStorage.getItem('read_notifications');
         if (saved) {
-          setReadNotifIds(JSON.parse(saved));
+          setReadNotifIds(JSON.parse(saved) as string[]);
         }
       } catch {
         // ignore
@@ -93,6 +100,17 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
     }, 0);
     return () => clearTimeout(timer);
   }, []);
+
+  // Close language dropdown on outside click
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) {
+        setIsLangOpen(false);
+      }
+    };
+    if (isLangOpen) document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [isLangOpen]);
 
   const markAsRead = (id: string) => {
     if (readNotifIds.includes(id)) return;
@@ -242,7 +260,10 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
               aria-label={`Global Stadium Occupancy: ${occupancyPercent}%`}
             >
               <div className="relative w-6 h-6 flex items-center justify-center shrink-0">
-                <svg className="w-full h-full transform -rotate-90">
+                <svg 
+                  className="w-full h-full select-none"
+                  style={{ transform: 'rotate(-90deg)', transformOrigin: 'center', animation: 'none' }}
+                >
                   <circle
                     cx="12"
                     cy="12"
@@ -261,6 +282,7 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
                     strokeDasharray={`${2 * Math.PI * 9}`}
                     strokeDashoffset={`${2 * Math.PI * 9 * (1 - occupancyPercent / 100)}`}
                     strokeLinecap="round"
+                    style={{ transition: 'stroke-dashoffset 0.5s ease' }}
                   />
                 </svg>
                 <span className="absolute text-[7.5px] font-black font-mono text-(--foreground)">{occupancyPercent}%</span>
@@ -285,6 +307,81 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
           <span className="text-[10px] text-(--foreground-subtle) leading-tight" suppressHydrationWarning>
             {date}
           </span>
+        </div>
+
+        {/* Language Selector */}
+        <div className="relative" ref={langRef}>
+          <button
+            onClick={() => setIsLangOpen(!isLangOpen)}
+            className={cn(
+              'flex items-center justify-center gap-1 w-auto h-8 px-2 rounded-md border border-(--border)',
+              'bg-(--surface-1) text-(--foreground-muted)',
+              'hover:text-(--foreground) hover:bg-(--surface-3) transition-colors duration-150',
+              isLangOpen && 'bg-(--surface-3) text-(--foreground)'
+            )}
+            aria-label={`Language: ${language.toUpperCase()}. Change language.`}
+            aria-expanded={isLangOpen}
+            aria-haspopup="listbox"
+            title="Change AI response language"
+          >
+            <Languages size={12} strokeWidth={1.75} aria-hidden="true" />
+            <span className="text-[9px] font-bold font-mono">{language.toUpperCase()}</span>
+          </button>
+
+          <AnimatePresence>
+            {isLangOpen && (
+              <m.ul
+                initial={{ opacity: 0, y: 6, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 4, scale: 0.97 }}
+                transition={{ duration: 0.15 }}
+                className="absolute right-0 mt-1.5 w-36 bg-(--surface-1) border border-(--border) rounded-md shadow-lg z-50 py-1 overflow-hidden"
+                role="listbox"
+                aria-label="Select language"
+              >
+                {([
+                  { value: 'en', label: 'English' },
+                  { value: 'es', label: 'Español' },
+                  { value: 'fr', label: 'Français' },
+                  { value: 'pt', label: 'Português' },
+                  { value: 'hi', label: 'हिंदी' },
+                ] as { value: AssistantLanguage; label: string }[]).map(({ value, label }) => (
+                  <li
+                    key={value}
+                    role="option"
+                    aria-selected={language === value}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      setLanguage(value);
+                      setIsLangOpen(false);
+                    }}
+                    onClick={() => {
+                      setLanguage(value);
+                      setIsLangOpen(false);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        setLanguage(value);
+                        setIsLangOpen(false);
+                      }
+                    }}
+                    tabIndex={0}
+                    className={cn(
+                      'flex items-center gap-2 px-3 py-1.5 cursor-pointer text-xs transition-colors',
+                      language === value
+                        ? 'bg-(--primary-muted) text-(--primary) font-semibold'
+                        : 'text-(--foreground-muted) hover:bg-(--surface-2) hover:text-(--foreground)'
+                    )}
+                  >
+                    <span className="text-[9px] font-mono font-bold w-5 text-(--foreground-subtle)">
+                      {value.toUpperCase()}
+                    </span>
+                    {label}
+                  </li>
+                ))}
+              </m.ul>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Theme Toggle */}
