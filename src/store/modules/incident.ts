@@ -15,6 +15,7 @@ export interface IncidentState {
   filter: 'all' | 'critical' | 'open' | 'investigating' | 'resolved';
   searchQuery: string;
   activities: ActivityItem[];
+  readNotifIds: string[];
   toasts: Toast[];
   telemetry: StadiumTelemetry | null;
   stadiumStats: {
@@ -32,9 +33,20 @@ export interface IncidentState {
   markIncidentResolved: (incidentId: string) => void;
   updateIncidentNotes: (incidentId: string, notes: string) => void;
   dismissRecommendation: (incidentId: string, recommendationId: string) => void;
+  /**
+   * Apply a partial patch to a specific set of incidents identified by ID.
+   * Only the specified IDs are mutated; all others are left unchanged.
+   * Business logic for bulk operations belongs here, not in components.
+   */
+  bulkUpdateIncidents: (
+    ids: string[],
+    patch: Partial<Pick<Incident, 'status' | 'assignedTeam'>>
+  ) => void;
   addToast: (message: string, type?: Toast['type']) => void;
   removeToast: (id: string) => void;
   addActivity: (message: string, actor: string, severity?: Severity) => void;
+  markNotifRead: (id: string) => void;
+  markAllNotifsRead: () => void;
   fluctuateStats: () => void;
   updateState: (newState: {
     telemetry?: StadiumTelemetry;
@@ -60,6 +72,7 @@ export const useIncidentStore = create<IncidentState>((set) => ({
   filter: 'all',
   searchQuery: '',
   activities: [],
+  readNotifIds: [],
   toasts: [],
   telemetry: null,
   stadiumStats: INITIAL_STADIUM_STATS,
@@ -83,6 +96,13 @@ export const useIncidentStore = create<IncidentState>((set) => ({
     operationsService.updateIncidentNotes(incidentId, notes);
   },
 
+  bulkUpdateIncidents: (ids, patch) =>
+    set((state) => ({
+      incidents: state.incidents.map((incident) =>
+        ids.includes(incident.id) ? { ...incident, ...patch } : incident
+      ),
+    })),
+
   dismissRecommendation: (incidentId, recommendationId) => {
     operationsService.dismissRecommendation(incidentId, recommendationId);
   },
@@ -104,6 +124,16 @@ export const useIncidentStore = create<IncidentState>((set) => ({
     // Log to activityService to ensure it persists across simulation clock sags
     activityService.logActivity(message, actor, severity);
     return { activities: activityService.getActivities() };
+  }),
+
+  markNotifRead: (id) => set((state) => {
+    if (state.readNotifIds.includes(id)) return {};
+    return { readNotifIds: [...state.readNotifIds, id] };
+  }),
+
+  markAllNotifsRead: () => set((state) => {
+    const allIds = state.activities.map((a) => a.id);
+    return { readNotifIds: allIds };
   }),
 
   fluctuateStats: () => {
@@ -140,6 +170,7 @@ export const useIncidentStore = create<IncidentState>((set) => ({
     filter: 'all',
     searchQuery: '',
     activities: [],
+    readNotifIds: [],
     toasts: [],
     telemetry: null,
     stadiumStats: INITIAL_STADIUM_STATS,

@@ -31,7 +31,7 @@ export function WelcomeBanner() {
 
   if (telemetry?.matchTimeline) {
     const { minute, period, score } = telemetry.matchTimeline.value;
-    isLive = period !== 'pre-match' && period !== 'post-match';
+    isLive = period === 'first-half' || period === 'second-half';
     
     if (period === 'pre-match') {
       matchPhaseLabel = `Match In Ingress (Kickoff in ${Math.abs(minute)}m)`;

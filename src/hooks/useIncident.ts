@@ -7,6 +7,7 @@ export function useIncident() {
   const filter = useIncidentStore((state) => state.filter);
   const searchQuery = useIncidentStore((state) => state.searchQuery);
   const activities = useIncidentStore((state) => state.activities);
+  const readNotifIds = useIncidentStore((state) => state.readNotifIds);
   const toasts = useIncidentStore((state) => state.toasts);
   const stadiumStats = useIncidentStore((state) => state.stadiumStats);
   const telemetry = useIncidentStore((state) => state.telemetry);
@@ -22,6 +23,8 @@ export function useIncident() {
   const addToast = useIncidentStore((state) => state.addToast);
   const removeToast = useIncidentStore((state) => state.removeToast);
   const addActivity = useIncidentStore((state) => state.addActivity);
+  const markNotifRead = useIncidentStore((state) => state.markNotifRead);
+  const markAllNotifsRead = useIncidentStore((state) => state.markAllNotifsRead);
   const fluctuateStats = useIncidentStore((state) => state.fluctuateStats);
 
   return {
@@ -31,6 +34,7 @@ export function useIncident() {
     filter,
     searchQuery,
     activities,
+    readNotifIds,
     toasts,
     stadiumStats,
     telemetry,
@@ -45,6 +49,8 @@ export function useIncident() {
     addToast,
     removeToast,
     addActivity,
+    markNotifRead,
+    markAllNotifsRead,
     fluctuateStats,
   };
 }

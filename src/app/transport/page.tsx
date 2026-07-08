@@ -199,8 +199,8 @@ export default function TransportPage() {
           <div className="border border-red-900/30 bg-red-950/10 rounded-md p-3.5 flex items-start gap-3">
             <AlertCircle size={16} className="text-red-500 shrink-0 mt-0.5" />
             <div>
-              <h4 className="text-xs font-bold text-red-400">Transit Delays Reported</h4>
-              <p className="text-[10px] text-red-200/80 leading-relaxed mt-0.5">
+              <h4 className="text-xs font-bold text-red-600 dark:text-red-400">Transit Delays Reported</h4>
+              <p className="text-[10px] text-red-700 dark:text-red-300 leading-relaxed mt-0.5">
                 Al Khor Highway collision has restricted shuttle corridor B flow. Passengers waiting at Metro Hub B should be directed to the pedestrian walkways or Shuttle Route A.
               </p>
             </div>

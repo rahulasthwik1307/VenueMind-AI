@@ -260,3 +260,42 @@ describe('buildAssistantQuery (domain mode)', () => {
     expect(result.context.domain).toBeUndefined();
   });
 });
+
+// ─── buildAssistantQuery — incidents mode ─────────────────────────────────────
+
+describe('buildAssistantQuery (incidents mode)', () => {
+  const incidentsInput: ContextBuilderInput = {
+    ...baseInput,
+    mode: 'incidents',
+    rawQuery: '',
+    incidentIds: ['inc-001', 'inc-002'],
+  };
+
+  it('returns mode=incidents in context', () => {
+    const result = buildAssistantQuery(incidentsInput);
+    expect(result.context.mode).toBe('incidents');
+  });
+
+  it('sets incidentIds in context', () => {
+    const result = buildAssistantQuery(incidentsInput);
+    expect(result.context.incidentIds).toEqual(['inc-001', 'inc-002']);
+  });
+
+  it('generates a default query referencing the incident IDs when rawQuery is empty', () => {
+    const result = buildAssistantQuery(incidentsInput);
+    expect(result.query).toContain('consolidated operational briefing');
+    expect(result.query).toContain('inc-001, inc-002');
+  });
+
+  it('uses rawQuery when provided', () => {
+    const result = buildAssistantQuery({ ...incidentsInput, rawQuery: 'Prioritize these please.' });
+    expect(result.query).toBe('Prioritize these please.');
+  });
+
+  it('handles empty incidentIds array gracefully with default query', () => {
+    const result = buildAssistantQuery({ ...incidentsInput, incidentIds: [] });
+    expect(result.context.incidentIds).toBeUndefined();
+    expect(result.query).toContain('ranked prioritization of all currently open incidents');
+  });
+});
+

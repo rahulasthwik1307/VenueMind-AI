@@ -83,23 +83,13 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
-  const [readNotifIds, setReadNotifIds] = useState<string[]>([]);
+  
+  const readNotifIds = useIncidentStore((state) => state.readNotifIds);
+  const markNotifRead = useIncidentStore((state) => state.markNotifRead);
+  const markAllNotifsRead = useIncidentStore((state) => state.markAllNotifsRead);
+
   type NotifCategory = 'All' | 'Critical' | 'Operational' | 'Simulation' | 'System' | 'Transport' | 'Weather';
   const [activeTab, setActiveTab] = useState<NotifCategory>('All');
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      try {
-        const saved = localStorage.getItem('read_notifications');
-        if (saved) {
-          setReadNotifIds(JSON.parse(saved) as string[]);
-        }
-      } catch {
-        // ignore
-      }
-    }, 0);
-    return () => clearTimeout(timer);
-  }, []);
 
   // Close language dropdown on outside click
   useEffect(() => {
@@ -113,16 +103,11 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
   }, [isLangOpen]);
 
   const markAsRead = (id: string) => {
-    if (readNotifIds.includes(id)) return;
-    const next = [...readNotifIds, id];
-    setReadNotifIds(next);
-    localStorage.setItem('read_notifications', JSON.stringify(next));
+    markNotifRead(id);
   };
 
   const markAllAsRead = () => {
-    const allIds = activities.map((a) => a.id);
-    setReadNotifIds(allIds);
-    localStorage.setItem('read_notifications', JSON.stringify(allIds));
+    markAllNotifsRead();
   };
 
   const getNotifCategory = (actor: string, message: string, severity?: string): NotifCategory => {

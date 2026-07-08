@@ -49,6 +49,8 @@ export interface ContextBuilderInput {
   zoneId?: string | null;
   telemetry?: StadiumTelemetry | null;
   domain?: AssistantDomain;
+  /** Array of incident IDs for multi-incident consolidated briefing ('incidents' mode) */
+  incidentIds?: string[];
 }
 
 // ─── Pure Context Builder ─────────────────────────────────────────────────────
@@ -74,6 +76,7 @@ export function buildAssistantQuery(input: ContextBuilderInput): AssistantQuery 
     ...(input.incident?.id ? { incidentId: input.incident.id } : {}),
     ...(input.zoneId ? { zoneId: input.zoneId } : {}),
     ...(input.domain ? { domain: input.domain } : {}),
+    ...(input.incidentIds && input.incidentIds.length > 0 ? { incidentIds: input.incidentIds } : {}),
   };
 
   // Build the operator-facing query string enriched with structured context labels
@@ -102,6 +105,16 @@ export function buildAssistantQuery(input: ContextBuilderInput): AssistantQuery 
             `Provide a full ${input.domain} domain operational briefing across the stadium.`
           : sanitizedQuery;
       break;
+
+    case 'incidents': {
+      const ids = input.incidentIds ?? [];
+      query =
+        sanitizedQuery ||
+        (ids.length > 0
+          ? `Provide a consolidated operational briefing and ranked prioritization for the following ${ids.length} incident(s): ${ids.join(', ')}. For each incident, assess severity, flag cross-domain risks, and recommend the optimal response sequence.`
+          : 'Provide a ranked prioritization of all currently open incidents and recommend an optimal response sequence.');
+      break;
+    }
 
     case 'freeform':
     default:

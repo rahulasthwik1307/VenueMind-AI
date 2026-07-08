@@ -64,7 +64,8 @@ class ActivityService {
       time: new Date().toISOString(),
       severity,
     };
-    this.activities = [newActivity, ...this.activities];
+    const MAX_ACTIVITIES = 100;
+    this.activities = [newActivity, ...this.activities].slice(0, MAX_ACTIVITIES);
     this.notify();
   }
 

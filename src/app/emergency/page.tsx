@@ -177,8 +177,8 @@ export default function EmergencyPage() {
           <div className="border border-red-950 bg-red-950/20 rounded-md p-3.5 flex items-start gap-3">
             <AlertCircle size={16} className="text-red-500 shrink-0 mt-0.5" />
             <div>
-              <h4 className="text-xs font-bold text-red-400">CRITICAL SAFETY ALERT</h4>
-              <p className="text-[10px] text-red-200/80 leading-relaxed mt-0.5">
+              <h4 className="text-xs font-bold text-red-600 dark:text-red-400">CRITICAL SAFETY ALERT</h4>
+              <p className="text-[10px] text-red-700 dark:text-red-300 leading-relaxed mt-0.5">
                 Active critical threats identified on queue. Dispatch teams must prioritize evacuations and SCADA interlocks immediately.
               </p>
             </div>

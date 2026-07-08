@@ -17,16 +17,9 @@ export const postMatchScenario: SimulationScenario = {
   },
 
   tickClock: (telemetry) => {
-    const now = new Date().toISOString();
-    const currentMin = telemetry.matchTimeline.value.minute;
-    return {
-      ...telemetry,
-      matchTimeline: {
-        value: { ...telemetry.matchTimeline.value, minute: currentMin + 1 },
-        lastUpdated: now,
-        source: 'match-director',
-      },
-    };
+    // Post-match is the terminal scenario — the clock is frozen at the final
+    // whistle value (90). Never increment beyond regulation time.
+    return telemetry;
   },
 
   tickCrowd: (telemetry) => {

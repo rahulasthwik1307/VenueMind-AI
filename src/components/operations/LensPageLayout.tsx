@@ -3,13 +3,14 @@
 import { useState, useCallback, useEffect } from 'react';
 import { AnimatePresence, m } from 'framer-motion';
 import { Sparkles, Brain, CheckCircle } from 'lucide-react';
-import { cn } from '@/utils/cn';
+
 import { PageContainer } from '@/components/layout/PageContainer';
 import { SectionHeader } from '@/components/shared/SectionHeader';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { ErrorState } from '@/components/shared/ErrorState';
 import { useIncidentStore } from '@/store/modules/incident';
 import { useAssistantStore } from '@/store/modules/assistant';
+import { useUIStore } from '@/store/modules/ui';
 import { IncidentRow } from './CriticalIncidents';
 import { AnalyzingState } from '@/components/ai/AnalyzingState';
 import { CommandCenterError } from '@/components/ai/CommandCenterError';
@@ -43,8 +44,8 @@ export function LensPageLayout({
   // Local state to keep AI briefings isolated per page
   const [activeQueryDomain, setActiveQueryDomain] = useState<AssistantDomain | null>(null);
   
-  // Custom manual telemetry fault toggle for testing DoD error states
-  const [telemetryError, setTelemetryError] = useState<boolean>(false);
+  // Read global telemetry fault flag from UIStore (controlled by Settings page)
+  const telemetryFaultActive = useUIStore((s) => s.telemetryFaultActive);
 
   // Clear previous AI briefings on mount to avoid cross-contamination
   useEffect(() => {
@@ -115,38 +116,23 @@ export function LensPageLayout({
             <SectionHeader
               title={title}
               description={description}
-              className="!mb-0"
+              className="mb-0!"
             />
             
-            {/* Status pills and error state toggle */}
+            {/* Status pills */}
             <div className="flex items-center gap-2 flex-wrap shrink-0">
               {statusPills.map((pill, idx) => (
                 <StatusBadge key={idx} level={pill.level} label={pill.label} />
               ))}
-              
-              {/* Telemetry connection status toggler */}
-              <button
-                onClick={() => setTelemetryError((prev) => !prev)}
-                className={cn(
-                  'text-[9px] font-bold px-2 py-0.5 rounded border font-mono transition-all cursor-pointer',
-                  telemetryError
-                    ? 'bg-red-950/20 border-red-900/40 text-red-400 hover:bg-red-950/30'
-                    : 'bg-green-950/20 border-green-900/40 text-green-400 hover:bg-green-950/30'
-                )}
-                aria-label={telemetryError ? 'Re-enable telemetry connection' : 'Simulate telemetry disconnect'}
-              >
-                TELEMETRY: {telemetryError ? 'FAULT' : 'OK'}
-              </button>
             </div>
           </div>
 
-          {/* Main layout split */}
-          {telemetryError ? (
+          {telemetryFaultActive ? (
             <div className="flex-1 flex items-center justify-center p-6 my-6">
               <ErrorState
                 title="Telemetry Feed Disconnected"
                 message="Loss of live SCADA telemetry packages. Verify switch configurations or retry network socket bind."
-                onRetry={() => setTelemetryError(false)}
+                onRetry={() => useUIStore.getState().setTelemetryFault(false)}
                 className="max-w-md w-full"
               />
             </div>

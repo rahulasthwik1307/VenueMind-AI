@@ -151,7 +151,7 @@ export default function AICommandPage() {
   else if (lastResponse) responseAreaState = 'response';
 
   return (
-    <div className="flex flex-col gap-6 h-full p-6 max-w-[1400px] mx-auto">
+    <div className="flex flex-col gap-6 h-full p-6 max-w-350 mx-auto">
       {/* Page header */}
       <CommandCenterHeader />
 

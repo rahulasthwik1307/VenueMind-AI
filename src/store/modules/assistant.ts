@@ -59,6 +59,7 @@ export const useAssistantStore = create<AssistantState>((set, get) => ({
       incident: input.incident,
       zoneId: input.zoneId,
       domain: input.domain,
+      incidentIds: input.incidentIds,
     });
 
     // Record the user message in history

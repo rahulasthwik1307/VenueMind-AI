@@ -36,7 +36,7 @@ export interface AIStructuredResponse {
 
 // ─── Query & Context ──────────────────────────────────────────────────────────
 
-export type AssistantQueryMode = 'incident' | 'zone' | 'domain' | 'freeform';
+export type AssistantQueryMode = 'incident' | 'zone' | 'domain' | 'freeform' | 'incidents';
 
 export type AssistantDomain = 'crowd' | 'transport' | 'emergency' | 'accessibility';
 
@@ -45,6 +45,8 @@ export type AssistantLanguage = 'en' | 'es' | 'fr' | 'pt' | 'hi';
 export interface AssistantContext {
   mode: AssistantQueryMode;
   incidentId?: string;
+  /** Array of incident IDs for multi-incident consolidated briefing mode */
+  incidentIds?: string[];
   zoneId?: string;
   domain?: AssistantDomain;
   /** Last N messages from session history sent as context */
@@ -103,4 +105,6 @@ export interface SubmitQueryInput {
   incident?: Incident | null;
   zoneId?: string | null;
   domain?: AssistantDomain;
+  /** Array of incident IDs for multi-incident consolidated briefing mode */
+  incidentIds?: string[];
 }

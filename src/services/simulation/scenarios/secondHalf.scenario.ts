@@ -19,7 +19,8 @@ export const secondHalfScenario: SimulationScenario = {
   tickClock: (telemetry) => {
     const now = new Date().toISOString();
     const currentMin = telemetry.matchTimeline.value.minute;
-    const nextMin = currentMin + 1;
+    // Cap at 90 — shouldTransition fires at >= 90, so we never display 91+
+    const nextMin = Math.min(90, currentMin + 1);
 
     // Simulate Argentina scoring at minute 67 to equalize (1-1)!
     const score = { ...telemetry.matchTimeline.value.score };

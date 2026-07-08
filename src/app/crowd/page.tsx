@@ -156,8 +156,8 @@ export default function CrowdMonitoringPage() {
         <div className="border border-amber-900/30 bg-amber-950/10 rounded-md p-3.5 flex items-start gap-3">
           <Flame size={16} className="text-amber-500 shrink-0 mt-0.5" />
           <div>
-            <h4 className="text-xs font-bold text-amber-400">Tac-Route Redirection Active</h4>
-            <p className="text-[10px] text-amber-200/80 leading-relaxed mt-0.5">
+            <h4 className="text-xs font-bold text-amber-600 dark:text-amber-400">Tac-Route Redirection Active</h4>
+            <p className="text-[10px] text-amber-700 dark:text-amber-200 leading-relaxed mt-0.5">
               Redirection signage active on North Plaza screens. Spectators from VIP West dropoffs are routed towards Gate B to mitigate Gate 7 sags.
             </p>
           </div>

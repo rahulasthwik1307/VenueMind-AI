@@ -54,7 +54,7 @@ export function ConversationHistory({ messages, className }: ConversationHistory
       </div>
 
       <div className="relative">
-        <div className="max-h-[220px] md:max-h-[260px] overflow-y-auto pr-1.5 space-y-2 pb-6 custom-scrollbar-always">
+        <div className="max-h-55 md:max-h-65 overflow-y-auto pr-1.5 space-y-2 pb-6 custom-scrollbar-always">
           <AnimatePresence initial={false}>
             {visiblePairs.map(({ user, assistant }, idx) => (
               <m.div
