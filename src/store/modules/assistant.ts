@@ -8,6 +8,7 @@ import type {
 import { buildAssistantQuery } from '@/services/ai/contextBuilder.service';
 import { assistantService } from '@/services/ai/assistant.service';
 import { useUIStore } from '@/store/modules/ui';
+import { useIncidentStore } from '@/store/modules/incident';
 import { logger } from '@/lib/logger';
 
 /** Max messages retained in session history (per-direction) */
@@ -49,6 +50,8 @@ export const useAssistantStore = create<AssistantState>((set, get) => ({
     const language = useUIStore.getState().language;
     const { conversationHistory } = get();
 
+    const liveIncidents = useIncidentStore.getState().incidents;
+
     // Build the full query via pure context builder function
     const assembledQuery = buildAssistantQuery({
       mode: input.mode,
@@ -60,6 +63,7 @@ export const useAssistantStore = create<AssistantState>((set, get) => ({
       zoneId: input.zoneId,
       domain: input.domain,
       incidentIds: input.incidentIds,
+      incidents: liveIncidents,
     });
 
     // Record the user message in history

@@ -1,5 +1,4 @@
-import type { AssistantContext, AssistantDomain } from '@/types/assistant';
-import type { Incident } from '@/types/incident';
+import type { AssistantContext, AssistantDomain, AssistantIncidentSummary } from '@/types/assistant';
 
 /**
  * VenueMind AI — Prompt Templates
@@ -14,14 +13,14 @@ import type { Incident } from '@/types/incident';
 
 // ─── Incident-scoped Template ─────────────────────────────────────────────────
 
-export function buildIncidentPrompt(incident: Incident, additionalQuery: string = ''): string {
+export function buildIncidentPrompt(incident: AssistantIncidentSummary, additionalQuery: string = ''): string {
   const incidentBlock = `
 Incident ID: ${incident.id}
 Title: ${incident.title}
 Category: ${incident.category}
 Severity: ${incident.severity}
 Status: ${incident.status}
-Location: Zone ${incident.location.zone} (${incident.location.lat.toFixed(4)}, ${incident.location.lng.toFixed(4)})
+Location: Zone ${incident.zone} (${incident.lat.toFixed(4)}, ${incident.lng.toFixed(4)})
 Description: ${incident.description}
 AI Confidence: ${incident.aiConfidence ?? 'unknown'}%
 Reported: ${incident.createdAt}
@@ -39,6 +38,36 @@ INCIDENT BRIEFING REQUEST
 ${incidentBlock}${queryPart}
 
 Provide a full operational briefing for this incident including situation overview, risks, recommended response, and estimated impact.
+</USER_QUERY>`;
+}
+
+// ─── Multi-incident Template ─────────────────────────────────────────────────
+
+export function buildIncidentsPrompt(incidents: AssistantIncidentSummary[], additionalQuery: string = ''): string {
+  const incidentsBlock = incidents.map(incident => `
+Incident ID: ${incident.id}
+Title: ${incident.title}
+Category: ${incident.category}
+Severity: ${incident.severity}
+Status: ${incident.status}
+Location: Zone ${incident.zone} (${incident.lat.toFixed(4)}, ${incident.lng.toFixed(4)})
+Description: ${incident.description}
+AI Confidence: ${incident.aiConfidence ?? 'unknown'}%
+Reported: ${incident.createdAt}
+${incident.assignedTeam ? `Assigned Team: ${incident.assignedTeam}` : 'Assigned Team: Not yet assigned'}
+${incident.notes ? `Operator Notes: ${incident.notes}` : ''}
+`.trim()).join('\n\n---\n\n');
+
+  const queryPart = additionalQuery.trim()
+    ? `\n\nOperator Question: ${additionalQuery}`
+    : '';
+
+  return `<USER_QUERY>
+CONSOLIDATED MULTI-INCIDENT BRIEFING REQUEST
+
+${incidentsBlock}${queryPart}
+
+Provide a consolidated operational briefing and ranked prioritization for these incidents. For each incident, assess severity, flag cross-domain risks, and recommend the optimal response sequence and estimated impact.
 </USER_QUERY>`;
 }
 
@@ -144,22 +173,27 @@ interface BuildUserPromptInput {
   query: string;
   context: AssistantContext;
   persona: string;
-  incident?: Incident | null;
 }
 
 /**
  * Assembles the final user-turn prompt from the context and query.
  * Called from the server-side API route only.
  */
-export function buildUserPrompt({ query, context, incident }: BuildUserPromptInput): string {
+export function buildUserPrompt({ query, context }: BuildUserPromptInput): string {
   const historyBlock = buildConversationHistoryBlock(context.conversationHistory);
 
   let corePrompt: string;
 
   switch (context.mode) {
     case 'incident':
-      corePrompt = incident
-        ? buildIncidentPrompt(incident, query)
+      corePrompt = context.incidentData
+        ? buildIncidentPrompt(context.incidentData, query)
+        : buildFreeformPrompt(query);
+      break;
+
+    case 'incidents':
+      corePrompt = context.incidentsData && context.incidentsData.length > 0
+        ? buildIncidentsPrompt(context.incidentsData, query)
         : buildFreeformPrompt(query);
       break;
 

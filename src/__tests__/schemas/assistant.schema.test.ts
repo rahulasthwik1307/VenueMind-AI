@@ -149,6 +149,32 @@ describe('assistantRequestSchema', () => {
     expect(result.success).toBe(true);
   });
 
+  it('passes for a valid incidents mode request with incidentIds and incidentsData', () => {
+    const result = assistantRequestSchema.safeParse({
+      ...validRequest,
+      context: {
+        mode: 'incidents',
+        incidentIds: ['inc-001', 'inc-002'],
+        incidentsData: [
+          {
+            id: 'inc-001',
+            title: 'Crowd congestion',
+            description: 'Bottleneck at Gate 7',
+            status: 'open',
+            severity: 'high',
+            category: 'crowd',
+            zone: 'Gate 7',
+            lat: 25.4522,
+            lng: 51.3414,
+            createdAt: '2026-07-08T00:00:00Z',
+          },
+        ],
+        conversationHistory: [],
+      },
+    });
+    expect(result.success).toBe(true);
+  });
+
   it('passes for a valid domain mode request', () => {
     const result = assistantRequestSchema.safeParse({
       ...validRequest,

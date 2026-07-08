@@ -5,6 +5,7 @@ import type {
   AssistantQueryMode,
   AssistantDomain,
   Message,
+  AssistantIncidentSummary,
 } from '@/types/assistant';
 import type { Incident } from '@/types/incident';
 import type { StadiumTelemetry } from '@/types/telemetry';
@@ -37,6 +38,27 @@ export function sanitizeQuery(rawQuery: string): string {
     .trim();
 }
 
+/**
+ * Helper to serialize incident details into client-side request payload summaries.
+ */
+function serializeIncident(incident: Incident): AssistantIncidentSummary {
+  return {
+    id: incident.id,
+    title: incident.title,
+    description: incident.description,
+    status: incident.status,
+    severity: incident.severity,
+    category: incident.category,
+    zone: incident.location.zone,
+    lat: incident.location.lat,
+    lng: incident.location.lng,
+    createdAt: incident.createdAt,
+    assignedTeam: incident.assignedTeam,
+    aiConfidence: incident.aiConfidence,
+    notes: incident.notes,
+  };
+}
+
 // ─── Context Builder Input ────────────────────────────────────────────────────
 
 export interface ContextBuilderInput {
@@ -51,6 +73,8 @@ export interface ContextBuilderInput {
   domain?: AssistantDomain;
   /** Array of incident IDs for multi-incident consolidated briefing ('incidents' mode) */
   incidentIds?: string[];
+  /** Full incidents list from store to filter/serialize incident details */
+  incidents?: Incident[];
 }
 
 // ─── Pure Context Builder ─────────────────────────────────────────────────────
@@ -78,6 +102,19 @@ export function buildAssistantQuery(input: ContextBuilderInput): AssistantQuery 
     ...(input.domain ? { domain: input.domain } : {}),
     ...(input.incidentIds && input.incidentIds.length > 0 ? { incidentIds: input.incidentIds } : {}),
   };
+
+  // Serialize single incident context details
+  if (input.incident) {
+    context.incidentData = serializeIncident(input.incident);
+  }
+
+  // Serialize multiple incidents context details for consolidated briefing mode
+  if (input.incidentIds && input.incidentIds.length > 0 && input.incidents) {
+    const selected = input.incidents.filter((i) => input.incidentIds?.includes(i.id));
+    if (selected.length > 0) {
+      context.incidentsData = selected.map(serializeIncident);
+    }
+  }
 
   // Build the operator-facing query string enriched with structured context labels
   let query: string;

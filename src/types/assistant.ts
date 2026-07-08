@@ -42,11 +42,29 @@ export type AssistantDomain = 'crowd' | 'transport' | 'emergency' | 'accessibili
 
 export type AssistantLanguage = 'en' | 'es' | 'fr' | 'pt' | 'hi';
 
+export interface AssistantIncidentSummary {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  severity: string;
+  category: string;
+  zone: string;
+  lat: number;
+  lng: number;
+  createdAt: string;
+  assignedTeam?: string;
+  aiConfidence?: number;
+  notes?: string;
+}
+
 export interface AssistantContext {
   mode: AssistantQueryMode;
   incidentId?: string;
   /** Array of incident IDs for multi-incident consolidated briefing mode */
   incidentIds?: string[];
+  incidentData?: AssistantIncidentSummary;
+  incidentsData?: AssistantIncidentSummary[];
   zoneId?: string;
   domain?: AssistantDomain;
   /** Last N messages from session history sent as context */

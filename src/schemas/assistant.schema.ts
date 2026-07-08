@@ -33,17 +33,30 @@ export const aiStructuredResponseSchema = z.object({
 
 export type AIStructuredResponseSchema = z.infer<typeof aiStructuredResponseSchema>;
 
-// ─── API Request ──────────────────────────────────────────────────────────────
+export const assistantIncidentSummarySchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  status: z.string(),
+  severity: z.string(),
+  category: z.string(),
+  zone: z.string(),
+  lat: z.number(),
+  lng: z.number(),
+  createdAt: z.string(),
+  assignedTeam: z.string().optional(),
+  aiConfidence: z.number().optional(),
+  notes: z.string().optional(),
+});
 
-/**
- * Validated on the server before the Groq call is made.
- * Prevents malformed client data from reaching the AI layer.
- */
 export const assistantRequestSchema = z.object({
   query: z.string().min(1).max(1000),
   context: z.object({
-    mode: z.enum(['incident', 'zone', 'domain', 'freeform']),
+    mode: z.enum(['incident', 'zone', 'domain', 'freeform', 'incidents']),
     incidentId: z.string().optional(),
+    incidentIds: z.array(z.string()).optional(),
+    incidentData: assistantIncidentSummarySchema.optional(),
+    incidentsData: z.array(assistantIncidentSummarySchema).optional(),
     zoneId: z.string().optional(),
     domain: z.enum(['crowd', 'transport', 'emergency', 'accessibility']).optional(),
     conversationHistory: z

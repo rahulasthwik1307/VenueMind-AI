@@ -127,7 +127,7 @@ export default function IncidentsPage() {
         <div className="bg-(--surface-1) border border-(--border) rounded-xl p-4">
           <div className="flex flex-col sm:flex-row gap-3">
             {/* Search input */}
-            <div className="relative flex-1">
+            <div className="relative flex-1 sm:hidden">
               <Search
                 size={13}
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-(--foreground-subtle)"

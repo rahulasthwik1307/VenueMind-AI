@@ -55,7 +55,7 @@ export function IncidentBulkActions({ selectedIds, onClearSelection }: IncidentB
   }, [assignInput, selectedIds, bulkUpdateIncidents, addToast]);
 
   const handleRequestBriefing = useCallback(() => {
-    if (isAnalyzing || selectedIds.length === 0) return;
+    if (isAnalyzing || selectedIds.length === 0 || selectedIds.length > 20) return;
     clearError();
     setBriefingRequested(true);
     // Routes through the new 'incidents' mode in contextBuilder — no manual prompt here
@@ -171,17 +171,20 @@ export function IncidentBulkActions({ selectedIds, onClearSelection }: IncidentB
           {/* AI Consolidated Briefing */}
           <button
             onClick={handleRequestBriefing}
-            disabled={isAnalyzing}
-            aria-disabled={isAnalyzing}
+            disabled={isAnalyzing || selectedIds.length > 20}
+            aria-disabled={isAnalyzing || selectedIds.length > 20}
             className={cn(
               'flex items-center gap-1.5 text-[10px] font-semibold px-3 py-1.5 rounded-md border transition-all',
               'text-(--primary) bg-(--primary-muted) border-(--primary-light)',
-              isAnalyzing
+              isAnalyzing || selectedIds.length > 20
                 ? 'opacity-50 cursor-not-allowed'
                 : 'hover:bg-(--primary) hover:text-white cursor-pointer'
             )}
+            title={selectedIds.length > 20 ? 'Select up to 20 incidents for a consolidated briefing' : undefined}
             aria-label={
-              isAnalyzing
+              selectedIds.length > 20
+                ? 'Select up to 20 incidents for a consolidated briefing'
+                : isAnalyzing
                 ? 'AI briefing in progress'
                 : `Ask AI for consolidated briefing on ${selectedIds.length} selected incidents`
             }
@@ -189,6 +192,12 @@ export function IncidentBulkActions({ selectedIds, onClearSelection }: IncidentB
             <Brain size={11} className={isAnalyzing ? 'animate-pulse' : ''} />
             {isAnalyzing ? 'Analyzing…' : 'Ask AI: Consolidated Briefing'}
           </button>
+
+          {selectedIds.length > 20 && (
+            <span className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold" role="alert">
+              ⚠️ Select up to 20 incidents for a consolidated briefing
+            </span>
+          )}
         </div>
 
         {/* Clear selection */}

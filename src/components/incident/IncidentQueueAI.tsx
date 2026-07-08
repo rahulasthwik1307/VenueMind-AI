@@ -33,22 +33,43 @@ export function IncidentQueueAI() {
 
   const [hasRequested, setHasRequested] = useState(false);
 
-  const openIncidentIds = incidents
+  const severityWeight = {
+    critical: 4,
+    high: 3,
+    medium: 2,
+    low: 1,
+  };
+
+  const sortedOpenIncidents = [...incidents]
     .filter((i) => i.status !== 'resolved')
-    .map((i) => i.id);
+    .sort((a, b) => {
+      const weightA = severityWeight[a.severity] ?? 0;
+      const weightB = severityWeight[b.severity] ?? 0;
+      if (weightB !== weightA) {
+        return weightB - weightA;
+      }
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+
+  const totalOpenCount = sortedOpenIncidents.length;
+  const cappedOpenIncidents = sortedOpenIncidents.slice(0, 20);
+  const cappedIncidentIds = cappedOpenIncidents.map((i) => i.id);
+  const isCapped = totalOpenCount > 20;
 
   const handleAskAI = useCallback(() => {
-    if (isAnalyzing || openIncidentIds.length === 0) return;
+    if (isAnalyzing || totalOpenCount === 0) return;
     clearError();
     setHasRequested(true);
     // Uses the structured 'incidents' mode — no manual prompt construction
     submitQuery({
       mode: 'incidents',
-      rawQuery: 'Rank these open incidents by operational priority and recommend the optimal response sequence with rationale.',
+      rawQuery: isCapped
+        ? `Rank the top 20 highest-priority open incidents (out of ${totalOpenCount} total open incidents) by operational priority and recommend the optimal response sequence with rationale. Note: results are based on the top 20 open incidents.`
+        : 'Rank these open incidents by operational priority and recommend the optimal response sequence with rationale.',
       persona: 'operations',
-      incidentIds: openIncidentIds,
+      incidentIds: cappedIncidentIds,
     });
-  }, [isAnalyzing, openIncidentIds, clearError, submitQuery]);
+  }, [isAnalyzing, totalOpenCount, isCapped, cappedIncidentIds, clearError, submitQuery]);
 
   const handleRetry = useCallback(() => {
     handleAskAI();
@@ -107,7 +128,7 @@ export function IncidentQueueAI() {
             </button>
           )}
           <span className="text-[9px] font-mono text-(--foreground-subtle)">
-            {openIncidentIds.length} open
+            {totalOpenCount} open
           </span>
         </div>
       </div>
@@ -128,28 +149,32 @@ export function IncidentQueueAI() {
               </div>
               <p className="text-sm font-semibold text-(--foreground)">Prioritize Open Queue</p>
               <p className="text-[11px] text-(--foreground-muted) mt-1.5 max-w-sm leading-relaxed">
-                Ask AI to analyze all {openIncidentIds.length} open incident
-                {openIncidentIds.length !== 1 ? 's' : ''} and recommend an
-                optimal response sequence with ranked priorities and cross-domain risk analysis.
+                {isCapped ? (
+                  `Ask AI to analyze the top 20 highest-priority open incidents (out of ${totalOpenCount} total) and recommend an optimal response sequence with ranked priorities and cross-domain risk analysis.`
+                ) : (
+                  `Ask AI to analyze all ${totalOpenCount} open incident${totalOpenCount !== 1 ? 's' : ''} and recommend an optimal response sequence with ranked priorities and cross-domain risk analysis.`
+                )}
               </p>
 
               <button
                 onClick={handleAskAI}
-                disabled={isAnalyzing || openIncidentIds.length === 0}
-                aria-disabled={isAnalyzing || openIncidentIds.length === 0}
+                disabled={isAnalyzing || totalOpenCount === 0}
+                aria-disabled={isAnalyzing || totalOpenCount === 0}
                 className={cn(
-                  'mt-4 flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-semibold transition-all duration-150',
+                  'mt-4 flex w-full items-center justify-center gap-2 px-3 py-2.5 rounded-md text-xs sm:text-sm font-semibold whitespace-normal text-center transition-all duration-150',
                   'bg-(--primary) text-white shadow-sm',
-                  isAnalyzing || openIncidentIds.length === 0
+                  isAnalyzing || totalOpenCount === 0
                     ? 'opacity-50 cursor-not-allowed'
                     : 'hover:bg-(--primary-hover) active:scale-[0.98] cursor-pointer'
                 )}
                 aria-label={
-                  openIncidentIds.length === 0
+                  totalOpenCount === 0
                     ? 'No open incidents to prioritize'
                     : isAnalyzing
                     ? 'AI analysis in progress'
-                    : `Ask AI to prioritize ${openIncidentIds.length} open incidents`
+                    : isCapped
+                    ? `Ask AI to prioritize top 20 open incidents`
+                    : `Ask AI to prioritize ${totalOpenCount} open incidents`
                 }
               >
                 <Brain size={14} />
@@ -191,6 +216,11 @@ export function IncidentQueueAI() {
               aria-live="polite"
               aria-atomic="false"
             >
+              {isCapped && (
+                <div className="mb-3 text-[10px] text-amber-600 dark:text-amber-400 font-semibold bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 px-2.5 py-1.5 rounded-md">
+                  ⚠️ Queue exceeds 20 open incidents. Analysis is based on the top 20 highest-severity and most recent incidents.
+                </div>
+              )}
               <AIResponseCard
                 response={lastResponse}
                 onDispatchAction={handleDispatch}

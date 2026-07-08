@@ -144,6 +144,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     context: {
       mode: context.mode,
       incidentId: context.incidentId,
+      incidentIds: context.incidentIds,
+      incidentData: context.incidentData,
+      incidentsData: context.incidentsData,
       zoneId: context.zoneId,
       domain: context.domain as import('@/types/assistant').AssistantDomain | undefined,
       conversationHistory: context.conversationHistory,
