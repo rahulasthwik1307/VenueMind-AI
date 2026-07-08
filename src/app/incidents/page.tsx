@@ -29,6 +29,7 @@ import { IncidentBulkActions } from '@/components/incident/IncidentBulkActions';
 import { IncidentQueueAI } from '@/components/incident/IncidentQueueAI';
 import type { IncidentFilters } from '@/utils/incidentTableUtils';
 import type { Severity, IncidentStatus } from '@/types/common';
+import type { Incident } from '@/types/incident';
 
 const SEVERITY_OPTIONS: Array<{ value: Severity | 'all'; label: string }> = [
   { value: 'all', label: 'All Severities' },
@@ -65,13 +66,48 @@ const DEFAULT_FILTERS: IncidentFilters = {
   zone: 'all',
 };
 
+/**
+ * Quick-filter pills logic:
+ * When multiple quick-filter pills are active simultaneously, they are combined with OR logic
+ * (an incident matching ANY active pill's criteria is shown).
+ */
+function matchesQuickFilters(incident: Incident, activePills: string[]): boolean {
+  if (activePills.length === 0) return true;
+  return activePills.some((pill) => {
+    switch (pill) {
+      case 'critical':
+        return incident.severity === 'critical';
+      case 'open':
+        return incident.status === 'open';
+      case 'crowd':
+        return incident.category === 'crowd';
+      case 'transport':
+        return incident.category === 'transport';
+      case 'emergency':
+        // Replicate Emergency Lens page logic: severity is critical OR category is security/medical/weather
+        return (
+          incident.severity === 'critical' ||
+          ['security', 'medical', 'weather'].includes(incident.category)
+        );
+      default:
+        return false;
+    }
+  });
+}
+
 export default function IncidentsPage() {
   const { incidents, searchQuery, setSearchQuery, setActiveIncidentId } =
     useIncidentStore();
 
   const [filters, setFilters] = useState<IncidentFilters>(DEFAULT_FILTERS);
+  const [activeQuickFilters, setActiveQuickFilters] = useState<string[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+
+  // Apply quick-filter pills (OR logic) first
+  const quickFilteredIncidents = incidents.filter((i) =>
+    matchesQuickFilters(i, activeQuickFilters)
+  );
 
   // Loading simulation (SimulationService starts up async)
   const isLoading = incidents.length === 0 && !searchQuery;
@@ -81,11 +117,19 @@ export default function IncidentsPage() {
     filters.category !== 'all' ||
     filters.status !== 'all' ||
     filters.zone !== 'all' ||
+    activeQuickFilters.length > 0 ||
     searchQuery.trim().length > 0;
+
+  const handleToggleQuickFilter = useCallback((pill: string) => {
+    setActiveQuickFilters((prev) =>
+      prev.includes(pill) ? prev.filter((p) => p !== pill) : [...prev, pill]
+    );
+  }, []);
 
   const handleClearFilters = useCallback(() => {
     setFilters(DEFAULT_FILTERS);
     setSearchQuery('');
+    setActiveQuickFilters([]);
   }, [setSearchQuery]);
 
   const handleOpenDetails = useCallback(
@@ -125,68 +169,159 @@ export default function IncidentsPage() {
 
         {/* Search + Filter Bar */}
         <div className="bg-(--surface-1) border border-(--border) rounded-xl p-4">
-          <div className="flex flex-col sm:flex-row gap-3">
-            {/* Search input */}
-            <div className="relative flex-1 sm:hidden">
-              <Search
-                size={13}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-(--foreground-subtle)"
-                aria-hidden="true"
-              />
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search incidents by title, zone, category, team…"
-                className={cn(
-                  'w-full pl-9 pr-4 py-2 text-xs rounded-md border bg-(--surface-2)',
-                  'border-(--border) text-(--foreground) placeholder:text-(--foreground-subtle)',
-                  'focus:outline-none focus:ring-1 focus:ring-(--primary) focus:border-(--primary)',
-                  'transition-colors'
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 flex-wrap">
+            {/* Left side: Search input (mobile) and Quick Filter Pills */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1 flex-wrap">
+              {/* Search input (visible only on mobile) */}
+              <div className="relative flex-1 sm:hidden">
+                <Search
+                  size={13}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-(--foreground-subtle)"
+                  aria-hidden="true"
+                />
+                <input
+                  type="search"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search incidents by title, zone, category, team…"
+                  className={cn(
+                    'w-full pl-9 pr-4 py-2 text-xs rounded-md border bg-(--surface-2)',
+                    'border-(--border) text-(--foreground) placeholder:text-(--foreground-subtle)',
+                    'focus:outline-none focus:ring-1 focus:ring-(--primary) focus:border-(--primary)',
+                    'transition-colors'
+                  )}
+                  aria-label="Search incidents"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-(--foreground-subtle) hover:text-(--foreground) cursor-pointer"
+                    aria-label="Clear search"
+                  >
+                    <X size={12} />
+                  </button>
                 )}
-                aria-label="Search incidents"
-              />
-              {searchQuery && (
+              </div>
+
+              {/* Inline Quick-Filter Pills */}
+              <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Quick filters (combined with OR logic)">
+                {/* Critical Severity Pill */}
                 <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-(--foreground-subtle) hover:text-(--foreground) cursor-pointer"
-                  aria-label="Clear search"
+                  type="button"
+                  onClick={() => handleToggleQuickFilter('critical')}
+                  aria-pressed={activeQuickFilters.includes('critical')}
+                  className={cn(
+                    'px-2.5 py-1 text-[10px] font-semibold rounded-full border transition-all cursor-pointer flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) focus-visible:ring-offset-1',
+                    activeQuickFilters.includes('critical')
+                      ? 'bg-red-600 border-red-600 text-white dark:bg-red-900/60 dark:border-red-900/60'
+                      : 'bg-(--surface-2) border-(--border) text-(--foreground-muted) hover:border-(--border-strong)'
+                  )}
+                  aria-label="Filter by critical severity"
                 >
-                  <X size={12} />
+                  <span className={cn('w-1.5 h-1.5 rounded-full', activeQuickFilters.includes('critical') ? 'bg-white animate-pulse' : 'bg-red-500')} aria-hidden="true" />
+                  Critical
+                </button>
+
+                {/* Open Status Pill */}
+                <button
+                  type="button"
+                  onClick={() => handleToggleQuickFilter('open')}
+                  aria-pressed={activeQuickFilters.includes('open')}
+                  className={cn(
+                    'px-2.5 py-1 text-[10px] font-semibold rounded-full border transition-all cursor-pointer flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) focus-visible:ring-offset-1',
+                    activeQuickFilters.includes('open')
+                      ? 'bg-(--primary) border-(--primary) text-white'
+                      : 'bg-(--surface-2) border-(--border) text-(--foreground-muted) hover:border-(--border-strong)'
+                  )}
+                  aria-label="Filter by open status"
+                >
+                  <span className={cn('w-1.5 h-1.5 rounded-full', activeQuickFilters.includes('open') ? 'bg-white animate-pulse' : 'bg-amber-500')} aria-hidden="true" />
+                  Open Queue
+                </button>
+
+                {/* Crowd Flow Pill */}
+                <button
+                  type="button"
+                  onClick={() => handleToggleQuickFilter('crowd')}
+                  aria-pressed={activeQuickFilters.includes('crowd')}
+                  className={cn(
+                    'px-2.5 py-1 text-[10px] font-semibold rounded-full border transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) focus-visible:ring-offset-1',
+                    activeQuickFilters.includes('crowd')
+                      ? 'bg-(--primary) border-(--primary) text-white'
+                      : 'bg-(--surface-2) border-(--border) text-(--foreground-muted) hover:border-(--border-strong)'
+                  )}
+                  aria-label="Filter by crowd category"
+                >
+                  Crowd Flow
+                </button>
+
+                {/* Transport Pill */}
+                <button
+                  type="button"
+                  onClick={() => handleToggleQuickFilter('transport')}
+                  aria-pressed={activeQuickFilters.includes('transport')}
+                  className={cn(
+                    'px-2.5 py-1 text-[10px] font-semibold rounded-full border transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) focus-visible:ring-offset-1',
+                    activeQuickFilters.includes('transport')
+                      ? 'bg-(--primary) border-(--primary) text-white'
+                      : 'bg-(--surface-2) border-(--border) text-(--foreground-muted) hover:border-(--border-strong)'
+                  )}
+                  aria-label="Filter by transport category"
+                >
+                  Transport
+                </button>
+
+                {/* Emergency Pill */}
+                <button
+                  type="button"
+                  onClick={() => handleToggleQuickFilter('emergency')}
+                  aria-pressed={activeQuickFilters.includes('emergency')}
+                  className={cn(
+                    'px-2.5 py-1 text-[10px] font-semibold rounded-full border transition-all cursor-pointer flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) focus-visible:ring-offset-1',
+                    activeQuickFilters.includes('emergency')
+                      ? 'bg-amber-600 border-amber-600 text-white'
+                      : 'bg-(--surface-2) border-(--border) text-(--foreground-muted) hover:border-(--border-strong)'
+                  )}
+                  aria-label="Filter by emergency criteria (critical severity or security/medical/weather categories)"
+                >
+                  <span className={cn('w-1.5 h-1.5 rounded-full', activeQuickFilters.includes('emergency') ? 'bg-white animate-pulse' : 'bg-red-500')} aria-hidden="true" />
+                  Emergency
+                </button>
+              </div>
+            </div>
+
+            {/* Right side: Filter dropdown toggle and Clear buttons */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowFilters((v) => !v)}
+                className={cn(
+                  'flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-md border transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) focus-visible:ring-offset-1',
+                  showFilters || hasActiveFilters
+                    ? 'bg-(--primary) text-white border-(--primary)'
+                    : 'bg-(--surface-2) border-(--border) text-(--foreground-muted) hover:border-(--border-strong)'
+                )}
+                aria-expanded={showFilters}
+                aria-label={showFilters ? 'Hide filters' : 'Show filters'}
+              >
+                <Filter size={12} />
+                Filters
+                {hasActiveFilters && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-white/80" aria-hidden="true" />
+                )}
+              </button>
+
+              {/* Clear Filters */}
+              {hasActiveFilters && (
+                <button
+                  onClick={handleClearFilters}
+                  className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-md border border-(--border) text-(--foreground-muted) hover:text-(--foreground) hover:border-(--border-strong) transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) focus-visible:ring-offset-1"
+                  aria-label="Clear all filters"
+                >
+                  <X size={11} />
+                  Clear
                 </button>
               )}
             </div>
-
-            {/* Filter toggle */}
-            <button
-              onClick={() => setShowFilters((v) => !v)}
-              className={cn(
-                'flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-md border transition-all cursor-pointer',
-                showFilters || hasActiveFilters
-                  ? 'bg-(--primary) text-white border-(--primary)'
-                  : 'bg-(--surface-2) border-(--border) text-(--foreground-muted) hover:border-(--border-strong)'
-              )}
-              aria-expanded={showFilters}
-              aria-label={showFilters ? 'Hide filters' : 'Show filters'}
-            >
-              <Filter size={12} />
-              Filters
-              {hasActiveFilters && (
-                <span className="w-1.5 h-1.5 rounded-full bg-white/80" aria-hidden="true" />
-              )}
-            </button>
-
-            {/* Clear Filters */}
-            {hasActiveFilters && (
-              <button
-                onClick={handleClearFilters}
-                className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-md border border-(--border) text-(--foreground-muted) hover:text-(--foreground) hover:border-(--border-strong) transition-all cursor-pointer"
-                aria-label="Clear all filters"
-              >
-                <X size={11} />
-                Clear
-              </button>
-            )}
           </div>
 
           {/* Filter dropdowns */}
@@ -314,7 +449,7 @@ export default function IncidentsPage() {
               <LoadingState label="Loading incident queue…" />
             ) : (
               <IncidentTable
-                incidents={incidents}
+                incidents={quickFilteredIncidents}
                 filters={filters}
                 searchQuery={searchQuery}
                 selectedIds={selectedIds}

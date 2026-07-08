@@ -161,8 +161,8 @@ export function IncidentQueueAI() {
                 disabled={isAnalyzing || totalOpenCount === 0}
                 aria-disabled={isAnalyzing || totalOpenCount === 0}
                 className={cn(
-                  'mt-4 flex w-full items-center justify-center gap-2 px-3 py-2.5 rounded-md text-xs sm:text-sm font-semibold whitespace-normal text-center transition-all duration-150',
-                  'bg-(--primary) text-white shadow-sm',
+                  'mt-4 flex w-full items-center justify-center gap-2 px-3 py-2.5 rounded-md text-xs sm:text-sm font-semibold transition-all duration-150',
+                  'bg-(--primary) text-white shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) focus-visible:ring-offset-1',
                   isAnalyzing || totalOpenCount === 0
                     ? 'opacity-50 cursor-not-allowed'
                     : 'hover:bg-(--primary-hover) active:scale-[0.98] cursor-pointer'
@@ -177,8 +177,10 @@ export function IncidentQueueAI() {
                     : `Ask AI to prioritize ${totalOpenCount} open incidents`
                 }
               >
-                <Brain size={14} />
-                Ask AI to Prioritize My Open Queue
+                <Brain size={14} className="shrink-0" />
+                <span className="whitespace-normal break-words text-center">
+                  Ask AI to Prioritize My Open Queue
+                </span>
               </button>
             </m.div>
           )}
