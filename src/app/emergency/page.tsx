@@ -1,41 +1,190 @@
-import { PageContainer } from '@/components/layout/PageContainer';
-import { SectionHeader } from '@/components/shared/SectionHeader';
-import { ShieldAlert } from 'lucide-react';
+'use client';
+
+import { useIncidentStore } from '@/store/modules/incident';
+import { LensPageLayout } from '@/components/operations/LensPageLayout';
+import { ShieldAlert, HeartPulse, Shield, Eye, Flame, AlertCircle } from 'lucide-react';
+import { cn } from '@/utils/cn';
+import type { SystemStatusLevel } from '@/types/common';
 
 export default function EmergencyPage() {
+  const { stadiumStats, incidents } = useIncidentStore();
+  const medicalStandby = stadiumStats.medicalStandby; // Deployed/available count
+
+  // Calculate active emergency indicators
+  const activeCritical = incidents.filter((i) => i.severity === 'critical' && i.status !== 'resolved').length;
+  const isAlertActive = activeCritical > 0;
+  
+  const systemHealth = {
+    perimeter: isAlertActive ? 'degraded' as const : 'operational' as const,
+    medical: medicalStandby > 4 ? 'operational' as const : 'degraded' as const,
+    fireAlarms: 'operational' as const,
+    evacPaths: 'operational' as const,
+  };
+
+  const getStatusBadgeStyle = (level: SystemStatusLevel) => {
+    const styles = {
+      operational: 'text-green-700 bg-green-50 border-green-100 dark:text-green-400 dark:bg-green-950/20 dark:border-green-900/40',
+      degraded: 'text-yellow-700 bg-yellow-50 border-yellow-100 dark:text-yellow-400 dark:bg-yellow-950/20 dark:border-yellow-900/40',
+      critical: 'text-red-700 bg-red-50 border-red-100 dark:text-red-400 dark:bg-red-950/20 dark:border-red-900/40',
+      offline: 'text-gray-500 bg-gray-50 border-gray-200',
+    };
+    return styles[level];
+  };
+
+  const getStatusText = (level: SystemStatusLevel) => {
+    const texts = {
+      operational: 'SECURE',
+      degraded: 'ATTN REQUIRED',
+      critical: 'STANDBY ALERT',
+      offline: 'OFFLINE',
+    };
+    return texts[level];
+  };
+
   return (
-    <PageContainer>
-      <div className="space-y-(--card-gap) animate-fade-in">
-        <div className="bg-(--surface-1) border border-(--border) rounded-card p-6 min-h-120 flex flex-col justify-between">
-          <div>
-            <SectionHeader
-              title="Emergency Operations Command"
-              description="Critical security threats, medical evacuations, SCADA overrides, and structural alarm telemetry"
-            />
-          </div>
-          
-          <div className="flex-1 flex flex-col items-center justify-center border border-dashed border-(--border) rounded-md bg-(--surface-2) p-10 text-center my-6">
-            <ShieldAlert size={36} className="text-red-500 opacity-65 mb-3 animate-pulse" />
-            <h2 className="text-sm font-bold text-(--foreground) uppercase tracking-wide">Emergency Services Dispatch</h2>
-            <p className="text-xs text-(--foreground-muted) max-w-lg mt-1.5 leading-relaxed">
-              Evacuation route management, fire panel relays, and direct links to civil defense. Security alerts (such as planter bags anomalies) are currently managed on the Dashboard queue.
-            </p>
-            <div className="mt-4 flex gap-2">
-              <span className="text-[10px] font-semibold text-red-600 bg-red-50 dark:bg-red-950/20 dark:text-red-400 px-2 py-0.5 rounded border border-red-100 dark:border-red-900 font-mono">
-                EMERGENCY STACK STANDBY
-              </span>
-              <span className="text-[10px] font-semibold text-gray-500 bg-gray-100 dark:bg-gray-800 dark:text-gray-400 px-2 py-0.5 rounded border border-gray-200 dark:border-gray-700 font-mono">
-                SECURE
-              </span>
+    <LensPageLayout
+      domain="emergency"
+      title="Emergency Operations Command"
+      description="Critical security threats, medical evacuations, SCADA overrides, and structural alarm telemetry"
+      statusPills={[
+        { label: isAlertActive ? 'EMERGENCY ALERT' : 'EMERGENCY STACK STANDBY', level: isAlertActive ? 'critical' : 'operational' },
+        { label: 'SECURE', level: 'operational' },
+      ]}
+      footerConsoleStatusText="CONSOLE STATUS: ARMED"
+      incidentFilter={(i) => i.severity === 'critical' || i.category === 'security' || i.category === 'medical' || i.category === 'weather'}
+    >
+      <div className="space-y-6 pr-0 lg:pr-2">
+        {/* Metric widgets */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="bg-(--surface-2)/40 border border-(--border) rounded-md p-3 flex items-center gap-3">
+            <div className="w-8 h-8 rounded bg-red-950/25 text-red-500 flex items-center justify-center shrink-0">
+              <ShieldAlert size={15} />
+            </div>
+            <div>
+              <p className="text-[10px] font-mono font-semibold text-(--foreground-subtle) uppercase">Critical Alerts</p>
+              <p className="text-base font-bold font-mono tracking-tight mt-0.5">{activeCritical}</p>
             </div>
           </div>
 
-          <div className="border-t border-(--border) pt-4 flex justify-between text-[9px] font-mono text-(--foreground-subtle)">
-            <span>CONSOLE STATUS: ARMED</span>
-            <span>FIFA WORLD CUP 2026</span>
+          <div className="bg-(--surface-2)/40 border border-(--border) rounded-md p-3 flex items-center gap-3">
+            <div className="w-8 h-8 rounded bg-(--primary-muted) text-(--primary) flex items-center justify-center shrink-0">
+              <HeartPulse size={15} />
+            </div>
+            <div>
+              <p className="text-[10px] font-mono font-semibold text-(--foreground-subtle) uppercase">Medical Units</p>
+              <p className="text-base font-bold font-mono tracking-tight mt-0.5">{medicalStandby} Deployed</p>
+            </div>
+          </div>
+
+          <div className="bg-(--surface-2)/40 border border-(--border) rounded-md p-3 flex items-center gap-3">
+            <div className="w-8 h-8 rounded bg-blue-950/20 text-blue-500 flex items-center justify-center shrink-0">
+              <Eye size={15} />
+            </div>
+            <div>
+              <p className="text-[10px] font-mono font-semibold text-(--foreground-subtle) uppercase">SCADA Relays</p>
+              <p className="text-base font-bold font-mono tracking-tight mt-0.5">All Active</p>
+            </div>
           </div>
         </div>
+
+        {/* Emergency status grids */}
+        <div className="border border-(--border) rounded-xl p-4 bg-(--surface-2)/20 space-y-4">
+          <h3 className="text-xs font-bold text-(--foreground) uppercase tracking-wider">
+            Critical Systems Status
+          </h3>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            {/* Medical Stations */}
+            <div className="bg-(--surface-1) border border-(--border) rounded-md p-3.5 flex flex-col justify-between h-32">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <HeartPulse size={14} className="text-red-500" />
+                  <h4 className="text-xs font-bold text-(--foreground)">Medical Dispatch</h4>
+                </div>
+                <span className={cn('text-[9px] font-mono font-bold px-1.5 py-0.5 rounded border tracking-wide uppercase', getStatusBadgeStyle(systemHealth.medical))}>
+                  {getStatusText(systemHealth.medical)}
+                </span>
+              </div>
+              <p className="text-[10px] text-(--foreground-muted) mt-1.5 leading-relaxed">
+                Total availability: {medicalStandby} standby units. Nearest station East gate reports average response time of 2.8 minutes.
+              </p>
+              <div className="text-[9px] font-mono font-semibold text-(--foreground-subtle) border-t border-(--border) pt-2 mt-2">
+                MED UNITS ACTIVE: {medicalStandby}
+              </div>
+            </div>
+
+            {/* Perimeter & Security */}
+            <div className="bg-(--surface-1) border border-(--border) rounded-md p-3.5 flex flex-col justify-between h-32">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <Shield size={14} className="text-blue-500" />
+                  <h4 className="text-xs font-bold text-(--foreground)">Perimeter Security</h4>
+                </div>
+                <span className={cn('text-[9px] font-mono font-bold px-1.5 py-0.5 rounded border tracking-wide uppercase', getStatusBadgeStyle(systemHealth.perimeter))}>
+                  {getStatusText(systemHealth.perimeter)}
+                </span>
+              </div>
+              <p className="text-[10px] text-(--foreground-muted) mt-1.5 leading-relaxed">
+                CCTV coverage: 99.8% active. 240 security staff deployed on site. Quick response squads stand by on sectors A & D.
+              </p>
+              <div className="text-[9px] font-mono font-semibold text-(--foreground-subtle) border-t border-(--border) pt-2 mt-2">
+                ACTIVE SECURITY STAFF: 240
+              </div>
+            </div>
+
+            {/* Fire Panels */}
+            <div className="bg-(--surface-1) border border-(--border) rounded-md p-3.5 flex flex-col justify-between h-32">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <Flame size={14} className="text-orange-500" />
+                  <h4 className="text-xs font-bold text-(--foreground)">Fire Alarm Panels</h4>
+                </div>
+                <span className={cn('text-[9px] font-mono font-bold px-1.5 py-0.5 rounded border tracking-wide uppercase', getStatusBadgeStyle(systemHealth.fireAlarms))}>
+                  {getStatusText(systemHealth.fireAlarms)}
+                </span>
+              </div>
+              <p className="text-[10px] text-(--foreground-muted) mt-1.5 leading-relaxed">
+                Relays tested at pre-match briefing. All 4,200 sensors reporting normal temperature thresholds. Fire control board operational.
+              </p>
+              <div className="text-[9px] font-mono font-semibold text-(--foreground-subtle) border-t border-(--border) pt-2 mt-2">
+                ACTIVE FAULTS: 0
+              </div>
+            </div>
+
+            {/* Evacuation Paths */}
+            <div className="bg-(--surface-1) border border-(--border) rounded-md p-3.5 flex flex-col justify-between h-32">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <ShieldAlert size={14} className="text-green-500" />
+                  <h4 className="text-xs font-bold text-(--foreground)">Evacuation Corridors</h4>
+                </div>
+                <span className={cn('text-[9px] font-mono font-bold px-1.5 py-0.5 rounded border tracking-wide uppercase', getStatusBadgeStyle(systemHealth.evacPaths))}>
+                  {getStatusText(systemHealth.evacPaths)}
+                </span>
+              </div>
+              <p className="text-[10px] text-(--foreground-muted) mt-1.5 leading-relaxed">
+                Emergency gate locks monitored. Electromagnetic releases verified online. All auxiliary corridors and exit lanes clear of debris.
+              </p>
+              <div className="text-[9px] font-mono font-semibold text-(--foreground-subtle) border-t border-(--border) pt-2 mt-2">
+                RELEASE RELAYS: OK
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Emergency warning banner */}
+        {isAlertActive && (
+          <div className="border border-red-950 bg-red-950/20 rounded-md p-3.5 flex items-start gap-3">
+            <AlertCircle size={16} className="text-red-500 shrink-0 mt-0.5" />
+            <div>
+              <h4 className="text-xs font-bold text-red-400">CRITICAL SAFETY ALERT</h4>
+              <p className="text-[10px] text-red-200/80 leading-relaxed mt-0.5">
+                Active critical threats identified on queue. Dispatch teams must prioritize evacuations and SCADA interlocks immediately.
+              </p>
+            </div>
+          </div>
+        )}
       </div>
-    </PageContainer>
+    </LensPageLayout>
   );
 }

@@ -21,7 +21,7 @@ import type { Incident } from '@/types/incident';
 import type { Severity } from '@/types/common';
 import { m, AnimatePresence } from 'framer-motion';
 
-const SEVERITY_STYLES: Record<Severity, { dot: string; text: string; bg: string; border: string }> = {
+export const SEVERITY_STYLES: Record<Severity, { dot: string; text: string; bg: string; border: string }> = {
   critical: {
     dot: 'bg-red-600',
     text: 'text-red-700 dark:text-red-400',
@@ -48,7 +48,7 @@ const SEVERITY_STYLES: Record<Severity, { dot: string; text: string; bg: string;
   },
 };
 
-const CATEGORY_ICONS: Record<Incident['category'], React.ComponentType<{ size: number; className?: string }>> = {
+export const CATEGORY_ICONS: Record<Incident['category'], React.ComponentType<{ size: number; className?: string }>> = {
   crowd: Users,
   medical: Activity,
   security: Shield,
@@ -59,7 +59,7 @@ const CATEGORY_ICONS: Record<Incident['category'], React.ComponentType<{ size: n
   accessibility: Accessibility,
 };
 
-function getTimeAgo(dateString: string) {
+export function getTimeAgo(dateString: string) {
   try {
     const now = new Date();
     const past = new Date(dateString);
@@ -80,13 +80,13 @@ function getTimeAgo(dateString: string) {
   }
 }
 
-interface IncidentRowProps {
+export interface IncidentRowProps {
   incident: Incident;
   isSelected: boolean;
   onSelect: () => void;
 }
 
-function IncidentRow({ incident, isSelected, onSelect }: IncidentRowProps) {
+export function IncidentRow({ incident, isSelected, onSelect }: IncidentRowProps) {
   const styles = SEVERITY_STYLES[incident.severity] || SEVERITY_STYLES.low;
   const CategoryIcon = CATEGORY_ICONS[incident.category] || HelpCircle;
   const timeAgo = getTimeAgo(incident.createdAt);
