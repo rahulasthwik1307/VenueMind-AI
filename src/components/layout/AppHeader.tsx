@@ -319,10 +319,10 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
               'hover:text-(--foreground) hover:bg-(--surface-3) transition-colors duration-150',
               isLangOpen && 'bg-(--surface-3) text-(--foreground)'
             )}
-            aria-label={`Language: ${language.toUpperCase()}. Change language.`}
+            aria-label={`AI Response Language: ${language.toUpperCase()}. Click to change.`}
             aria-expanded={isLangOpen}
             aria-haspopup="listbox"
-            title="Change AI response language"
+            title="AI Response Language (does not translate full UI)"
           >
             <Languages size={12} strokeWidth={1.75} aria-hidden="true" />
             <span className="text-[9px] font-bold font-mono">{language.toUpperCase()}</span>
@@ -335,9 +335,9 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 4, scale: 0.97 }}
                 transition={{ duration: 0.15 }}
-                className="absolute right-0 mt-1.5 w-36 bg-(--surface-1) border border-(--border) rounded-md shadow-lg z-50 py-1 overflow-hidden"
+                className="absolute right-0 mt-1.5 w-40 bg-(--surface-1) border border-(--border) rounded-md shadow-lg z-50 py-1 overflow-hidden"
                 role="listbox"
-                aria-label="Select language"
+                aria-label="Select AI Response Language"
               >
                 {([
                   { value: 'en', label: 'English' },

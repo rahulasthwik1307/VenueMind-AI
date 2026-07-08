@@ -5,6 +5,7 @@ import { Severity } from '@/types/common';
 import { MOCK_INCIDENTS } from '@/data/mockIncidents';
 import { MOCK_ANALYSES } from '@/data/mockAnalyses';
 import { operationsService } from '@/services/operations.service';
+import { activityService } from '@/services/activity.service';
 
 export interface IncidentState {
   incidents: Incident[];
@@ -99,15 +100,10 @@ export const useIncidentStore = create<IncidentState>((set) => ({
     toasts: state.toasts.filter((t) => t.id !== id),
   })),
 
-  addActivity: (message, actor, severity) => set((state) => {
-    const newActivity: ActivityItem = {
-      id: `act-${Date.now()}-${Math.random()}`,
-      message,
-      actor,
-      time: new Date().toISOString(),
-      severity,
-    };
-    return { activities: [newActivity, ...state.activities] };
+  addActivity: (message, actor, severity) => set(() => {
+    // Log to activityService to ensure it persists across simulation clock sags
+    activityService.logActivity(message, actor, severity);
+    return { activities: activityService.getActivities() };
   }),
 
   fluctuateStats: () => {

@@ -27,6 +27,7 @@ import { Layers, MessageCircle } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { useAssistantStore } from '@/store/modules/assistant';
 import { useIncidentStore } from '@/store/modules/incident';
+import { useUIStore } from '@/store/modules/ui';
 
 import { CommandCenterHeader } from '@/components/ai/CommandCenterHeader';
 import { ContextSelector } from '@/components/ai/ContextSelector';
@@ -47,11 +48,20 @@ const MODE_TABS: { value: InteractionMode; label: string; icon: React.ReactNode 
   { value: 'freeform', label: 'Free-form', icon: <MessageCircle size={12} aria-hidden="true" /> },
 ];
 
+const LANGUAGE_LABELS: Record<string, string> = {
+  en: 'English',
+  es: 'Español',
+  fr: 'Français',
+  pt: 'Português',
+  hi: 'हिंदी',
+};
+
 export default function AICommandPage() {
   // ── Store access ─────────────────────────────────────────────────────────────
   const { lastResponse, isAnalyzing, error, conversationHistory, submitQuery, clearError } =
     useAssistantStore();
-  const { incidents, addActivity } = useIncidentStore();
+  const { incidents, addActivity, addToast } = useIncidentStore();
+  const language = useUIStore((state) => state.language);
 
   // ── Interaction mode state ────────────────────────────────────────────────────
   const [interactionMode, setInteractionMode] = useState<InteractionMode>('structured');
@@ -114,13 +124,18 @@ export default function AICommandPage() {
 
   const handleDispatchAction = useCallback(
     (actionText: string) => {
-      addActivity(
-        `AI Command: ${actionText.slice(0, 80)}${actionText.length > 80 ? '…' : ''}`,
-        'AI Command Center',
-        'high'
-      );
+      try {
+        addActivity(
+          `AI Dispatch: ${actionText.slice(0, 80)}${actionText.length > 80 ? '…' : ''}`,
+          'AI Command Center',
+          'high'
+        );
+        addToast('Action successfully dispatched to Ops Timeline', 'success');
+      } catch (err: unknown) {
+        addToast(`Failed to dispatch: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error');
+      }
     },
-    [addActivity]
+    [addActivity, addToast]
   );
 
   const handleRetry = useCallback(() => {
@@ -276,7 +291,12 @@ export default function AICommandPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.25 }}
+                className="space-y-3"
               >
+                <div className="flex items-center justify-between px-1 text-[9px] font-mono text-(--foreground-subtle)">
+                  <span>AI Command Output</span>
+                  <span>Responses shown in: <span className="font-bold text-(--primary) uppercase">{LANGUAGE_LABELS[language] || language}</span></span>
+                </div>
                 <AIResponseCard
                   response={lastResponse}
                   onDispatchAction={handleDispatchAction}
