@@ -19,7 +19,7 @@ const CATEGORY_ICONS: Record<string, typeof Shield> = {
   weather: Cloud,
 };
 
-export function AIRecommendations() {
+export function AIRecommendations({ className }: { className?: string }) {
   const { activeIncidentId, incidents, analyses, dispatchAction, setActiveIncidentId, dismissRecommendation } = useIncident();
   const isLoading = false;
 
@@ -54,7 +54,8 @@ export function AIRecommendations() {
   return (
     <section
       className={cn(
-        'bg-(--surface-1) border border-(--border) rounded-card p-5 flex flex-col min-h-120'
+        'bg-(--surface-1) border border-(--border) rounded-card p-5 flex flex-col min-h-0',
+        className
       )}
       aria-label="AI operations panel"
     >
@@ -74,7 +75,7 @@ export function AIRecommendations() {
         }
       />
 
-      <div className="flex-1 overflow-y-auto pr-0.5">
+      <div className="flex-1 overflow-y-auto min-h-0 pr-0.5">
         {isLoading ? (
           <div className="space-y-3">
             <SkeletonCard lines={3} hasHeader={false} />

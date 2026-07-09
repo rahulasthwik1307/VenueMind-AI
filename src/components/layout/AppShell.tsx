@@ -32,7 +32,7 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <div
-      className="flex flex-col min-h-dvh bg-(--background)"
+      className="flex flex-col min-h-screen h-dvh max-h-dvh bg-(--background) overflow-hidden"
       style={
         {
           '--header-height': '60px',

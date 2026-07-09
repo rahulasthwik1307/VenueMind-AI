@@ -171,7 +171,7 @@ export function IncidentRow({ incident, isSelected, onSelect }: IncidentRowProps
   );
 }
 
-export function CriticalIncidents() {
+export function CriticalIncidents({ className }: { className?: string }) {
   const {
     incidents,
     activeIncidentId,
@@ -219,7 +219,8 @@ export function CriticalIncidents() {
   return (
     <section
       className={cn(
-        'bg-(--surface-1) border border-(--border) rounded-card p-5 flex flex-col min-h-120'
+        'bg-(--surface-1) border border-(--border) rounded-card p-5 flex flex-col min-h-0',
+        className
       )}
       aria-label="Incident queue"
     >
@@ -258,7 +259,7 @@ export function CriticalIncidents() {
       </div>
 
       {/* Queue Body */}
-      <div className="flex-1 overflow-y-auto min-h-60 pr-0.5">
+      <div className="flex-1 overflow-y-auto min-h-0 pr-0.5">
         {isLoading ? (
           <div className="space-y-2">
             <SkeletonCard lines={2} hasHeader={false} />

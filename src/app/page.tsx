@@ -25,7 +25,7 @@ import { LiveStadiumOverview } from '@/components/operations/LiveStadiumOverview
 export default function DashboardPage() {
   return (
     <PageContainer>
-      <div className="space-y-(--card-gap) animate-fade-in">
+      <div className="space-y-(--card-gap) animate-fade-in pb-8">
         {/* Welcome Banner */}
         <WelcomeBanner />
 
@@ -33,9 +33,9 @@ export default function DashboardPage() {
         <QuickStats />
 
         {/* Main two-column grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-(--card-gap)">
-          <CriticalIncidents />
-          <AIRecommendations />
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-(--card-gap) xl:h-[500px] items-stretch">
+          <CriticalIncidents className="h-full" />
+          <AIRecommendations className="h-full" />
         </div>
 
         {/* Bottom two-column grid */}

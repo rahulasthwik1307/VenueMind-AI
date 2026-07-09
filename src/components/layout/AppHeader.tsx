@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import {
   Bell,
   Search,
@@ -31,7 +32,6 @@ interface AppHeaderProps {
 }
 
 const OPERATOR_INITIALS = 'RA';
-const OPERATOR_NAME = 'Rahul Asthwik';
 
 function useLiveTime() {
   const [time, setTime] = useState<string>('');
@@ -529,7 +529,8 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
         </div>
 
         {/* Settings */}
-        <button
+        <Link
+          href="/settings"
           className={cn(
             'hidden sm:flex items-center justify-center w-9 h-9 rounded-md',
             'text-(--foreground-muted) hover:bg-(--surface-3) hover:text-(--foreground)',
@@ -538,7 +539,7 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
           aria-label="Open settings"
         >
           <Settings size={16} strokeWidth={1.75} aria-hidden="true" />
-        </button>
+        </Link>
 
         {/* Divider */}
         <div
@@ -547,24 +548,12 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
         />
 
         {/* Operator Avatar */}
-        <button
-          className={cn(
-            'flex items-center gap-2 rounded-md px-1.5 py-1',
-            'hover:bg-(--surface-3) transition-colors duration-150'
-          )}
-          aria-label={`Operator: ${OPERATOR_NAME}. Open profile menu.`}
-          aria-haspopup="menu"
+        <div
+          className="w-7 h-7 rounded-full bg-(--primary) flex items-center justify-center text-white text-[10px] font-bold shrink-0 mr-2"
+          aria-hidden="true"
         >
-          <div
-            className="w-7 h-7 rounded-full bg-(--primary) flex items-center justify-center text-white text-[10px] font-bold shrink-0"
-            aria-hidden="true"
-          >
-            {OPERATOR_INITIALS}
-          </div>
-          <span className="hidden lg:block text-xs font-semibold text-(--foreground) leading-tight">
-            {OPERATOR_NAME}
-          </span>
-        </button>
+          {OPERATOR_INITIALS}
+        </div>
       </div>
     </header>
   );

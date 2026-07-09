@@ -23,13 +23,16 @@ export function PageContainer({
   return (
     <div
       className={cn(
-        'w-full flex-1 overflow-y-auto',
+        'w-full flex-1 overflow-y-auto focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-(--primary)',
         className
       )}
-      style={{ padding: DEFAULT_PAGE_PADDING }}
+      tabIndex={0}
+      role="region"
+      aria-label="Scrollable content area"
+      style={{ padding: `16px ${DEFAULT_PAGE_PADDING}px 32px ${DEFAULT_PAGE_PADDING}px` }}
     >
       <div
-        className={cn('w-full h-full', constrained && 'mx-auto')}
+        className={cn('w-full min-h-full', constrained && 'mx-auto')}
         style={constrained ? { maxWidth: CONTENT_MAX_WIDTH } : undefined}
       >
         {children}
