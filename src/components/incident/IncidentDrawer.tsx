@@ -195,38 +195,46 @@ export function IncidentDrawer() {
             </div>
 
             {/* Navigation and Close Controls */}
-            <div className="flex items-center gap-2.5">
-              <div className="flex items-center border border-(--border) rounded-md overflow-hidden shrink-0">
-                <button
-                  onClick={handlePrev}
-                  disabled={!hasPrev}
-                  className={cn(
-                    'p-1.5 hover:bg-(--surface-3) transition-colors text-(--foreground-muted) disabled:opacity-40 disabled:hover:bg-transparent',
-                    'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-(--primary)'
-                  )}
-                  aria-label="Previous Incident"
-                >
-                  <ChevronLeft size={16} />
-                </button>
-                <div className="w-px h-4 bg-(--border)" />
-                <button
-                  onClick={handleNext}
-                  disabled={!hasNext}
-                  className={cn(
-                    'p-1.5 hover:bg-(--surface-3) transition-colors text-(--foreground-muted) disabled:opacity-40 disabled:hover:bg-transparent',
-                    'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-(--primary)'
-                  )}
-                  aria-label="Next Incident"
-                >
-                  <ChevronRight size={16} />
-                </button>
+            <div className="flex items-center gap-4 shrink-0">
+              {/* Navigation with Positional Context */}
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono font-bold text-(--foreground-subtle) tracking-wider uppercase shrink-0">
+                  {currentIndex + 1} of {filteredIncidents.length}
+                </span>
+                <div className="flex items-center border border-(--border) rounded-md overflow-hidden shrink-0 bg-(--surface-2)">
+                  <button
+                    onClick={handlePrev}
+                    disabled={!hasPrev}
+                    className={cn(
+                      'p-1.5 hover:bg-(--surface-3) transition-colors text-(--foreground-muted) disabled:opacity-40 disabled:hover:bg-transparent',
+                      'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-(--primary)'
+                    )}
+                    aria-label="Previous Incident"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+                  <div className="w-px h-4 bg-(--border)" />
+                  <button
+                    onClick={handleNext}
+                    disabled={!hasNext}
+                    className={cn(
+                      'p-1.5 hover:bg-(--surface-3) transition-colors text-(--foreground-muted) disabled:opacity-40 disabled:hover:bg-transparent',
+                      'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-(--primary)'
+                    )}
+                    aria-label="Next Incident"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
               </div>
+
+              <div className="w-px h-4 bg-(--border)" aria-hidden="true" />
 
               <button
                 ref={closeButtonRef}
                 onClick={() => setActiveIncidentId(null)}
                 className="p-1.5 rounded-md hover:bg-(--surface-3) transition-colors text-(--foreground-muted) hover:text-(--foreground) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary)"
-                aria-label="Close details"
+                aria-label="Close incident details"
               >
                 <X size={18} />
               </button>
@@ -400,8 +408,21 @@ export function IncidentDrawer() {
           </div>
 
           {/* Drawer Footer Actions */}
-          {incident.status !== 'resolved' && (
-            <div className="shrink-0 px-5 py-4 border-t border-(--border) bg-(--surface-2) flex items-center justify-end gap-3">
+          <div className="shrink-0 px-5 py-4 border-t border-(--border) bg-(--surface-2) flex items-center justify-end gap-3">
+            {incident.status === 'resolved' ? (
+              <button
+                disabled
+                className={cn(
+                  'flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded',
+                  'border border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400',
+                  'cursor-not-allowed opacity-75'
+                )}
+                aria-label="Incident Resolved"
+              >
+                <CheckCircle size={13} />
+                ✓ Resolved
+              </button>
+            ) : (
               <button
                 onClick={() => markIncidentResolved(incident.id)}
                 className={cn(
@@ -414,8 +435,8 @@ export function IncidentDrawer() {
                 <CheckCircle size={13} />
                 Mark Incident Resolved
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </m.div>
       </div>
     </AnimatePresence>

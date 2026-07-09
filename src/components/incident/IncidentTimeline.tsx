@@ -99,23 +99,26 @@ export function IncidentTimeline({ events }: IncidentTimelineProps) {
   );
 
   return (
-    <div className="relative pl-6 space-y-4">
-      {/* Central Connector Line */}
-      <div
-        className="absolute left-3 top-2 bottom-2 w-px bg-(--border)"
-        aria-hidden="true"
-      />
-
-      {sortedEvents.map((event) => {
+    <div className="relative pl-8 space-y-4">
+      {sortedEvents.map((event, index) => {
         const config = EVENT_CONFIG[event.type] || EVENT_CONFIG.system;
         const Icon = config.icon;
+        const isLast = index === sortedEvents.length - 1;
 
         return (
           <div key={event.id} className="relative flex items-start gap-4">
+            {/* Connector Line */}
+            {!isLast && (
+              <div
+                className="absolute left-[-20px] top-[12px] bottom-[-28px] w-px bg-(--border) z-0"
+                aria-hidden="true"
+              />
+            )}
+
             {/* Timeline Dot with Icon */}
             <div
               className={cn(
-                'absolute -left-6 w-6 h-6 rounded-full border flex items-center justify-center shrink-0 z-10',
+                'absolute -left-8 top-0 w-6 h-6 rounded-full border flex items-center justify-center shrink-0 z-10',
                 config.bg,
                 config.border
               )}
