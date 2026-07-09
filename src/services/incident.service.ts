@@ -106,7 +106,7 @@ class IncidentService {
 
     this.notify();
     if (target) {
-      this.triggerEvent('IncidentStatusChanged', { title: target.title, status });
+      this.triggerEvent('IncidentStatusChanged', { incidentId: id, title: target.title, status });
       if (status === 'resolved') {
         this.triggerEvent('IncidentResolved', target);
       }

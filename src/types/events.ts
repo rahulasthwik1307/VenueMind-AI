@@ -31,6 +31,7 @@ export interface IncidentResolvedEvent extends BaseOperationalEvent {
 export interface IncidentStatusChangedEvent extends BaseOperationalEvent {
   type: 'IncidentStatusChanged';
   payload: {
+    incidentId: string;
     title: string;
     status: IncidentStatus;
   };

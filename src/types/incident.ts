@@ -85,4 +85,6 @@ export interface ActivityItem {
   actor: string;
   time: string; // E.g. raw timestamp, formatted by component
   severity?: Severity;
+  incidentId?: string;
+  matchPhase?: string;
 }

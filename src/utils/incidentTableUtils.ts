@@ -56,17 +56,19 @@ export function sortIncidents(
 // ─── Filter ───────────────────────────────────────────────────────────────────
 
 export interface IncidentFilters {
-  severity: Severity | 'all';
-  category: Incident['category'] | 'all';
-  status: IncidentStatus | 'all';
+  severities: Severity[];
+  categories: Incident['category'][];
+  statuses: IncidentStatus[];
   zone: string | 'all';
+  emergencyMode: boolean;
 }
 
 export const DEFAULT_FILTERS: IncidentFilters = {
-  severity: 'all',
-  category: 'all',
-  status: 'all',
+  severities: [],
+  categories: [],
+  statuses: [],
   zone: 'all',
+  emergencyMode: false,
 };
 
 /**
@@ -82,12 +84,33 @@ export function filterIncidents(
   const q = searchQuery.trim().toLowerCase();
 
   return incidents.filter((incident) => {
-    if (filters.severity !== 'all' && incident.severity !== filters.severity) return false;
-    if (filters.category !== 'all' && incident.category !== filters.category) return false;
-    if (filters.status !== 'all' && incident.status !== filters.status) return false;
+    // 1. Emergency Mode (compound filter)
+    if (filters.emergencyMode) {
+      const isEmergency =
+        incident.severity === 'critical' ||
+        ['security', 'medical', 'weather'].includes(incident.category);
+      if (!isEmergency) return false;
+    } else {
+      // Apply severity filter (OR within the same dimension)
+      if (filters.severities.length > 0 && !filters.severities.includes(incident.severity)) {
+        return false;
+      }
+      // Apply category filter (OR within the same dimension)
+      if (filters.categories.length > 0 && !filters.categories.includes(incident.category)) {
+        return false;
+      }
+    }
+
+    // Apply status filter (OR within the same dimension)
+    if (filters.statuses.length > 0 && !filters.statuses.includes(incident.status)) {
+      return false;
+    }
+
+    // Apply zone filter
     if (filters.zone !== 'all' && !incident.location.zone.toLowerCase().includes(filters.zone.toLowerCase()))
       return false;
 
+    // Apply search query
     if (q) {
       const searchable = [
         incident.title,

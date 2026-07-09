@@ -27,6 +27,7 @@ import { IncidentStatsStrip } from '@/components/incident/IncidentStatsStrip';
 import { IncidentTable } from '@/components/incident/IncidentTable';
 import { IncidentBulkActions } from '@/components/incident/IncidentBulkActions';
 import { IncidentQueueAI } from '@/components/incident/IncidentQueueAI';
+import { DEFAULT_FILTERS } from '@/utils/incidentTableUtils';
 import type { IncidentFilters } from '@/utils/incidentTableUtils';
 import type { Severity, IncidentStatus } from '@/types/common';
 import type { Incident } from '@/types/incident';
@@ -59,77 +60,82 @@ const CATEGORY_OPTIONS: Array<{ value: string; label: string }> = [
   { value: 'accessibility', label: 'Accessibility' },
 ];
 
-const DEFAULT_FILTERS: IncidentFilters = {
-  severity: 'all',
-  category: 'all',
-  status: 'all',
-  zone: 'all',
-};
-
-/**
- * Quick-filter pills logic:
- * When multiple quick-filter pills are active simultaneously, they are combined with OR logic
- * (an incident matching ANY active pill's criteria is shown).
- */
-function matchesQuickFilters(incident: Incident, activePills: string[]): boolean {
-  if (activePills.length === 0) return true;
-  return activePills.some((pill) => {
-    switch (pill) {
-      case 'critical':
-        return incident.severity === 'critical';
-      case 'open':
-        return incident.status === 'open';
-      case 'crowd':
-        return incident.category === 'crowd';
-      case 'transport':
-        return incident.category === 'transport';
-      case 'emergency':
-        // Replicate Emergency Lens page logic: severity is critical OR category is security/medical/weather
-        return (
-          incident.severity === 'critical' ||
-          ['security', 'medical', 'weather'].includes(incident.category)
-        );
-      default:
-        return false;
-    }
-  });
-}
-
 export default function IncidentsPage() {
   const { incidents, searchQuery, setSearchQuery, setActiveIncidentId } =
     useIncidentStore();
 
   const [filters, setFilters] = useState<IncidentFilters>(DEFAULT_FILTERS);
-  const [activeQuickFilters, setActiveQuickFilters] = useState<string[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
-
-  // Apply quick-filter pills (OR logic) first
-  const quickFilteredIncidents = incidents.filter((i) =>
-    matchesQuickFilters(i, activeQuickFilters)
-  );
 
   // Loading simulation (SimulationService starts up async)
   const isLoading = incidents.length === 0 && !searchQuery;
 
   const hasActiveFilters =
-    filters.severity !== 'all' ||
-    filters.category !== 'all' ||
-    filters.status !== 'all' ||
+    filters.severities.length > 0 ||
+    filters.categories.length > 0 ||
+    filters.statuses.length > 0 ||
     filters.zone !== 'all' ||
-    activeQuickFilters.length > 0 ||
+    filters.emergencyMode ||
     searchQuery.trim().length > 0;
 
   const handleToggleQuickFilter = useCallback((pill: string) => {
-    setActiveQuickFilters((prev) =>
-      prev.includes(pill) ? prev.filter((p) => p !== pill) : [...prev, pill]
-    );
+    setFilters((prev) => {
+      let severities = [...prev.severities];
+      let statuses = [...prev.statuses];
+      let categories = [...prev.categories];
+      let emergencyMode = prev.emergencyMode;
+
+      switch (pill) {
+        case 'critical':
+          if (severities.includes('critical')) {
+            severities = severities.filter((s) => s !== 'critical');
+          } else {
+            severities.push('critical');
+            emergencyMode = false;
+          }
+          break;
+        case 'open':
+          if (statuses.includes('open')) {
+            statuses = statuses.filter((s) => s !== 'open');
+          } else {
+            statuses.push('open');
+          }
+          break;
+        case 'crowd':
+          if (categories.includes('crowd')) {
+            categories = categories.filter((c) => c !== 'crowd');
+          } else {
+            categories.push('crowd');
+            emergencyMode = false;
+          }
+          break;
+        case 'transport':
+          if (categories.includes('transport')) {
+            categories = categories.filter((c) => c !== 'transport');
+          } else {
+            categories.push('transport');
+            emergencyMode = false;
+          }
+          break;
+        case 'emergency':
+          emergencyMode = !emergencyMode;
+          break;
+      }
+
+      return {
+        ...prev,
+        severities,
+        statuses,
+        categories,
+        emergencyMode,
+      };
+    });
   }, []);
 
   const handleClearFilters = useCallback(() => {
     setFilters(DEFAULT_FILTERS);
     setSearchQuery('');
-    setActiveQuickFilters([]);
   }, [setSearchQuery]);
 
   const handleOpenDetails = useCallback(
@@ -209,16 +215,16 @@ export default function IncidentsPage() {
                 <button
                   type="button"
                   onClick={() => handleToggleQuickFilter('critical')}
-                  aria-pressed={activeQuickFilters.includes('critical')}
+                  aria-pressed={filters.severities.includes('critical')}
                   className={cn(
                     'px-2.5 py-1 text-[10px] font-semibold rounded-full border transition-all cursor-pointer flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) focus-visible:ring-offset-1',
-                    activeQuickFilters.includes('critical')
+                    filters.severities.includes('critical')
                       ? 'bg-red-600 border-red-600 text-white dark:bg-red-900/60 dark:border-red-900/60'
                       : 'bg-(--surface-2) border-(--border) text-(--foreground-muted) hover:border-(--border-strong)'
                   )}
                   aria-label="Filter by critical severity"
                 >
-                  <span className={cn('w-1.5 h-1.5 rounded-full', activeQuickFilters.includes('critical') ? 'bg-white animate-pulse' : 'bg-red-500')} aria-hidden="true" />
+                  <span className={cn('w-1.5 h-1.5 rounded-full', filters.severities.includes('critical') ? 'bg-white animate-pulse' : 'bg-red-500')} aria-hidden="true" />
                   Critical
                 </button>
 
@@ -226,16 +232,16 @@ export default function IncidentsPage() {
                 <button
                   type="button"
                   onClick={() => handleToggleQuickFilter('open')}
-                  aria-pressed={activeQuickFilters.includes('open')}
+                  aria-pressed={filters.statuses.includes('open')}
                   className={cn(
                     'px-2.5 py-1 text-[10px] font-semibold rounded-full border transition-all cursor-pointer flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) focus-visible:ring-offset-1',
-                    activeQuickFilters.includes('open')
+                    filters.statuses.includes('open')
                       ? 'bg-(--primary) border-(--primary) text-white'
                       : 'bg-(--surface-2) border-(--border) text-(--foreground-muted) hover:border-(--border-strong)'
                   )}
                   aria-label="Filter by open status"
                 >
-                  <span className={cn('w-1.5 h-1.5 rounded-full', activeQuickFilters.includes('open') ? 'bg-white animate-pulse' : 'bg-amber-500')} aria-hidden="true" />
+                  <span className={cn('w-1.5 h-1.5 rounded-full', filters.statuses.includes('open') ? 'bg-white animate-pulse' : 'bg-amber-500')} aria-hidden="true" />
                   Open Queue
                 </button>
 
@@ -243,10 +249,10 @@ export default function IncidentsPage() {
                 <button
                   type="button"
                   onClick={() => handleToggleQuickFilter('crowd')}
-                  aria-pressed={activeQuickFilters.includes('crowd')}
+                  aria-pressed={filters.categories.includes('crowd')}
                   className={cn(
                     'px-2.5 py-1 text-[10px] font-semibold rounded-full border transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) focus-visible:ring-offset-1',
-                    activeQuickFilters.includes('crowd')
+                    filters.categories.includes('crowd')
                       ? 'bg-(--primary) border-(--primary) text-white'
                       : 'bg-(--surface-2) border-(--border) text-(--foreground-muted) hover:border-(--border-strong)'
                   )}
@@ -259,10 +265,10 @@ export default function IncidentsPage() {
                 <button
                   type="button"
                   onClick={() => handleToggleQuickFilter('transport')}
-                  aria-pressed={activeQuickFilters.includes('transport')}
+                  aria-pressed={filters.categories.includes('transport')}
                   className={cn(
                     'px-2.5 py-1 text-[10px] font-semibold rounded-full border transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) focus-visible:ring-offset-1',
-                    activeQuickFilters.includes('transport')
+                    filters.categories.includes('transport')
                       ? 'bg-(--primary) border-(--primary) text-white'
                       : 'bg-(--surface-2) border-(--border) text-(--foreground-muted) hover:border-(--border-strong)'
                   )}
@@ -275,16 +281,16 @@ export default function IncidentsPage() {
                 <button
                   type="button"
                   onClick={() => handleToggleQuickFilter('emergency')}
-                  aria-pressed={activeQuickFilters.includes('emergency')}
+                  aria-pressed={filters.emergencyMode}
                   className={cn(
                     'px-2.5 py-1 text-[10px] font-semibold rounded-full border transition-all cursor-pointer flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) focus-visible:ring-offset-1',
-                    activeQuickFilters.includes('emergency')
+                    filters.emergencyMode
                       ? 'bg-amber-600 border-amber-600 text-white'
                       : 'bg-(--surface-2) border-(--border) text-(--foreground-muted) hover:border-(--border-strong)'
                   )}
                   aria-label="Filter by emergency criteria (critical severity or security/medical/weather categories)"
                 >
-                  <span className={cn('w-1.5 h-1.5 rounded-full', activeQuickFilters.includes('emergency') ? 'bg-white animate-pulse' : 'bg-red-500')} aria-hidden="true" />
+                  <span className={cn('w-1.5 h-1.5 rounded-full', filters.emergencyMode ? 'bg-white animate-pulse' : 'bg-red-500')} aria-hidden="true" />
                   Emergency
                 </button>
               </div>
@@ -338,10 +344,15 @@ export default function IncidentsPage() {
                   </label>
                   <select
                     id="filter-severity"
-                    value={filters.severity}
-                    onChange={(e) =>
-                      setFilters((f) => ({ ...f, severity: e.target.value as Severity | 'all' }))
-                    }
+                    value={filters.severities.length === 1 ? filters.severities[0] : 'all'}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setFilters((f) => ({
+                        ...f,
+                        severities: val === 'all' ? [] : [val as Severity],
+                        emergencyMode: false,
+                      }));
+                    }}
                     className="w-full text-[10px] px-2 py-1.5 rounded border bg-(--surface-2) border-(--border) text-(--foreground) focus:outline-none focus:ring-1 focus:ring-(--primary) cursor-pointer"
                   >
                     {SEVERITY_OPTIONS.map((o) => (
@@ -362,10 +373,14 @@ export default function IncidentsPage() {
                   </label>
                   <select
                     id="filter-status"
-                    value={filters.status}
-                    onChange={(e) =>
-                      setFilters((f) => ({ ...f, status: e.target.value as IncidentStatus | 'all' }))
-                    }
+                    value={filters.statuses.length === 1 ? filters.statuses[0] : 'all'}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setFilters((f) => ({
+                        ...f,
+                        statuses: val === 'all' ? [] : [val as IncidentStatus],
+                      }));
+                    }}
                     className="w-full text-[10px] px-2 py-1.5 rounded border bg-(--surface-2) border-(--border) text-(--foreground) focus:outline-none focus:ring-1 focus:ring-(--primary) cursor-pointer"
                   >
                     {STATUS_OPTIONS.map((o) => (
@@ -386,13 +401,15 @@ export default function IncidentsPage() {
                   </label>
                   <select
                     id="filter-category"
-                    value={filters.category}
-                    onChange={(e) =>
+                    value={filters.categories.length === 1 ? filters.categories[0] : 'all'}
+                    onChange={(e) => {
+                      const val = e.target.value;
                       setFilters((f) => ({
                         ...f,
-                        category: e.target.value as typeof filters.category,
-                      }))
-                    }
+                        categories: val === 'all' ? [] : [val as Incident['category']],
+                        emergencyMode: false,
+                      }));
+                    }}
                     className="w-full text-[10px] px-2 py-1.5 rounded border bg-(--surface-2) border-(--border) text-(--foreground) focus:outline-none focus:ring-1 focus:ring-(--primary) cursor-pointer"
                   >
                     {CATEGORY_OPTIONS.map((o) => (
@@ -449,7 +466,7 @@ export default function IncidentsPage() {
               <LoadingState label="Loading incident queue…" />
             ) : (
               <IncidentTable
-                incidents={quickFilteredIncidents}
+                incidents={incidents}
                 filters={filters}
                 searchQuery={searchQuery}
                 selectedIds={selectedIds}

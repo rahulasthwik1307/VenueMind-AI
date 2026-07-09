@@ -120,9 +120,10 @@ export const useIncidentStore = create<IncidentState>((set) => ({
     toasts: state.toasts.filter((t) => t.id !== id),
   })),
 
-  addActivity: (message, actor, severity) => set(() => {
+  addActivity: (message, actor, severity) => set((state) => {
+    const period = state.telemetry?.matchTimeline?.value?.period;
     // Log to activityService to ensure it persists across simulation clock sags
-    activityService.logActivity(message, actor, severity);
+    activityService.logActivity(message, actor, severity, undefined, period);
     return { activities: activityService.getActivities() };
   }),
 
@@ -163,16 +164,19 @@ export const useIncidentStore = create<IncidentState>((set) => ({
     };
   }),
 
-  resetAll: () => set({
-    incidents: MOCK_INCIDENTS,
-    analyses: MOCK_ANALYSES,
-    activeIncidentId: null,
-    filter: 'all',
-    searchQuery: '',
-    activities: [],
-    readNotifIds: [],
-    toasts: [],
-    telemetry: null,
-    stadiumStats: INITIAL_STADIUM_STATS,
-  }),
+  resetAll: () => {
+    activityService.reset();
+    set({
+      incidents: MOCK_INCIDENTS,
+      analyses: MOCK_ANALYSES,
+      activeIncidentId: null,
+      filter: 'all',
+      searchQuery: '',
+      activities: activityService.getActivities(),
+      readNotifIds: [],
+      toasts: [],
+      telemetry: null,
+      stadiumStats: INITIAL_STADIUM_STATS,
+    });
+  },
 }));
