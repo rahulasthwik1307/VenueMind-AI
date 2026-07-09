@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   X,
   ChevronLeft,
@@ -22,6 +22,8 @@ import { useIncident } from '@/hooks/useIncident';
 import { DecisionCard } from '@/components/cards/DecisionCard';
 import { IncidentTimeline } from '@/components/incident/IncidentTimeline';
 import { m, AnimatePresence } from 'framer-motion';
+import { useUIStore } from '@/store/modules/ui';
+import { SharedNotes } from '@/components/shared/SharedNotes';
 
 export function IncidentDrawer() {
   const {
@@ -33,19 +35,32 @@ export function IncidentDrawer() {
     setActiveIncidentId,
     dispatchAction,
     markIncidentResolved,
-    updateIncidentNotes,
     dismissRecommendation,
+    addToast,
+    addActivity,
   } = useIncident();
 
-  const [localNotes, setLocalNotes] = useState('');
+  const {
+    incidentNotes,
+    incidentDrafts,
+    setIncidentDraft,
+    addIncidentNote,
+    deleteIncidentNote,
+  } = useUIStore();
+
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   const incident = activeIncidentId ? incidents.find((inc) => inc.id === activeIncidentId) : undefined;
 
-  const [prevIncidentId, setPrevIncidentId] = useState<string | undefined>(undefined);
-  if (incident?.id !== prevIncidentId) {
-    setPrevIncidentId(incident?.id);
-    setLocalNotes(incident?.notes || '');
-  }
+  // Focus Close button for accessibility when drawer opens
+  useEffect(() => {
+    if (activeIncidentId) {
+      const timer = setTimeout(() => {
+        closeButtonRef.current?.focus();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [activeIncidentId]);
 
   // Close drawer on Escape key press
   useEffect(() => {
@@ -63,8 +78,23 @@ export function IncidentDrawer() {
   if (!activeIncidentId) return null;
   if (!incident) return null;
 
-  const handleNotesBlur = () => {
-    updateIncidentNotes(incident.id, localNotes);
+  const currentDraft = incidentDrafts[incident.id] || '';
+  const currentNotes = incidentNotes[incident.id] || [];
+
+  const handleSaveNote = () => {
+    if (!currentDraft.trim()) return;
+    addIncidentNote(incident.id, currentDraft);
+    addToast('Operator log note saved', 'success');
+    addActivity(`Rahul Asthwik added a log note to incident ${incident.id.toUpperCase()}`, 'Rahul Asthwik', 'low');
+  };
+
+  const handleDeleteNote = (noteId: string) => {
+    deleteIncidentNote(incident.id, noteId);
+    addToast('Operator log note deleted', 'info');
+  };
+
+  const handleChangeDraft = (val: string) => {
+    setIncidentDraft(incident.id, val);
   };
 
   const analysis = analyses[incident.id];
@@ -171,7 +201,8 @@ export function IncidentDrawer() {
                   onClick={handlePrev}
                   disabled={!hasPrev}
                   className={cn(
-                    'p-1.5 hover:bg-(--surface-3) transition-colors text-(--foreground-muted) disabled:opacity-40 disabled:hover:bg-transparent'
+                    'p-1.5 hover:bg-(--surface-3) transition-colors text-(--foreground-muted) disabled:opacity-40 disabled:hover:bg-transparent',
+                    'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-(--primary)'
                   )}
                   aria-label="Previous Incident"
                 >
@@ -182,7 +213,8 @@ export function IncidentDrawer() {
                   onClick={handleNext}
                   disabled={!hasNext}
                   className={cn(
-                    'p-1.5 hover:bg-(--surface-3) transition-colors text-(--foreground-muted) disabled:opacity-40 disabled:hover:bg-transparent'
+                    'p-1.5 hover:bg-(--surface-3) transition-colors text-(--foreground-muted) disabled:opacity-40 disabled:hover:bg-transparent',
+                    'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-(--primary)'
                   )}
                   aria-label="Next Incident"
                 >
@@ -191,8 +223,9 @@ export function IncidentDrawer() {
               </div>
 
               <button
+                ref={closeButtonRef}
                 onClick={() => setActiveIncidentId(null)}
-                className="p-1.5 rounded-md hover:bg-(--surface-3) transition-colors text-(--foreground-muted) hover:text-(--foreground)"
+                className="p-1.5 rounded-md hover:bg-(--surface-3) transition-colors text-(--foreground-muted) hover:text-(--foreground) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary)"
                 aria-label="Close details"
               >
                 <X size={18} />
@@ -337,17 +370,21 @@ export function IncidentDrawer() {
             )}
 
             {/* Operator Notes Section */}
-            <div className="border border-(--border) rounded-md p-4 bg-(--surface-2) space-y-2">
-              <h4 className="text-xs font-bold text-(--foreground) uppercase tracking-wider flex items-center gap-1.5">
+            <div className="border border-(--border) rounded-md p-4 bg-(--surface-2)">
+              <h4 className="text-xs font-bold text-(--foreground) uppercase tracking-wider flex items-center gap-1.5 mb-2">
                 <FileText size={12} className="text-(--primary)" />
                 Operator Log Notes
               </h4>
-              <textarea
-                value={localNotes}
-                onChange={(e) => setLocalNotes(e.target.value)}
-                onBlur={handleNotesBlur}
-                placeholder="Type operator notes, findings, or local dispatch overrides here... (saves automatically)"
-                className="w-full h-20 p-2.5 text-[11px] bg-(--surface-1) border border-(--border) rounded focus:outline-none focus:ring-1 focus:ring-(--primary) resize-none placeholder:text-(--foreground-subtle) text-(--foreground)"
+              <SharedNotes
+                draft={currentDraft}
+                notes={currentNotes}
+                onChangeDraft={handleChangeDraft}
+                onSave={handleSaveNote}
+                onDelete={handleDeleteNote}
+                placeholder="Type operator notes, findings, or local dispatch overrides here... (Ctrl+Enter to save)"
+                historyTitle="Log History"
+                ariaLabel="Operator incident log notes"
+                maxHeightClass="max-h-28"
               />
             </div>
 
@@ -356,7 +393,9 @@ export function IncidentDrawer() {
               <h4 className="text-xs font-semibold text-(--foreground) border-b border-(--border) pb-2">
                 Operations Timeline
               </h4>
-              <IncidentTimeline events={incident.timeline} />
+              <div className="max-h-60 overflow-y-auto pr-1.5 custom-scrollbar-always">
+                <IncidentTimeline events={incident.timeline} />
+              </div>
             </div>
           </div>
 

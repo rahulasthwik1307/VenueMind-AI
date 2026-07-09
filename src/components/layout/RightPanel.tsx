@@ -3,12 +3,13 @@
 import { cn } from '@/utils/cn';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, X } from 'lucide-react';
+import { ChevronDown, ChevronUp, Shield, AlertTriangle, Lock } from 'lucide-react';
 import { SectionHeader } from '@/components/shared/SectionHeader';
 import { SkeletonLine } from '@/components/shared/SkeletonLine';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { useIncidentStore } from '@/store/modules/incident';
 import { useUIStore } from '@/store/modules/ui';
+import { SharedNotes } from '@/components/shared/SharedNotes';
 
 function PanelSection({
   title,
@@ -193,9 +194,33 @@ function SystemHealth() {
 function QuickActions() {
   const { addToast, addActivity } = useIncidentStore();
   const actions = [
-    { id: 'deploy', label: 'Deploy Security Team', severity: 'high' as const, msg: 'Quick Action: Security Team dispatch initiated via Operations Panel' },
-    { id: 'alert', label: 'Broadcast Alert', severity: 'high' as const, msg: 'Quick Action: Global stadium warning broadcasted' },
-    { id: 'close-gate', label: 'Close Gate Section', severity: 'medium' as const, msg: 'Quick Action: Tactical gate closure sequence engaged' },
+    {
+      id: 'deploy',
+      label: 'Deploy Security Team',
+      severity: 'high' as const,
+      msg: 'Quick Action: Security Team dispatch initiated via Operations Panel',
+      icon: Shield,
+      borderColor: 'border-l-orange-500',
+      iconColor: 'text-orange-500',
+    },
+    {
+      id: 'alert',
+      label: 'Broadcast Alert',
+      severity: 'high' as const,
+      msg: 'Quick Action: Global stadium warning broadcasted',
+      icon: AlertTriangle,
+      borderColor: 'border-l-red-500',
+      iconColor: 'text-red-500',
+    },
+    {
+      id: 'close-gate',
+      label: 'Close Gate Section',
+      severity: 'medium' as const,
+      msg: 'Quick Action: Tactical gate closure sequence engaged',
+      icon: Lock,
+      borderColor: 'border-l-blue-500',
+      iconColor: 'text-blue-500',
+    },
   ];
 
   const handleAction = (label: string, severity: 'low' | 'medium' | 'high' | 'critical', msg: string) => {
@@ -205,23 +230,28 @@ function QuickActions() {
 
   return (
     <PanelSection title="Quick Actions" className="py-2">
-      <div className="space-y-0.5">
-        {actions.map((action) => (
-          <button
-            key={action.id}
-            onClick={() => handleAction(action.label, action.severity, action.msg)}
-            className={cn(
-              'w-full text-left text-xs font-semibold px-2.5 py-1 rounded-sm cursor-pointer',
-              'border border-(--border) bg-(--surface-2) text-(--foreground-muted)',
-              'hover:bg-(--surface-3) hover:border-(--border-strong) hover:text-(--foreground)',
-              'transition-all duration-150',
-              'focus-visible:outline-(--focus-ring)'
-            )}
-            aria-label={action.label}
-          >
-            {action.label}
-          </button>
-        ))}
+      <div className="space-y-1.5">
+        {actions.map((action) => {
+          const ActionIcon = action.icon;
+          return (
+            <button
+              key={action.id}
+              onClick={() => handleAction(action.label, action.severity, action.msg)}
+              className={cn(
+                'w-full flex items-center gap-2 text-left text-xs font-semibold px-2.5 py-1.5 rounded-sm cursor-pointer',
+                'border border-(--border) border-l-3 bg-(--surface-2) text-(--foreground-muted)',
+                action.borderColor,
+                'hover:bg-(--surface-3) hover:border-(--border-strong) hover:text-(--foreground)',
+                'transition-all duration-150',
+                'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-(--primary)'
+              )}
+              aria-label={action.label}
+            >
+              <ActionIcon size={12} className={cn('shrink-0', action.iconColor)} />
+              <span>{action.label}</span>
+            </button>
+          );
+        })}
       </div>
     </PanelSection>
   );
@@ -230,7 +260,6 @@ function QuickActions() {
 function OperationsNotes() {
   const { operationsNotes, setOperationsNotes, shiftNotes, addShiftNote, deleteShiftNote } = useUIStore();
   const { addToast, addActivity } = useIncidentStore();
-  const [collapsed, setCollapsed] = useState(true);
 
   const handleSave = () => {
     if (!operationsNotes.trim()) return;
@@ -244,124 +273,19 @@ function OperationsNotes() {
     addToast('Shift note deleted', 'info');
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-      e.preventDefault();
-      handleSave();
-    }
-  };
-
   return (
     <PanelSection title="Operations Notes" className="py-2">
-      <div className="space-y-2">
-        <textarea
-          value={operationsNotes}
-          onChange={(e) => setOperationsNotes(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Type a shift log entry (Ctrl+Enter to save)..."
-          className={cn(
-            'w-full min-h-14 p-2 text-xs text-(--foreground) placeholder:text-(--foreground-subtle)',
-            'bg-(--surface-2) border border-(--border) rounded-sm resize-none',
-            'focus:outline-none focus:ring-1 focus:ring-(--primary) focus:border-(--primary)',
-            'transition-all'
-          )}
-          aria-label="Operations shift handover notes"
-        />
-
-        <div className="flex justify-between items-center">
-          <span className="text-[9px] text-(--foreground-subtle)">
-            Press Ctrl+Enter to save
-          </span>
-          <button
-            onClick={handleSave}
-            disabled={!operationsNotes.trim()}
-            className={cn(
-              'px-2 py-0.5 text-[9px] font-bold rounded-sm border transition-all duration-150 uppercase tracking-wide cursor-pointer',
-              operationsNotes.trim()
-                ? 'bg-(--primary) text-white border-(--primary) hover:bg-(--primary-hover)'
-                : 'bg-(--surface-2) border-(--border) text-(--foreground-subtle) cursor-not-allowed'
-            )}
-          >
-            Save
-          </button>
-        </div>
-
-        {/* History Log */}
-        {shiftNotes.length > 0 && (
-          <div className="mt-2 pt-2 border-t border-(--border) space-y-1.5">
-            <span className="text-[9px] font-bold text-(--foreground-subtle) uppercase tracking-wider block">
-              Shift Log
-            </span>
-
-            {/* Most recent note */}
-            <div className="relative bg-(--surface-2)/40 border border-(--border)/60 rounded-sm p-1.5 text-[10px] leading-snug space-y-0.5 animate-fade-in group">
-              <div className="flex justify-between items-center text-[8px] font-mono text-(--foreground-subtle) pr-4">
-                <span className="font-semibold">Rahul Asthwik</span>
-                <span>{shiftNotes[0].timestamp}</span>
-              </div>
-              <p className="text-(--foreground-muted) whitespace-pre-wrap break-words">
-                {shiftNotes[0].content}
-              </p>
-              <button
-                onClick={() => handleDelete(shiftNotes[0].id)}
-                className={cn(
-                  'absolute top-1 right-1 text-(--foreground-subtle) hover:text-red-500 p-0.5 rounded cursor-pointer transition-colors',
-                  'focus-visible:outline-(--focus-ring) focus-visible:ring-1'
-                )}
-                aria-label="Delete note"
-              >
-                <X size={10} />
-              </button>
-            </div>
-
-            {/* Toggle for older history */}
-            {shiftNotes.length > 1 && (
-              <button
-                onClick={() => setCollapsed(!collapsed)}
-                className="w-full flex items-center justify-between text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle) hover:text-(--foreground) transition-colors mt-2 cursor-pointer"
-                aria-expanded={!collapsed}
-              >
-                <span>{collapsed ? 'Show more history' : 'Hide history'}</span>
-                {collapsed ? <ChevronDown size={10} /> : <ChevronUp size={10} />}
-              </button>
-            )}
-
-            {/* Scrollable list of older notes */}
-            {!collapsed && shiftNotes.length > 1 && (
-              <ul
-                className="space-y-1.5 max-h-36 overflow-y-auto pr-0.5 mt-2 custom-scrollbar-always animate-fade-in"
-                aria-label="Older shift log entries"
-                aria-live="polite"
-              >
-                {shiftNotes.slice(1).map((note) => (
-                  <li
-                    key={note.id}
-                    className="relative bg-(--surface-2)/30 border border-(--border)/40 rounded-sm p-1.5 text-[10px] leading-snug space-y-0.5"
-                  >
-                    <div className="flex justify-between items-center text-[8px] font-mono text-(--foreground-subtle) pr-4">
-                      <span className="font-semibold">Rahul Asthwik</span>
-                      <span>{note.timestamp}</span>
-                    </div>
-                    <p className="text-(--foreground-muted) whitespace-pre-wrap break-words">
-                      {note.content}
-                    </p>
-                    <button
-                      onClick={() => handleDelete(note.id)}
-                      className={cn(
-                        'absolute top-1 right-1 text-(--foreground-subtle) hover:text-red-500 p-0.5 rounded cursor-pointer transition-colors',
-                        'focus-visible:outline-(--focus-ring) focus-visible:ring-1'
-                      )}
-                      aria-label="Delete note"
-                    >
-                      <X size={10} />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        )}
-      </div>
+      <SharedNotes
+        draft={operationsNotes}
+        notes={shiftNotes}
+        onChangeDraft={setOperationsNotes}
+        onSave={handleSave}
+        onDelete={handleDelete}
+        placeholder="Type a shift log entry (Ctrl+Enter to save)..."
+        historyTitle="Shift Log"
+        ariaLabel="Operations shift handover notes"
+        maxHeightClass="max-h-36"
+      />
     </PanelSection>
   );
 }
@@ -374,42 +298,67 @@ function RecentAlerts() {
     { id: 'a3', message: 'Transport delay on Line 2', level: 'low', time: '15m ago' },
   ];
 
-  const levelColor: Record<string, string> = {
-    high: 'bg-red-500',
-    medium: 'bg-yellow-500',
-    low: 'bg-blue-400',
+  const alertStyles: Record<string, { border: string; bg: string }> = {
+    high: { border: 'border-l-red-500', bg: 'bg-red-50/20 dark:bg-red-950/10' },
+    medium: { border: 'border-l-yellow-500', bg: 'bg-yellow-50/20 dark:bg-yellow-950/10' },
+    low: { border: 'border-l-blue-400', bg: 'bg-blue-50/20 dark:bg-blue-950/10' },
+  };
+
+  const renderAlert = (alert: typeof alerts[0]) => {
+    const styles = alertStyles[alert.level] || alertStyles.low;
+    return (
+      <div
+        key={alert.id}
+        className={cn(
+          'relative border border-(--border)/60 border-l-3 rounded-sm p-1.5 text-[10px] leading-snug space-y-0.5 animate-fade-in',
+          styles.border,
+          styles.bg
+        )}
+      >
+        <div className="flex justify-between items-center text-[8px] font-mono text-(--foreground-subtle)">
+          <span className="font-semibold uppercase tracking-wider">{alert.level} PRIORITY</span>
+          <span>{alert.time}</span>
+        </div>
+        <p className="text-(--foreground-muted) whitespace-pre-wrap break-words leading-relaxed">
+          {alert.message}
+        </p>
+      </div>
+    );
   };
 
   return (
     <PanelSection title="Recent Alerts" className="py-2 border-b-0">
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="w-full flex items-center justify-between text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle) hover:text-(--foreground) transition-colors mb-2 cursor-pointer"
-        aria-expanded={!collapsed}
-      >
-        <span>Toggle Alerts History</span>
-        {collapsed ? <ChevronDown size={10} /> : <ChevronUp size={10} />}
-      </button>
+      <div className="space-y-1.5">
+        {/* Most recent alert is always visible */}
+        {alerts.length > 0 && renderAlert(alerts[0])}
 
-      {!collapsed && (
-        <ul className="space-y-2 animate-fade-in" aria-label="Recent alert list">
-          {alerts.map((alert) => (
-            <li key={alert.id} className="flex items-start gap-2">
-              <span
-                className={cn('mt-1.5 w-1.5 h-1.5 rounded-full shrink-0', levelColor[alert.level] ?? 'bg-gray-400')}
-                aria-label={`${alert.level} priority`}
-                aria-hidden="true"
-              />
-              <div className="min-w-0 flex-1">
-                <p className="text-[11px] text-(--foreground-muted) leading-snug truncate-2">
-                  {alert.message}
-                </p>
-                <p className="text-[9px] text-(--foreground-subtle) mt-0.5">{alert.time}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+        {/* Toggle for older alerts */}
+        {alerts.length > 1 && (
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="w-full flex items-center justify-between text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle) hover:text-(--foreground) transition-colors mt-2 cursor-pointer"
+            aria-expanded={!collapsed}
+          >
+            <span>{collapsed ? 'Show more alerts' : 'Hide alerts history'}</span>
+            {collapsed ? <ChevronDown size={10} /> : <ChevronUp size={10} />}
+          </button>
+        )}
+
+        {/* Scrollable list of older alerts */}
+        {!collapsed && alerts.length > 1 && (
+          <ul
+            className="space-y-1.5 max-h-36 overflow-y-auto pr-0.5 mt-2 custom-scrollbar-always animate-fade-in"
+            aria-label="Older alerts history"
+            aria-live="polite"
+          >
+            {alerts.slice(1).map((alert) => (
+              <li key={alert.id}>
+                {renderAlert(alert)}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </PanelSection>
   );
 }

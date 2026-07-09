@@ -99,10 +99,11 @@ describe('incidentTableUtils - sortIncidents', () => {
 
 describe('incidentTableUtils - filterIncidents', () => {
   const baseFilters: IncidentFilters = {
-    severity: 'all',
-    category: 'all',
-    status: 'all',
+    severities: [],
+    categories: [],
+    statuses: [],
     zone: 'all',
+    emergencyMode: false,
   };
 
   it('should return all incidents when no filter or search is active', () => {
@@ -111,17 +112,17 @@ describe('incidentTableUtils - filterIncidents', () => {
   });
 
   it('should filter by severity', () => {
-    const result = filterIncidents(mockIncidents, { ...baseFilters, severity: 'high' }, '');
+    const result = filterIncidents(mockIncidents, { ...baseFilters, severities: ['high'] }, '');
     expect(result.map(i => i.id)).toEqual(['inc-2']);
   });
 
   it('should filter by category', () => {
-    const result = filterIncidents(mockIncidents, { ...baseFilters, category: 'transport' }, '');
+    const result = filterIncidents(mockIncidents, { ...baseFilters, categories: ['transport'] }, '');
     expect(result.map(i => i.id)).toEqual(['inc-4']);
   });
 
   it('should filter by status', () => {
-    const result = filterIncidents(mockIncidents, { ...baseFilters, status: 'mitigated' }, '');
+    const result = filterIncidents(mockIncidents, { ...baseFilters, statuses: ['mitigated'] }, '');
     expect(result.map(i => i.id)).toEqual(['inc-4']);
   });
 
@@ -163,7 +164,7 @@ describe('incidentTableUtils - filterIncidents', () => {
   it('should support combined filtering and searching', () => {
     const filters: IncidentFilters = {
       ...baseFilters,
-      severity: 'critical',
+      severities: ['critical'],
     };
     const result = filterIncidents(mockIncidents, filters, 'gate');
     expect(result.map(i => i.id)).toEqual(['inc-1']);

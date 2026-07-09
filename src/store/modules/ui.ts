@@ -19,6 +19,8 @@ export interface UIState {
   telemetryFaultActive: boolean;
   operationsNotes: string;
   shiftNotes: ShiftNote[];
+  incidentNotes: Record<string, ShiftNote[]>;
+  incidentDrafts: Record<string, string>;
   setSidebarOpen: (open: boolean) => void;
   setTheme: (theme: 'light' | 'dark' | 'system') => void;
   setLanguage: (language: AssistantLanguage) => void;
@@ -27,6 +29,9 @@ export interface UIState {
   addShiftNote: (content: string) => void;
   deleteShiftNote: (id: string) => void;
   clearShiftNotes: () => void;
+  setIncidentDraft: (incidentId: string, content: string) => void;
+  addIncidentNote: (incidentId: string, content: string) => void;
+  deleteIncidentNote: (incidentId: string, id: string) => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -36,6 +41,8 @@ export const useUIStore = create<UIState>((set) => ({
   telemetryFaultActive: false,
   operationsNotes: '',
   shiftNotes: [],
+  incidentNotes: {},
+  incidentDrafts: {},
   setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
   setTheme: (theme) => set({ theme }),
   setLanguage: (language) => set({ language }),
@@ -64,4 +71,47 @@ export const useUIStore = create<UIState>((set) => ({
       shiftNotes: state.shiftNotes.filter((n) => n.id !== id),
     })),
   clearShiftNotes: () => set({ shiftNotes: [] }),
+  setIncidentDraft: (incidentId, content) =>
+    set((state) => ({
+      incidentDrafts: {
+        ...state.incidentDrafts,
+        [incidentId]: content,
+      },
+    })),
+  addIncidentNote: (incidentId, content) =>
+    set((state) => {
+      const newNote: ShiftNote = {
+        id: `note-${Date.now()}-${Math.random()}`,
+        timestamp: new Date().toLocaleTimeString('en-US', {
+          hour12: false,
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        }),
+        content: content.trim(),
+      };
+      const existing = state.incidentNotes[incidentId] || [];
+      const newNotes = [newNote, ...existing].slice(0, 5);
+      return {
+        incidentNotes: {
+          ...state.incidentNotes,
+          [incidentId]: newNotes,
+        },
+        incidentDrafts: {
+          ...state.incidentDrafts,
+          [incidentId]: '', // Reset draft for this incident
+        },
+      };
+    }),
+  deleteIncidentNote: (incidentId, id) =>
+    set((state) => {
+      const existing = state.incidentNotes[incidentId] || [];
+      const newNotes = existing.filter((n) => n.id !== id);
+      return {
+        incidentNotes: {
+          ...state.incidentNotes,
+          [incidentId]: newNotes,
+        },
+      };
+    }),
 }));

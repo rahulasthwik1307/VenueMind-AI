@@ -6,7 +6,7 @@ import { X, CheckCircle, Info, AlertTriangle, AlertOctagon } from 'lucide-react'
 import { useEffect } from 'react';
 
 export function ToastContainer() {
-  const { toasts, removeToast } = useIncident();
+  const { toasts } = useIncident();
 
   // Show at most 4 toasts at a time to prevent clutter
   const visibleToasts = toasts.slice(-4);
@@ -19,7 +19,7 @@ export function ToastContainer() {
     >
       <AnimatePresence>
         {visibleToasts.map((toast) => (
-          <ToastItem key={toast.id} toast={toast} onClose={() => removeToast(toast.id)} />
+          <ToastItem key={toast.id} toast={toast} />
         ))}
       </AnimatePresence>
     </div>
@@ -28,16 +28,18 @@ export function ToastContainer() {
 
 interface ToastItemProps {
   toast: { id: string; message: string; type: string };
-  onClose: () => void;
 }
 
-function ToastItem({ toast, onClose }: ToastItemProps) {
+function ToastItem({ toast }: ToastItemProps) {
+  const { removeToast } = useIncident();
+
   useEffect(() => {
-    // Critical (error) = 15s, Warning (warning) = 4s, Info/Success = 3s
-    const duration = toast.type === 'error' ? 15000 : toast.type === 'warning' ? 4000 : 3000;
-    const timer = setTimeout(onClose, duration);
+    // 4 seconds app-wide for auto-dismiss
+    const timer = setTimeout(() => {
+      removeToast(toast.id);
+    }, 4000);
     return () => clearTimeout(timer);
-  }, [toast.type, onClose]);
+  }, [toast.id, removeToast]);
 
   const icons: Record<string, React.ReactNode> = {
     success: <CheckCircle className="text-emerald-500 shrink-0" size={14} />,
@@ -69,7 +71,7 @@ function ToastItem({ toast, onClose }: ToastItemProps) {
         <span className="text-[11px] font-semibold leading-tight truncate">{toast.message}</span>
       </div>
       <button
-        onClick={onClose}
+        onClick={() => removeToast(toast.id)}
         className="p-0.5 rounded hover:bg-black/5 dark:hover:bg-white/5 transition-colors shrink-0 text-current opacity-60 hover:opacity-100 focus:outline-none"
         aria-label="Dismiss notification"
       >

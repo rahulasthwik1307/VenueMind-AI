@@ -139,10 +139,10 @@ export function DecisionCard({ recommendation, onExecute, onDismiss }: DecisionC
                 <button
                   onClick={onDismiss}
                   className={cn(
-                    'flex items-center gap-1 text-[9px] font-bold text-(--foreground-subtle) bg-(--surface-2) border border-(--border)',
-                    'px-2.5 py-1 rounded-sm',
-                    'hover:bg-(--surface-3) hover:text-(--foreground) active:scale-95 transition-all duration-150',
-                    'focus-visible:outline-(--focus-ring)'
+                    'flex items-center gap-1 text-[9px] font-bold text-(--foreground-muted) bg-(--surface-3) border border-(--border-strong)',
+                    'px-2.5 py-1 rounded-sm cursor-pointer',
+                    'hover:bg-(--surface-4) hover:text-(--foreground) active:scale-95 transition-all duration-150',
+                    'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-(--primary)'
                   )}
                   aria-label={`Dismiss recommendation: ${recommendation.title}`}
                 >
