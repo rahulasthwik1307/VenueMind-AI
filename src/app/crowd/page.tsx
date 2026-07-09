@@ -151,13 +151,84 @@ export default function CrowdMonitoringPage() {
         </div>
       }
       alertContent={
-        <div className="border border-amber-900/30 bg-amber-950/10 rounded-xl p-4 flex items-start gap-3 h-full shadow-sm">
-          <Flame size={16} className="text-amber-500 shrink-0 mt-0.5" />
-          <div>
-            <h4 className="text-xs font-bold text-amber-600 dark:text-amber-400">Tac-Route Redirection Active</h4>
-            <p className="text-[10px] text-amber-700 dark:text-amber-200 leading-relaxed mt-0.5">
-              Redirection signage active on North Plaza screens. Spectators from VIP West dropoffs are routed towards Gate B to mitigate Gate 7 sags.
-            </p>
+        <div className="border border-amber-900/30 bg-amber-950/10 rounded-xl p-4 flex flex-col justify-between h-full shadow-sm">
+          {/* Header */}
+          <div className="flex items-start gap-3 pb-3 border-b border-amber-900/20">
+            <div className="w-8 h-8 rounded bg-amber-500/10 flex items-center justify-center shrink-0">
+              <Flame size={16} className="text-amber-500 animate-pulse" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h4 className="text-xs font-bold text-amber-600 dark:text-amber-400">Tac-Route Redirection Active</h4>
+                <span className="text-[8px] font-mono font-bold uppercase bg-amber-500/20 text-amber-700 dark:text-amber-300 px-1.5 py-0.5 rounded">
+                  Active
+                </span>
+              </div>
+              <p className="text-[10px] text-amber-700 dark:text-amber-200 leading-relaxed mt-1">
+                Redirection signage active on North Plaza screens. Spectators from VIP West dropoffs are routed towards Gate B to mitigate Gate 7 congestion.
+              </p>
+            </div>
+          </div>
+
+          {/* Operational Metadata Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 my-3">
+            <div className="bg-amber-500/[0.02] dark:bg-amber-950/5 border border-amber-500/10 dark:border-amber-900/10 rounded-md p-2">
+              <span className="block text-[8px] text-amber-700/70 dark:text-amber-400/60 font-mono uppercase">Reason</span>
+              <span className="text-[10px] font-bold text-amber-900 dark:text-amber-300">Gate 7 Congestion</span>
+            </div>
+            <div className="bg-amber-500/[0.02] dark:bg-amber-950/5 border border-amber-500/10 dark:border-amber-900/10 rounded-md p-2">
+              <span className="block text-[8px] text-amber-700/70 dark:text-amber-400/60 font-mono uppercase">Affected Stands</span>
+              <span className="text-[10px] font-bold text-amber-900 dark:text-amber-300">North, VIP West</span>
+            </div>
+            <div className="bg-amber-500/[0.02] dark:bg-amber-950/5 border border-amber-500/10 dark:border-amber-900/10 rounded-md p-2">
+              <span className="block text-[8px] text-amber-700/70 dark:text-amber-400/60 font-mono uppercase">Redirected Flow</span>
+              <span className="text-[10px] font-bold text-amber-900 dark:text-amber-300 tabular-nums">1,200 Spectators</span>
+            </div>
+            <div className="bg-amber-500/[0.02] dark:bg-amber-950/5 border border-amber-500/10 dark:border-amber-900/10 rounded-md p-2">
+              <span className="block text-[8px] text-amber-700/70 dark:text-amber-400/60 font-mono uppercase">Compliance</span>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="text-[10px] font-bold text-amber-900 dark:text-amber-300">85%</span>
+                <div className="flex-1 h-1.5 bg-amber-500/15 dark:bg-amber-950/20 rounded-full overflow-hidden">
+                  <div className="h-full bg-amber-500 rounded-full" style={{ width: '85%' }} />
+                </div>
+              </div>
+            </div>
+            <div className="bg-amber-500/[0.02] dark:bg-amber-950/5 border border-amber-500/10 dark:border-amber-900/10 rounded-md p-2">
+              <span className="block text-[8px] text-amber-700/70 dark:text-amber-400/60 font-mono uppercase">Assigned Team</span>
+              <span className="text-[10px] font-bold text-amber-900 dark:text-amber-300 truncate block">Transit Ops & Vol-A</span>
+            </div>
+            <div className="bg-amber-500/[0.02] dark:bg-amber-950/5 border border-amber-500/10 dark:border-amber-900/10 rounded-md p-2">
+              <span className="block text-[8px] text-amber-700/70 dark:text-amber-400/60 font-mono uppercase">AI Confidence</span>
+              <span className="text-[10px] font-bold text-amber-900 dark:text-amber-300">94% (Optimal)</span>
+            </div>
+          </div>
+
+          {/* Redirection Verification Steps */}
+          <div className="bg-amber-500/[0.01] dark:bg-amber-950/3 border border-amber-500/5 dark:border-amber-900/5 rounded-md p-2 mb-2">
+            <span className="block text-[8px] text-amber-700/70 dark:text-amber-400/60 font-mono uppercase mb-1.5">Verification Timeline</span>
+            <div className="space-y-1 text-[9px] text-amber-800 dark:text-amber-300">
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                <span className="font-mono text-[8px]">22:07:45 UTC</span>
+                <span className="truncate">Redirection templates verified and loaded</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                <span className="font-mono text-[8px]">22:08:12 UTC</span>
+                <span className="truncate">Active routing signage activated at Gate B</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-amber-600/70 dark:text-amber-400/60">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500/40 shrink-0" />
+                <span className="font-mono text-[8px]">22:15:00 UTC</span>
+                <span className="truncate">Planned manual compliance sweep of junctions</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Footer */}
+          <div className="pt-2 border-t border-amber-900/20 flex items-center justify-between text-[8.5px] font-mono text-amber-700/80 dark:text-amber-400/70">
+            <span>Activated: 22:07:45 UTC</span>
+            <span>Target completion: End of Ingress</span>
           </div>
         </div>
       }
