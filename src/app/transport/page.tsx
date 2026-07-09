@@ -2,12 +2,12 @@
 
 import { useIncidentStore } from '@/store/modules/incident';
 import { LensPageLayout } from '@/components/operations/LensPageLayout';
-import { Bus, Train, Car, Navigation, AlertCircle } from 'lucide-react';
+import { Bus, Train, Car, Navigation, AlertCircle, CheckCircle } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import type { SystemStatusLevel } from '@/types/common';
 
 export default function TransportPage() {
-  const { stadiumStats } = useIncidentStore();
+  const stadiumStats = useIncidentStore((s) => s.stadiumStats);
   const transportStatus = stadiumStats.transportStatus; // 'Good' | 'Delayed' | 'Congested' | 'Critical'
 
   // Map global transport status to specific telemetry properties
@@ -81,6 +81,28 @@ export default function TransportPage() {
     return styles[level];
   };
 
+  const alertContent = !isNormal ? (
+    <div className="border border-red-900/30 bg-red-950/10 rounded-xl p-4 flex items-start gap-3 h-full shadow-sm">
+      <AlertCircle size={16} className="text-red-500 shrink-0 mt-0.5" />
+      <div>
+        <h4 className="text-xs font-bold text-red-600 dark:text-red-400">Transit Delays Reported</h4>
+        <p className="text-[10px] text-red-700 dark:text-red-300 leading-relaxed mt-0.5">
+          Al Khor Highway collision has restricted shuttle corridor B flow. Passengers waiting at Metro Hub B should be directed to the pedestrian walkways or Shuttle Route A.
+        </p>
+      </div>
+    </div>
+  ) : (
+    <div className="border border-green-900/20 bg-green-950/5 rounded-xl p-4 flex items-start gap-3 h-full shadow-sm">
+      <CheckCircle size={16} className="text-green-500 shrink-0 mt-0.5" />
+      <div>
+        <h4 className="text-xs font-bold text-green-600 dark:text-green-400">All Transit Operations Nominal</h4>
+        <p className="text-[10px] text-green-700 dark:text-green-300 leading-relaxed mt-0.5">
+          Metro transit and shuttle routes are operating within normal capacity and headway targets. No bypasses or redirections active.
+        </p>
+      </div>
+    </div>
+  );
+
   return (
     <LensPageLayout
       domain="transport"
@@ -92,11 +114,9 @@ export default function TransportPage() {
       ]}
       footerConsoleStatusText="CONSOLE STATUS: STABLE"
       incidentFilter={(i) => i.category === 'transport'}
-    >
-      <div className="space-y-6 pr-0 lg:pr-2">
-        {/* Metric widgets */}
+      metrics={
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="bg-(--surface-2)/40 border border-(--border) rounded-md p-3 flex items-center gap-3">
+          <div className="bg-(--surface-2)/45 border border-(--border) rounded-xl p-3 flex items-center gap-3 shadow-xs">
             <div className="w-8 h-8 rounded bg-(--primary-muted) text-(--primary) flex items-center justify-center shrink-0">
               <Bus size={15} />
             </div>
@@ -106,7 +126,7 @@ export default function TransportPage() {
             </div>
           </div>
 
-          <div className="bg-(--surface-2)/40 border border-(--border) rounded-md p-3 flex items-center gap-3">
+          <div className="bg-(--surface-2)/45 border border-(--border) rounded-xl p-3 flex items-center gap-3 shadow-xs">
             <div className="w-8 h-8 rounded bg-blue-950/20 text-blue-500 flex items-center justify-center shrink-0">
               <Navigation size={15} />
             </div>
@@ -116,7 +136,7 @@ export default function TransportPage() {
             </div>
           </div>
 
-          <div className="bg-(--surface-2)/40 border border-(--border) rounded-md p-3 flex items-center gap-3">
+          <div className="bg-(--surface-2)/45 border border-(--border) rounded-xl p-3 flex items-center gap-3 shadow-xs">
             <div className="w-8 h-8 rounded bg-amber-950/20 text-amber-500 flex items-center justify-center shrink-0">
               <AlertCircle size={15} />
             </div>
@@ -128,20 +148,20 @@ export default function TransportPage() {
             </div>
           </div>
         </div>
-
-        {/* Transport Hub Status Cards */}
-        <div className="border border-(--border) rounded-xl p-4 bg-(--surface-2)/20 space-y-3.5">
-          <h3 className="text-xs font-bold text-(--foreground) uppercase tracking-wider">
+      }
+      mainContent={
+        <div className="border border-(--border) rounded-xl p-4 bg-(--surface-2)/20 space-y-3.5 h-full flex flex-col justify-between shadow-sm">
+          <h3 className="text-xs font-bold text-(--foreground) uppercase tracking-wider shrink-0">
             Transit Node Monitor
           </h3>
           
-          <div className="space-y-3">
+          <div className="space-y-3 flex-1 overflow-y-auto min-h-0">
             {nodes.map((node) => {
               const NodeIcon = node.icon;
               return (
                 <div
                   key={node.id}
-                  className="bg-(--surface-1) border border-(--border) rounded-md p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-4"
+                  className="bg-(--surface-1) border border-(--border) rounded-md p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs"
                   role="region"
                   aria-label={`${node.name}: ${node.type}, status ${node.level}`}
                 >
@@ -193,20 +213,8 @@ export default function TransportPage() {
             })}
           </div>
         </div>
-
-        {/* Transport Alert */}
-        {!isNormal && (
-          <div className="border border-red-900/30 bg-red-950/10 rounded-md p-3.5 flex items-start gap-3">
-            <AlertCircle size={16} className="text-red-500 shrink-0 mt-0.5" />
-            <div>
-              <h4 className="text-xs font-bold text-red-600 dark:text-red-400">Transit Delays Reported</h4>
-              <p className="text-[10px] text-red-700 dark:text-red-300 leading-relaxed mt-0.5">
-                Al Khor Highway collision has restricted shuttle corridor B flow. Passengers waiting at Metro Hub B should be directed to the pedestrian walkways or Shuttle Route A.
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
-    </LensPageLayout>
+      }
+      alertContent={alertContent}
+    />
   );
 }

@@ -29,6 +29,7 @@ export const aiStructuredResponseSchema = z.object({
   recommendedResponse: z.string().min(10).max(3000),
   estimatedImpact: z.string().min(5).max(1000),
   confidence: z.number().int().min(0).max(100),
+  isNonOperational: z.boolean(),
 });
 
 export type AIStructuredResponseSchema = z.infer<typeof aiStructuredResponseSchema>;

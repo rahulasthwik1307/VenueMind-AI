@@ -2,7 +2,7 @@
 
 import { useIncidentStore } from '@/store/modules/incident';
 import { LensPageLayout } from '@/components/operations/LensPageLayout';
-import { ShieldAlert, HeartPulse, Shield, Eye, Flame, AlertCircle } from 'lucide-react';
+import { ShieldAlert, HeartPulse, Shield, Eye, Flame, AlertCircle, CheckCircle } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import type { SystemStatusLevel } from '@/types/common';
 
@@ -41,6 +41,28 @@ export default function EmergencyPage() {
     return texts[level];
   };
 
+  const alertContent = isAlertActive ? (
+    <div className="border border-red-950 bg-red-950/20 rounded-xl p-4 flex items-start gap-3 h-full shadow-sm">
+      <AlertCircle size={16} className="text-red-500 shrink-0 mt-0.5" />
+      <div>
+        <h4 className="text-xs font-bold text-red-600 dark:text-red-400">CRITICAL SAFETY ALERT</h4>
+        <p className="text-[10px] text-red-700 dark:text-red-300 leading-relaxed mt-0.5">
+          Active critical threats identified on queue. Dispatch teams must prioritize evacuations and SCADA interlocks immediately.
+        </p>
+      </div>
+    </div>
+  ) : (
+    <div className="border border-green-900/20 bg-green-950/5 rounded-xl p-4 flex items-start gap-3 h-full shadow-sm">
+      <CheckCircle size={16} className="text-green-500 shrink-0 mt-0.5" />
+      <div>
+        <h4 className="text-xs font-bold text-green-600 dark:text-green-400">Sector Status Secure</h4>
+        <p className="text-[10px] text-green-700 dark:text-green-300 leading-relaxed mt-0.5">
+          Perimeter security, medical standbys, and fire detection systems are reporting zero active alarms. Normal tournament operations active.
+        </p>
+      </div>
+    </div>
+  );
+
   return (
     <LensPageLayout
       domain="emergency"
@@ -52,11 +74,9 @@ export default function EmergencyPage() {
       ]}
       footerConsoleStatusText="CONSOLE STATUS: ARMED"
       incidentFilter={(i) => i.severity === 'critical' || i.category === 'security' || i.category === 'medical' || i.category === 'weather'}
-    >
-      <div className="space-y-6 pr-0 lg:pr-2">
-        {/* Metric widgets */}
+      metrics={
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="bg-(--surface-2)/40 border border-(--border) rounded-md p-3 flex items-center gap-3">
+          <div className="bg-(--surface-2)/45 border border-(--border) rounded-xl p-3 flex items-center gap-3 shadow-xs">
             <div className="w-8 h-8 rounded bg-red-950/25 text-red-500 flex items-center justify-center shrink-0">
               <ShieldAlert size={15} />
             </div>
@@ -66,7 +86,7 @@ export default function EmergencyPage() {
             </div>
           </div>
 
-          <div className="bg-(--surface-2)/40 border border-(--border) rounded-md p-3 flex items-center gap-3">
+          <div className="bg-(--surface-2)/45 border border-(--border) rounded-xl p-3 flex items-center gap-3 shadow-xs">
             <div className="w-8 h-8 rounded bg-(--primary-muted) text-(--primary) flex items-center justify-center shrink-0">
               <HeartPulse size={15} />
             </div>
@@ -76,7 +96,7 @@ export default function EmergencyPage() {
             </div>
           </div>
 
-          <div className="bg-(--surface-2)/40 border border-(--border) rounded-md p-3 flex items-center gap-3">
+          <div className="bg-(--surface-2)/45 border border-(--border) rounded-xl p-3 flex items-center gap-3 shadow-xs">
             <div className="w-8 h-8 rounded bg-blue-950/20 text-blue-500 flex items-center justify-center shrink-0">
               <Eye size={15} />
             </div>
@@ -86,16 +106,16 @@ export default function EmergencyPage() {
             </div>
           </div>
         </div>
-
-        {/* Emergency status grids */}
-        <div className="border border-(--border) rounded-xl p-4 bg-(--surface-2)/20 space-y-4">
-          <h3 className="text-xs font-bold text-(--foreground) uppercase tracking-wider">
+      }
+      mainContent={
+        <div className="border border-(--border) rounded-xl p-4 bg-(--surface-2)/20 space-y-4 h-full flex flex-col justify-between shadow-sm">
+          <h3 className="text-xs font-bold text-(--foreground) uppercase tracking-wider shrink-0">
             Critical Systems Status
           </h3>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 flex-1">
             {/* Medical Stations */}
-            <div className="bg-(--surface-1) border border-(--border) rounded-md p-3.5 flex flex-col justify-between h-32">
+            <div className="bg-(--surface-1) border border-(--border) rounded-md p-3.5 flex flex-col justify-between h-32 shadow-xs">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <HeartPulse size={14} className="text-red-500" />
@@ -114,7 +134,7 @@ export default function EmergencyPage() {
             </div>
 
             {/* Perimeter & Security */}
-            <div className="bg-(--surface-1) border border-(--border) rounded-md p-3.5 flex flex-col justify-between h-32">
+            <div className="bg-(--surface-1) border border-(--border) rounded-md p-3.5 flex flex-col justify-between h-32 shadow-xs">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <Shield size={14} className="text-blue-500" />
@@ -133,7 +153,7 @@ export default function EmergencyPage() {
             </div>
 
             {/* Fire Panels */}
-            <div className="bg-(--surface-1) border border-(--border) rounded-md p-3.5 flex flex-col justify-between h-32">
+            <div className="bg-(--surface-1) border border-(--border) rounded-md p-3.5 flex flex-col justify-between h-32 shadow-xs">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <Flame size={14} className="text-orange-500" />
@@ -152,7 +172,7 @@ export default function EmergencyPage() {
             </div>
 
             {/* Evacuation Paths */}
-            <div className="bg-(--surface-1) border border-(--border) rounded-md p-3.5 flex flex-col justify-between h-32">
+            <div className="bg-(--surface-1) border border-(--border) rounded-md p-3.5 flex flex-col justify-between h-32 shadow-xs">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <ShieldAlert size={14} className="text-green-500" />
@@ -171,20 +191,8 @@ export default function EmergencyPage() {
             </div>
           </div>
         </div>
-
-        {/* Emergency warning banner */}
-        {isAlertActive && (
-          <div className="border border-red-950 bg-red-950/20 rounded-md p-3.5 flex items-start gap-3">
-            <AlertCircle size={16} className="text-red-500 shrink-0 mt-0.5" />
-            <div>
-              <h4 className="text-xs font-bold text-red-600 dark:text-red-400">CRITICAL SAFETY ALERT</h4>
-              <p className="text-[10px] text-red-700 dark:text-red-300 leading-relaxed mt-0.5">
-                Active critical threats identified on queue. Dispatch teams must prioritize evacuations and SCADA interlocks immediately.
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
-    </LensPageLayout>
+      }
+      alertContent={alertContent}
+    />
   );
 }

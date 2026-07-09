@@ -60,8 +60,14 @@ export default function AICommandPage() {
   // ── Store access ─────────────────────────────────────────────────────────────
   const { lastResponse, isAnalyzing, error, conversationHistory, submitQuery, clearError } =
     useAssistantStore();
-  const { incidents, addActivity, addToast } = useIncidentStore();
+  const { incidents, addActivity, addToast, activities } = useIncidentStore();
   const language = useUIStore((state) => state.language);
+
+  // Filter AI Command dispatches for the idle state recent activity strip
+  const aiActivities = activities
+    .filter((act) => act.actor === 'AI Command Center')
+    .slice(-3)
+    .reverse();
 
   // ── Interaction mode state ────────────────────────────────────────────────────
   const [interactionMode, setInteractionMode] = useState<InteractionMode>('structured');
@@ -72,8 +78,56 @@ export default function AICommandPage() {
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const [selectedDomain, setSelectedDomain] = useState<AssistantDomain | null>(null);
 
-  // Shared query text (used in both modes)
-  const [queryText, setQueryText] = useState('');
+  // Separate query text states for free-form and structured context to prevent leaks
+  const [freeformQueryText, setFreeformQueryText] = useState('');
+  const [structuredContextText, setStructuredContextText] = useState('');
+
+  // Clear selections when switching top-level modes
+  const handleInteractionModeChange = useCallback((mode: InteractionMode) => {
+    setInteractionMode(mode);
+    setSelectedIncidentId(null);
+    setSelectedZoneId(null);
+    setSelectedDomain(null);
+    setFreeformQueryText('');
+    setStructuredContextText('');
+  }, [setInteractionMode, setSelectedIncidentId, setSelectedZoneId, setSelectedDomain, setFreeformQueryText, setStructuredContextText]);
+
+  // Clear previous selections when switching Structured mode tabs
+  const handleStructuredModeChange = useCallback((mode: StructuredMode) => {
+    setStructuredMode(mode);
+    setSelectedIncidentId(null);
+    setSelectedZoneId(null);
+    setSelectedDomain(null);
+  }, [setStructuredMode, setSelectedIncidentId, setSelectedZoneId, setSelectedDomain]);
+
+  // Pre-fill query suggestions from the idle panel and configure structured context
+  const handleSelectExampleQuery = useCallback((
+    query: string,
+    mode: 'freeform' | 'structured',
+    structuredTab?: StructuredMode,
+    selectionValue?: string
+  ) => {
+    setInteractionMode(mode);
+    setSelectedIncidentId(null);
+    setSelectedZoneId(null);
+    setSelectedDomain(null);
+
+    if (mode === 'structured' && structuredTab) {
+      setStructuredMode(structuredTab);
+      if (structuredTab === 'incident') {
+        setSelectedIncidentId(selectionValue || null);
+      } else if (structuredTab === 'zone') {
+        setSelectedZoneId(selectionValue || null);
+      } else if (structuredTab === 'domain') {
+        setSelectedDomain((selectionValue as AssistantDomain) || null);
+      }
+      setStructuredContextText(query);
+      setFreeformQueryText('');
+    } else {
+      setFreeformQueryText(query);
+      setStructuredContextText('');
+    }
+  }, [setInteractionMode, setSelectedIncidentId, setSelectedZoneId, setSelectedDomain, setStructuredMode, setStructuredContextText, setFreeformQueryText]);
 
   // ── Derived values ────────────────────────────────────────────────────────────
   const selectedIncident = incidents.find((i) => i.id === selectedIncidentId) ?? null;
@@ -85,7 +139,7 @@ export default function AICommandPage() {
 
   const canSubmit = 
     interactionMode === 'freeform'
-      ? queryText.trim().length > 0
+      ? freeformQueryText.trim().length > 0
       : isContextSelected;
 
   // ── Handlers ──────────────────────────────────────────────────────────────────
@@ -96,30 +150,34 @@ export default function AICommandPage() {
       const mode: 'incident' | 'zone' | 'domain' = structuredMode;
       submitQuery({
         mode,
-        rawQuery: queryText,
+        rawQuery: structuredContextText,
         incident: selectedIncident,
         zoneId: selectedZoneId,
         domain: selectedDomain ?? undefined,
         persona: 'operations',
       });
+      setStructuredContextText('');
     } else {
-      if (!queryText.trim()) return;
+      if (!freeformQueryText.trim()) return;
       submitQuery({
         mode: 'freeform',
-        rawQuery: queryText,
+        rawQuery: freeformQueryText,
         persona: 'operations',
       });
-      setQueryText('');
+      setFreeformQueryText('');
     }
   }, [
     isAnalyzing,
     interactionMode,
     structuredMode,
-    queryText,
+    freeformQueryText,
+    structuredContextText,
     selectedIncident,
     selectedZoneId,
     selectedDomain,
     submitQuery,
+    setStructuredContextText,
+    setFreeformQueryText,
   ]);
 
   const handleDispatchAction = useCallback(
@@ -151,15 +209,15 @@ export default function AICommandPage() {
   else if (lastResponse) responseAreaState = 'response';
 
   return (
-    <div className="flex flex-col gap-6 h-full p-6 max-w-350 mx-auto">
+    <div className="flex flex-col gap-6 h-full pt-4 px-6 pb-8 max-w-350 mx-auto w-full min-w-0">
       {/* Page header */}
       <CommandCenterHeader />
 
       {/* Main content grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6 flex-1 min-h-0">
+      <div className="grid grid-cols-1 lg:grid-cols-[380px_minmax(0,1fr)] gap-6 flex-1 min-h-0">
         {/* ── LEFT PANEL — Query ─────────────────────────────────────────────── */}
         <aside
-          className="flex flex-col gap-4 bg-(--surface-1) border border-(--border) rounded-xl p-4 shadow-sm h-fit"
+          className="flex flex-col gap-4 bg-(--surface-1) border border-(--border) rounded-xl p-4 shadow-sm h-full min-h-0"
           aria-label="AI query panel"
         >
           {/* Interaction mode tabs */}
@@ -176,7 +234,7 @@ export default function AICommandPage() {
                   role="tab"
                   aria-selected={isActive}
                   tabIndex={isActive ? 0 : -1}
-                  onClick={() => setInteractionMode(value)}
+                  onClick={() => handleInteractionModeChange(value)}
                   className={cn(
                     'flex flex-1 items-center justify-center gap-1.5 py-1.5 px-3',
                     'rounded-sm text-[10px] font-semibold transition-all duration-150',
@@ -201,11 +259,11 @@ export default function AICommandPage() {
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.2 }}
-                style={{ overflow: 'hidden' }}
+                style={{ overflow: 'visible' }}
               >
                 <ContextSelector
                   selectedMode={structuredMode}
-                  onModeChange={setStructuredMode}
+                  onModeChange={handleStructuredModeChange}
                   selectedIncidentId={selectedIncidentId}
                   onIncidentChange={setSelectedIncidentId}
                   selectedZoneId={selectedZoneId}
@@ -219,11 +277,12 @@ export default function AICommandPage() {
 
           {/* Query input */}
           <QueryInput
-            value={queryText}
-            onChange={setQueryText}
+            value={interactionMode === 'freeform' ? freeformQueryText : structuredContextText}
+            onChange={interactionMode === 'freeform' ? setFreeformQueryText : setStructuredContextText}
             onSubmit={handleSubmit}
             isAnalyzing={isAnalyzing}
             canSubmit={canSubmit}
+            rows={interactionMode === 'structured' ? 2 : 3}
             placeholder={
               interactionMode === 'freeform'
                 ? 'Ask any operational question…'
@@ -245,7 +304,10 @@ export default function AICommandPage() {
           aria-label="AI response area"
           aria-live="polite"
           aria-atomic="false"
-          className="flex flex-col gap-4 bg-(--surface-1) border border-(--border) rounded-xl p-5 shadow-sm overflow-y-auto"
+          className={cn(
+            "flex flex-col gap-4 bg-(--surface-1) border border-(--border) rounded-xl p-5 shadow-sm min-w-0",
+            responseAreaState === 'empty' ? 'overflow-visible h-auto' : 'overflow-y-auto h-full'
+          )}
         >
           <AnimatePresence mode="wait">
             {responseAreaState === 'empty' && (
@@ -256,7 +318,11 @@ export default function AICommandPage() {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <CommandCenterEmpty />
+                <CommandCenterEmpty
+                  onSelectExample={handleSelectExampleQuery}
+                  onSelectMode={setInteractionMode}
+                  recentActivities={aiActivities}
+                />
               </m.div>
             )}
 

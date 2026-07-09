@@ -5,10 +5,15 @@ import { cn } from '@/utils/cn';
 import type { Recommendation } from '@/types/incident';
 import { m } from 'framer-motion';
 
+export function shouldDisableActions(incidentStatus: string, recommendationExecuted: boolean): boolean {
+  return incidentStatus === 'resolved' || recommendationExecuted;
+}
+
 interface DecisionCardProps {
   recommendation: Recommendation;
   onExecute: () => void;
   onDismiss?: () => void;
+  isIncidentResolved?: boolean;
 }
 
 const PRIORITY_STYLES: Record<Recommendation['priority'], { border: string; bg: string; text: string }> = {
@@ -34,8 +39,9 @@ const PRIORITY_STYLES: Record<Recommendation['priority'], { border: string; bg: 
   },
 };
 
-export function DecisionCard({ recommendation, onExecute, onDismiss }: DecisionCardProps) {
+export function DecisionCard({ recommendation, onExecute, onDismiss, isIncidentResolved = false }: DecisionCardProps) {
   const styles = PRIORITY_STYLES[recommendation.priority];
+  const isDisabled = shouldDisableActions(isIncidentResolved ? 'resolved' : 'open', recommendation.executed);
 
   return (
     <m.div
@@ -138,11 +144,13 @@ export function DecisionCard({ recommendation, onExecute, onDismiss }: DecisionC
               {onDismiss && (
                 <button
                   onClick={onDismiss}
+                  disabled={isDisabled}
                   className={cn(
                     'flex items-center gap-1 text-[9px] font-bold text-(--foreground-muted) bg-(--surface-3) border border-(--border-strong)',
                     'px-2.5 py-1 rounded-sm cursor-pointer',
                     'hover:bg-(--surface-4) hover:text-(--foreground) active:scale-95 transition-all duration-150',
-                    'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-(--primary)'
+                    'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-(--primary)',
+                    isDisabled && 'opacity-40 cursor-not-allowed hover:bg-(--surface-3) hover:text-(--foreground-muted) active:scale-100'
                   )}
                   aria-label={`Dismiss recommendation: ${recommendation.title}`}
                 >
@@ -153,11 +161,13 @@ export function DecisionCard({ recommendation, onExecute, onDismiss }: DecisionC
               
               <button
                 onClick={onExecute}
+                disabled={isDisabled}
                 className={cn(
                   'flex items-center gap-1 text-[9px] font-bold text-white bg-(--primary)',
                   'px-3 py-1 rounded-sm',
                   'hover:bg-(--primary-hover) active:scale-95 transition-all duration-150',
-                  'focus-visible:outline-(--focus-ring)'
+                  'focus-visible:outline-(--focus-ring)',
+                  isDisabled && 'opacity-40 cursor-not-allowed hover:bg-(--primary) active:scale-100'
                 )}
                 aria-label={`Dispatch Action: ${recommendation.title}`}
               >

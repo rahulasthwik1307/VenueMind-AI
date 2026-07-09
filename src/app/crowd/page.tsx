@@ -74,11 +74,9 @@ export default function CrowdMonitoringPage() {
       ]}
       footerConsoleStatusText="CONSOLE STATUS: OPERATIONAL"
       incidentFilter={(i) => i.category === 'crowd'}
-    >
-      <div className="space-y-6 pr-0 lg:pr-2">
-        {/* Overview cards */}
+      metrics={
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="bg-(--surface-2)/40 border border-(--border) rounded-md p-3 flex items-center gap-3">
+          <div className="bg-(--surface-2)/45 border border-(--border) rounded-xl p-3 flex items-center gap-3 shadow-xs">
             <div className="w-8 h-8 rounded bg-(--primary-muted) text-(--primary) flex items-center justify-center shrink-0">
               <Users size={15} />
             </div>
@@ -88,7 +86,7 @@ export default function CrowdMonitoringPage() {
             </div>
           </div>
           
-          <div className="bg-(--surface-2)/40 border border-(--border) rounded-md p-3 flex items-center gap-3">
+          <div className="bg-(--surface-2)/45 border border-(--border) rounded-xl p-3 flex items-center gap-3 shadow-xs">
             <div className="w-8 h-8 rounded bg-blue-950/20 text-blue-500 flex items-center justify-center shrink-0">
               <Eye size={15} />
             </div>
@@ -98,7 +96,7 @@ export default function CrowdMonitoringPage() {
             </div>
           </div>
 
-          <div className="bg-(--surface-2)/40 border border-(--border) rounded-md p-3 flex items-center gap-3">
+          <div className="bg-(--surface-2)/45 border border-(--border) rounded-xl p-3 flex items-center gap-3 shadow-xs">
             <div className="w-8 h-8 rounded bg-amber-950/20 text-amber-500 flex items-center justify-center shrink-0">
               <Zap size={15} />
             </div>
@@ -108,18 +106,18 @@ export default function CrowdMonitoringPage() {
             </div>
           </div>
         </div>
-
-        {/* Sectors list */}
-        <div className="border border-(--border) rounded-xl p-4 bg-(--surface-2)/20">
+      }
+      mainContent={
+        <div className="border border-(--border) rounded-xl p-4 bg-(--surface-2)/20 h-full flex flex-col justify-between shadow-sm">
           <h3 className="text-xs font-bold text-(--foreground) uppercase tracking-wider mb-3">
             Sector Saturation Map
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 flex-1">
             {sectors.map((sec) => (
               <div
                 key={sec.id}
                 className={cn(
-                  'p-3.5 rounded-md border transition-all duration-200',
+                  'p-3.5 rounded-md border transition-all duration-200 flex flex-col justify-between',
                   getBgStyle(sec.level)
                 )}
                 role="region"
@@ -151,9 +149,9 @@ export default function CrowdMonitoringPage() {
             ))}
           </div>
         </div>
-
-        {/* Tactical alerts banner */}
-        <div className="border border-amber-900/30 bg-amber-950/10 rounded-md p-3.5 flex items-start gap-3">
+      }
+      alertContent={
+        <div className="border border-amber-900/30 bg-amber-950/10 rounded-xl p-4 flex items-start gap-3 h-full shadow-sm">
           <Flame size={16} className="text-amber-500 shrink-0 mt-0.5" />
           <div>
             <h4 className="text-xs font-bold text-amber-600 dark:text-amber-400">Tac-Route Redirection Active</h4>
@@ -162,7 +160,7 @@ export default function CrowdMonitoringPage() {
             </p>
           </div>
         </div>
-      </div>
-    </LensPageLayout>
+      }
+    />
   );
 }

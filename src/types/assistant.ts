@@ -32,6 +32,8 @@ export interface AIStructuredResponse {
   estimatedImpact: string;
   /** AI confidence in this assessment, 0–100 */
   confidence: number;
+  /** True if the user query was casual/non-operational and did not require a structured operational briefing */
+  isNonOperational: boolean;
 }
 
 // ─── Query & Context ──────────────────────────────────────────────────────────

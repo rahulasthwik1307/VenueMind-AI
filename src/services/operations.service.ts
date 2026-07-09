@@ -6,6 +6,15 @@ import { StadiumTelemetry } from '@/types/telemetry';
 import { OperationalEvent } from '@/types/events';
 import { useIncidentStore } from '@/store/modules/incident';
 
+const TELEMETRY_INCIDENT_MAPPING: Record<
+  string,
+  { type: 'systemHealth' | 'weather'; field: string; healthyValue: string }
+> = {
+  'inc-005': { type: 'systemHealth', field: 'ticketing', healthyValue: 'Healthy' },
+  'inc-010': { type: 'systemHealth', field: 'scada', healthyValue: 'Healthy' },
+  'inc-007': { type: 'weather', field: 'condition', healthyValue: 'Clear' },
+};
+
 class OperationsService {
   // Track active ticks for incidents under response
   private incidentResponseTicks: Record<string, number> = {};
@@ -176,6 +185,35 @@ class OperationsService {
 
   resolveIncident(incidentId: string) {
     incidentService.updateStatus(incidentId, 'resolved');
+
+    const mapping = TELEMETRY_INCIDENT_MAPPING[incidentId];
+    if (mapping) {
+      if (mapping.type === 'systemHealth') {
+        telemetryService.updateTelemetry((t) => ({
+          ...t,
+          systemHealth: {
+            ...t.systemHealth,
+            value: {
+              ...t.systemHealth.value,
+              [mapping.field]: mapping.healthyValue,
+            },
+            lastUpdated: new Date().toISOString(),
+          },
+        }));
+      } else if (mapping.type === 'weather') {
+        telemetryService.updateTelemetry((t) => ({
+          ...t,
+          weather: {
+            ...t.weather,
+            value: {
+              ...t.weather.value,
+              [mapping.field]: mapping.healthyValue,
+            },
+            lastUpdated: new Date().toISOString(),
+          },
+        }));
+      }
+    }
   }
 
   updateIncidentNotes(incidentId: string, notes: string) {

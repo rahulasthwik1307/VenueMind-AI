@@ -22,6 +22,7 @@ describe('aiStructuredResponseSchema', () => {
     recommendedResponse: 'Deploy crowd stewards to Gate A immediately and open Gate B overflow.',
     estimatedImpact: 'Estimated 12-minute resolution with no significant crowd injury risk.',
     confidence: 87,
+    isNonOperational: false,
   };
 
   it('passes for a valid complete response', () => {
@@ -40,31 +41,43 @@ describe('aiStructuredResponseSchema', () => {
   });
 
   it('fails when situationOverview is missing', () => {
-    const without = { expectedRisks: validResponse.expectedRisks, recommendedResponse: validResponse.recommendedResponse, estimatedImpact: validResponse.estimatedImpact, confidence: validResponse.confidence };
+    const without = { ...validResponse } as Record<string, unknown>;
+    delete without.situationOverview;
     const result = aiStructuredResponseSchema.safeParse(without);
     expect(result.success).toBe(false);
   });
 
   it('fails when expectedRisks is missing', () => {
-    const without = { situationOverview: validResponse.situationOverview, recommendedResponse: validResponse.recommendedResponse, estimatedImpact: validResponse.estimatedImpact, confidence: validResponse.confidence };
+    const without = { ...validResponse } as Record<string, unknown>;
+    delete without.expectedRisks;
     const result = aiStructuredResponseSchema.safeParse(without);
     expect(result.success).toBe(false);
   });
 
   it('fails when recommendedResponse is missing', () => {
-    const without = { situationOverview: validResponse.situationOverview, expectedRisks: validResponse.expectedRisks, estimatedImpact: validResponse.estimatedImpact, confidence: validResponse.confidence };
+    const without = { ...validResponse } as Record<string, unknown>;
+    delete without.recommendedResponse;
     const result = aiStructuredResponseSchema.safeParse(without);
     expect(result.success).toBe(false);
   });
 
   it('fails when estimatedImpact is missing', () => {
-    const without = { situationOverview: validResponse.situationOverview, expectedRisks: validResponse.expectedRisks, recommendedResponse: validResponse.recommendedResponse, confidence: validResponse.confidence };
+    const without = { ...validResponse } as Record<string, unknown>;
+    delete without.estimatedImpact;
     const result = aiStructuredResponseSchema.safeParse(without);
     expect(result.success).toBe(false);
   });
 
   it('fails when confidence is missing', () => {
-    const without = { situationOverview: validResponse.situationOverview, expectedRisks: validResponse.expectedRisks, recommendedResponse: validResponse.recommendedResponse, estimatedImpact: validResponse.estimatedImpact };
+    const without = { ...validResponse } as Record<string, unknown>;
+    delete without.confidence;
+    const result = aiStructuredResponseSchema.safeParse(without);
+    expect(result.success).toBe(false);
+  });
+
+  it('fails when isNonOperational is missing', () => {
+    const without = { ...validResponse } as Record<string, unknown>;
+    delete without.isNonOperational;
     const result = aiStructuredResponseSchema.safeParse(without);
     expect(result.success).toBe(false);
   });

@@ -101,7 +101,6 @@ export default function AccessibilityPage() {
         { label: 'AA WCAG COMPLIANT', level: 'operational' },
       ]}
       footerConsoleStatusText="CONSOLE STATUS: OPERATIONAL"
-      // Filter accessibility-specific category OR incidents referencing elevator/a11y (e.g. inc-010 stuck elevator)
       incidentFilter={(i) =>
         i.category === 'accessibility' ||
         i.id === 'inc-010' ||
@@ -109,11 +108,9 @@ export default function AccessibilityPage() {
         i.description.toLowerCase().includes('elevator') ||
         i.description.toLowerCase().includes('accessibility')
       }
-    >
-      <div className="space-y-6 pr-0 lg:pr-2">
-        {/* Upper stats grid */}
+      metrics={
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="bg-(--surface-2)/45 border border-(--border) rounded-md p-3 flex items-center gap-3">
+          <div className="bg-(--surface-2)/45 border border-(--border) rounded-xl p-3 flex items-center gap-3 shadow-xs">
             <div className="w-8 h-8 rounded bg-(--primary-muted) text-(--primary) flex items-center justify-center shrink-0">
               <Accessibility size={15} />
             </div>
@@ -125,7 +122,7 @@ export default function AccessibilityPage() {
             </div>
           </div>
 
-          <div className="bg-(--surface-2)/45 border border-(--border) rounded-md p-3 flex items-center gap-3">
+          <div className="bg-(--surface-2)/45 border border-(--border) rounded-xl p-3 flex items-center gap-3 shadow-xs">
             <div className="w-8 h-8 rounded bg-amber-950/20 text-amber-500 flex items-center justify-center shrink-0">
               <AlertCircle size={15} />
             </div>
@@ -135,7 +132,7 @@ export default function AccessibilityPage() {
             </div>
           </div>
 
-          <div className="bg-(--surface-2)/45 border border-(--border) rounded-md p-3 flex items-center gap-3">
+          <div className="bg-(--surface-2)/45 border border-(--border) rounded-xl p-3 flex items-center gap-3 shadow-xs">
             <div className="w-8 h-8 rounded bg-blue-950/20 text-blue-500 flex items-center justify-center shrink-0">
               <Info size={15} />
             </div>
@@ -145,18 +142,18 @@ export default function AccessibilityPage() {
             </div>
           </div>
         </div>
-
-        {/* Live Elevator status list */}
-        <div className="border border-(--border) rounded-xl p-4 bg-(--surface-2)/20 space-y-3">
-          <h3 className="text-xs font-bold text-(--foreground) uppercase tracking-wider">
+      }
+      mainContent={
+        <div className="border border-(--border) rounded-xl p-4 bg-(--surface-2)/20 space-y-3 h-full flex flex-col justify-between shadow-sm">
+          <h3 className="text-xs font-bold text-(--foreground) uppercase tracking-wider shrink-0">
             SCADA Lift Monitor
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
             {elevators.map((el) => (
               <div
                 key={el.id}
                 className={cn(
-                  'flex items-center justify-between p-3 rounded-md border bg-(--surface-1)',
+                  'flex items-center justify-between p-3 rounded-md border bg-(--surface-1) shadow-xs',
                   el.level === 'critical'
                     ? 'border-red-100/60 dark:border-red-900/30 bg-red-50/10'
                     : 'border-(--border)'
@@ -180,10 +177,10 @@ export default function AccessibilityPage() {
             ))}
           </div>
         </div>
-
-        {/* Distinctive tool: Tactical Accessibility Dispatch Tool */}
-        <div className="border border-(--border) rounded-xl p-4 bg-(--surface-2)/20 space-y-4">
-          <div className="flex items-center gap-2 border-b border-(--border) pb-2.5">
+      }
+      alertContent={
+        <div className="border border-(--border) rounded-xl p-4 bg-(--surface-2)/20 space-y-4 h-full flex flex-col justify-between shadow-sm">
+          <div className="flex items-center gap-2 border-b border-(--border) pb-2.5 shrink-0">
             <Sparkles size={14} className="text-(--primary)" />
             <h3 className="text-xs font-bold text-(--foreground) uppercase tracking-wider">
               Tactical Accessibility Dispatch Tool
@@ -191,7 +188,7 @@ export default function AccessibilityPage() {
           </div>
 
           {/* Form */}
-          <form onSubmit={handleGenerateRoute} className="space-y-4 font-sans text-xs">
+          <form onSubmit={handleGenerateRoute} className="space-y-4 font-sans text-xs flex-1 flex flex-col justify-between">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {/* Need */}
               <div className="flex flex-col gap-1.5">
@@ -202,7 +199,7 @@ export default function AccessibilityPage() {
                   id="need-select"
                   value={need}
                   onChange={(e) => setNeed(e.target.value)}
-                  className="h-11 px-3 border border-(--border) bg-(--surface-1) text-(--foreground) rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) cursor-pointer"
+                  className="h-11 px-3 border border-(--border) bg-(--surface-1) text-(--foreground) rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) cursor-pointer shadow-xs"
                 >
                   <option value="mobility">Mobility (Wheelchair)</option>
                   <option value="sensory">Sensory (Low-Stimulus)</option>
@@ -219,7 +216,7 @@ export default function AccessibilityPage() {
                   id="start-select"
                   value={startLoc}
                   onChange={(e) => setStartLoc(e.target.value)}
-                  className="h-11 px-3 border border-(--border) bg-(--surface-1) text-(--foreground) rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) cursor-pointer"
+                  className="h-11 px-3 border border-(--border) bg-(--surface-1) text-(--foreground) rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) cursor-pointer shadow-xs"
                 >
                   <option value="gate-a">Gate A (North Plaza)</option>
                   <option value="gate-c">Gate C (VIP East)</option>
@@ -236,7 +233,7 @@ export default function AccessibilityPage() {
                   id="dest-select"
                   value={targetSeat}
                   onChange={(e) => setTargetSeat(e.target.value)}
-                  className="h-11 px-3 border border-(--border) bg-(--surface-1) text-(--foreground) rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) cursor-pointer"
+                  className="h-11 px-3 border border-(--border) bg-(--surface-1) text-(--foreground) rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) cursor-pointer shadow-xs"
                 >
                   <option value="sec-110">North Stand Section 110</option>
                   <option value="sec-120">South Stand Section 120</option>
@@ -250,8 +247,8 @@ export default function AccessibilityPage() {
               type="submit"
               disabled={isGenerating}
               className={cn(
-                'w-full h-11 flex items-center justify-center gap-2 rounded-md',
-                'bg-(--primary) text-white font-semibold cursor-pointer',
+                'w-full h-11 flex items-center justify-center gap-2 rounded-md shrink-0',
+                'bg-(--primary) text-white font-semibold cursor-pointer shadow-sm',
                 'hover:bg-(--primary-hover) active:scale-[0.99] transition-all',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary)'
               )}
@@ -262,9 +259,9 @@ export default function AccessibilityPage() {
           </form>
 
           {/* Result Panel (aria-live polite) */}
-          <div aria-live="polite" className="mt-4">
+          <div aria-live="polite" className="mt-4 shrink-0">
             {generatedRoute && (
-              <div className="bg-(--surface-1) border border-(--border) rounded-md p-4 space-y-3.5 animate-fade-in">
+              <div className="bg-(--surface-1) border border-(--border) rounded-md p-4 space-y-3.5 animate-fade-in shadow-xs">
                 <div className="flex items-center justify-between border-b border-(--border) pb-2 flex-wrap gap-2">
                   <span className="text-[10px] font-mono font-bold text-(--primary) bg-(--primary-muted) px-2 py-0.5 rounded border border-(--primary-light)">
                     TACTICAL DISPATCH ROUTE GENERATED
@@ -305,9 +302,8 @@ export default function AccessibilityPage() {
               </div>
             )}
           </div>
-
         </div>
-      </div>
-    </LensPageLayout>
+      }
+    />
   );
 }

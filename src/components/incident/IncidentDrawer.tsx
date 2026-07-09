@@ -342,6 +342,7 @@ export function IncidentDrawer() {
                       recommendation={rec}
                       onExecute={() => dispatchAction(incident.id, rec.id)}
                       onDismiss={() => dismissRecommendation(incident.id, rec.id)}
+                      isIncidentResolved={incident.status === 'resolved'}
                     />
                   ))}
                 </div>

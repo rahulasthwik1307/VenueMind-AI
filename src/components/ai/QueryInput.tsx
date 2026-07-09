@@ -26,6 +26,8 @@ interface QueryInputProps {
   inputId?: string;
   /** Custom submit enabling logic override */
   canSubmit?: boolean;
+  /** Custom visible rows count */
+  rows?: number;
 }
 
 const MAX_VISIBLE_LENGTH = 500;
@@ -39,6 +41,7 @@ export function QueryInput({
   label = 'Operational Query',
   inputId = 'ai-query-input',
   canSubmit: canSubmitProp,
+  rows = 3,
 }: QueryInputProps) {
   const charCount = value.length;
   const isOverLimit = charCount > MAX_VISIBLE_LENGTH;
@@ -79,12 +82,12 @@ export function QueryInput({
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        rows={3}
+        rows={rows}
         disabled={isAnalyzing}
         aria-label={label}
         aria-describedby={`${inputId}-hint`}
         className={cn(
-          'w-full resize-none text-sm px-3 py-2.5 rounded-md',
+          'w-full resize-none text-sm px-3 py-2.5 rounded-md overflow-y-auto',
           'bg-(--surface-1) border border-(--border)',
           'text-(--foreground) placeholder:text-(--foreground-subtle)',
           'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-(--primary)',

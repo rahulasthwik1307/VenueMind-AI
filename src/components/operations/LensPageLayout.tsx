@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { AnimatePresence, m } from 'framer-motion';
 import { Sparkles, Brain, CheckCircle } from 'lucide-react';
+import { cn } from '@/utils/cn';
 
 import { PageContainer } from '@/components/layout/PageContainer';
 import { SectionHeader } from '@/components/shared/SectionHeader';
@@ -24,7 +25,9 @@ interface LensPageLayoutProps {
   description: string;
   statusPills: { label: string; level: SystemStatusLevel }[];
   footerConsoleStatusText: string;
-  children: React.ReactNode;
+  metrics: React.ReactNode;
+  mainContent: React.ReactNode;
+  alertContent: React.ReactNode;
   incidentFilter: (incident: import('@/types/incident').Incident) => boolean;
 }
 
@@ -34,7 +37,9 @@ export function LensPageLayout({
   description,
   statusPills,
   footerConsoleStatusText,
-  children,
+  metrics,
+  mainContent,
+  alertContent,
   incidentFilter,
 }: LensPageLayoutProps) {
   // ── Store access ─────────────────────────────────────────────────────────────
@@ -137,19 +142,22 @@ export function LensPageLayout({
               />
             </div>
           ) : (
-            <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 my-2">
+            <div className="flex-1 flex flex-col gap-6 my-2">
               
-              {/* Primary content area (live analytics/widgets) */}
-              <div className="min-w-0 flex flex-col justify-between" role="region" aria-label="Live Domain Telemetry">
-                {children}
+              {/* Metrics Row (Full Width) */}
+              <div className="w-full shrink-0">
+                {metrics}
               </div>
 
-              {/* Sidebar: Queue and AI Command */}
-              <div className="space-y-6 flex flex-col min-w-0" role="region" aria-label="Domain Queue & Copilot">
-                
-                {/* Incident Command Queue */}
-                <div className="bg-(--surface-2)/45 border border-(--border) rounded-xl p-4 flex flex-col h-80">
-                  <div className="flex items-center justify-between mb-3">
+              {/* Row 1: Main Content & Domain Incident Queue */}
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 items-stretch min-h-0">
+                <div className="min-w-0 h-full flex flex-col" role="region" aria-label="Live Domain Telemetry">
+                  {mainContent}
+                </div>
+
+                {/* Domain Incident Queue */}
+                <div className="bg-(--surface-2)/45 border border-(--border) rounded-xl p-4 flex flex-col h-full min-h-80 min-w-0 shadow-sm" role="region" aria-label="Domain Incident Queue">
+                  <div className="flex items-center justify-between mb-3 shrink-0">
                     <h3 className="text-xs font-bold text-(--foreground) uppercase tracking-wider">
                       Domain Incident Queue
                     </h3>
@@ -183,10 +191,29 @@ export function LensPageLayout({
                     )}
                   </div>
                 </div>
+              </div>
 
-                {/* Inline Ask AI Panel */}
-                <div className="bg-(--surface-2)/45 border border-(--border) rounded-xl p-4 flex flex-col min-h-60 justify-between shrink-0">
-                  <div className="flex items-center justify-between mb-3 border-b border-(--border) pb-2">
+              {/* Row 2: Alert Content & Domain Copilot */}
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 items-stretch min-h-0">
+                <div className="min-w-0 h-full flex flex-col justify-center" role="region" aria-label="Domain Alerts">
+                  {alertContent}
+                </div>
+
+                {/* Domain Copilot Container */}
+                <div
+                  className={cn(
+                    "flex flex-col min-w-0 transition-all duration-200 h-full",
+                    responseAreaState === 'response'
+                      ? "space-y-3"
+                      : "bg-(--surface-2)/45 border border-(--border) rounded-xl p-4 min-h-60 justify-between shadow-sm"
+                  )}
+                  role="region"
+                  aria-label="Domain Copilot"
+                >
+                  <div className={cn(
+                    "flex items-center justify-between shrink-0",
+                    responseAreaState === 'response' ? "border-b border-(--border) pb-2" : "mb-3"
+                  )}>
                     <div className="flex items-center gap-1.5">
                       <Brain size={13} className="text-(--primary)" />
                       <h3 className="text-xs font-bold text-(--foreground) uppercase tracking-wider">
@@ -196,7 +223,7 @@ export function LensPageLayout({
                     {responseAreaState === 'response' && (
                       <button
                         onClick={handleClearAI}
-                        className="text-[9px] font-mono text-(--foreground-muted) hover:text-(--foreground) border border-(--border) px-1.5 py-0.5 rounded bg-(--surface-1) active:scale-[0.98] transition-all cursor-pointer"
+                        className="text-[9px] font-mono text-(--foreground-muted) hover:text-(--foreground) border border-(--border) px-1.5 py-0.5 rounded bg-(--surface-1) active:scale-[0.98] transition-all cursor-pointer shadow-xs"
                         aria-label="Clear AI response"
                       >
                         Clear
@@ -204,7 +231,11 @@ export function LensPageLayout({
                     )}
                   </div>
 
-                  <div className="flex-1 flex flex-col justify-center min-h-40">
+                  <div className={cn(
+                    "flex-1 flex flex-col justify-center min-h-0",
+                    responseAreaState === 'idle' && "min-h-40",
+                    responseAreaState === 'response' && "overflow-y-auto pr-0.5"
+                  )}>
                     <AnimatePresence mode="wait">
                       {responseAreaState === 'idle' && (
                         <m.div
@@ -263,8 +294,12 @@ export function LensPageLayout({
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0 }}
                           transition={{ duration: 0.2 }}
-                          className="w-full text-left font-sans"
+                          className="w-full text-left font-sans space-y-3"
                         >
+                          <div className="flex items-center justify-between px-1 text-[9px] font-mono text-(--foreground-subtle)">
+                            <span>Domain AI Output</span>
+                            <span>Shown in: <span className="font-bold text-(--primary) uppercase">{useUIStore.getState().language}</span></span>
+                          </div>
                           <AIResponseCard
                             response={lastResponse}
                             onDispatchAction={handleDispatchAction}
@@ -274,14 +309,12 @@ export function LensPageLayout({
                     </AnimatePresence>
                   </div>
                 </div>
-
               </div>
-
             </div>
           )}
 
           {/* Status footer */}
-          <div className="border-t border-(--border) pt-4 mt-5 flex justify-between text-[9px] font-mono text-(--foreground-subtle)">
+          <div className="border-t border-(--border) pt-4 mt-5 flex justify-between text-[10px] font-mono font-semibold tracking-wider uppercase text-(--foreground-muted) opacity-90">
             <span aria-label="Console status">{footerConsoleStatusText}</span>
             <span>FIFA WORLD CUP 2026</span>
           </div>

@@ -8,8 +8,9 @@
  * The rendering component is unchanged — only the data source differs.
  */
 
+import { useState } from 'react';
 import { m } from 'framer-motion';
-import { Activity, AlertTriangle, ShieldCheck, Zap, Send } from 'lucide-react';
+import { Activity, AlertTriangle, ShieldCheck, Zap, Send, Brain, Check } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { ExpandableAICard } from '@/components/ai/ExpandableAICard';
 import type { AIStructuredResponse } from '@/types/assistant';
@@ -47,13 +48,52 @@ function ConfidenceBadge({ confidence }: { confidence: number }) {
 }
 
 export function AIResponseCard({ response, onDispatchAction, className }: AIResponseCardProps) {
+  const [prevResponse, setPrevResponse] = useState(response);
+  const [isDispatched, setIsDispatched] = useState(false);
+
+  if (response !== prevResponse) {
+    setPrevResponse(response);
+    setIsDispatched(false);
+  }
+
+  // Special branch for casual/non-operational messages to render a clean compact layout
+  if (response.isNonOperational) {
+    return (
+      <m.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -4 }}
+        transition={{ duration: 0.25 }}
+        className={cn('border border-(--border) rounded-lg p-4 bg-(--surface-2) space-y-3 min-w-0 w-full overflow-x-hidden', className)}
+        role="region"
+        aria-label="AI system assistant notification"
+      >
+        <div className="flex items-center gap-2 text-(--foreground-subtle)">
+          <Brain size={14} className="text-(--primary)" aria-hidden="true" />
+          <span className="text-[10px] font-bold uppercase tracking-wider font-mono">System Assistant</span>
+        </div>
+        <p className="text-xs text-(--foreground-muted) leading-relaxed">
+          {response.situationOverview}
+        </p>
+        <div className="text-[10px] bg-(--surface-1) border border-(--border) rounded-md p-3 space-y-2">
+          <p className="font-semibold text-(--foreground)">Try asking operational questions like:</p>
+          <ul className="list-disc list-inside space-y-1 text-(--foreground-muted) pl-1">
+            <li>&quot;What is the status of Gate A?&quot;</li>
+            <li>&quot;Is there any crowd congestion at the West Parking?&quot;</li>
+            <li>&quot;Summarize transport delays.&quot;</li>
+          </ul>
+        </div>
+      </m.div>
+    );
+  }
+
   return (
     <m.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -4 }}
       transition={{ duration: 0.25 }}
-      className={cn('space-y-3', className)}
+      className={cn('space-y-3 min-w-0 w-full overflow-x-hidden', className)}
     >
       {/* Confidence badge */}
       <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -96,21 +136,33 @@ export function AIResponseCard({ response, onDispatchAction, className }: AIResp
 
       {/* Dispatch recommended response as an activity */}
       {onDispatchAction && (
-        <button
-          onClick={() => onDispatchAction(response.recommendedResponse)}
-          className={cn(
-            'w-full flex items-center justify-center gap-2',
-            'px-4 py-2.5 rounded-md text-sm font-semibold',
-            'bg-(--primary) text-white',
-            'hover:bg-(--primary-hover) active:scale-[0.98]',
-            'transition-all duration-150',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary)'
+        <div className="w-full">
+          {isDispatched ? (
+            <span className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-md text-xs font-bold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900">
+              <Check size={12} strokeWidth={3} aria-hidden="true" />
+              DISPATCHED
+            </span>
+          ) : (
+            <button
+              onClick={() => {
+                onDispatchAction(response.recommendedResponse);
+                setIsDispatched(true);
+              }}
+              className={cn(
+                'w-full flex items-center justify-center gap-2',
+                'px-4 py-2.5 rounded-md text-sm font-semibold',
+                'bg-(--primary) text-white',
+                'hover:bg-(--primary-hover) active:scale-[0.98]',
+                'transition-all duration-150',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary)'
+              )}
+              aria-label="Dispatch recommended response to Ops Timeline"
+            >
+              <Send size={13} aria-hidden="true" />
+              Dispatch to Ops Timeline
+            </button>
           )}
-          aria-label="Dispatch recommended response to Ops Timeline"
-        >
-          <Send size={13} aria-hidden="true" />
-          Dispatch to Ops Timeline
-        </button>
+        </div>
       )}
     </m.div>
   );
