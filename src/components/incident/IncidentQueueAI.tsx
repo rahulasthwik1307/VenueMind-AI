@@ -191,7 +191,7 @@ export function IncidentQueueAI() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex flex-col items-center text-center h-full justify-between flex-1 min-h-[400px]"
+              className="flex flex-col items-center text-center h-full justify-between flex-1 min-h-100"
             >
               {/* Section 1: Header */}
               <div className="flex flex-col items-center">
@@ -317,7 +317,7 @@ export function IncidentQueueAI() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="w-full overflow-y-auto max-h-[600px] pr-0.5"
+              className="w-full overflow-y-auto max-h-150 pr-0.5"
               // aria-live on the response container — announces results to screen readers
               aria-live="polite"
               aria-atomic="false"

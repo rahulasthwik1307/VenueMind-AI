@@ -182,7 +182,7 @@ export function IncidentTable({
       {/* Header Row */}
       <div
         role="row"
-        className="grid items-center gap-3 px-4 py-2.5 bg-(--surface-2) border-b border-(--border) [--table-cols:45px_1fr_70px_80px] sm:[--table-cols:20px_45px_1fr_28px_70px_70px_80px] md:[--table-cols:20px_45px_minmax(120px,_1.8fr)_minmax(28px,_80px)_70px_minmax(90px,_1.2fr)_55px_80px]"
+        className="grid items-center gap-3 px-4 py-2.5 bg-(--surface-2) border-b border-(--border) [--table-cols:45px_1fr_70px_80px] sm:[--table-cols:20px_45px_1fr_28px_70px_70px_80px] md:[--table-cols:20px_45px_minmax(120px,1.8fr)_minmax(28px,80px)_70px_minmax(90px,1.2fr)_55px_80px]"
         style={{ gridTemplateColumns: 'var(--table-cols)' }}
       >
         {/* Select All */}
@@ -269,7 +269,7 @@ export function IncidentTable({
                   className={cn(
                     'grid items-center gap-3 px-4 py-3 border-b border-(--border) transition-colors cursor-default outline-none',
                     'focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-(--primary)',
-                    '[--table-cols:45px_1fr_70px_80px] sm:[--table-cols:20px_45px_1fr_28px_70px_70px_80px] md:[--table-cols:20px_45px_minmax(120px,_1.8fr)_minmax(28px,_80px)_70px_minmax(90px,_1.2fr)_55px_80px]',
+                    '[--table-cols:45px_1fr_70px_80px] sm:[--table-cols:20px_45px_1fr_28px_70px_70px_80px] md:[--table-cols:20px_45px_minmax(120px,1.8fr)_minmax(28px,80px)_70px_minmax(90px,1.2fr)_55px_80px]',
                     isSelected
                       ? 'bg-(--primary-muted)/30'
                       : 'hover:bg-(--surface-2)/60'
@@ -305,7 +305,7 @@ export function IncidentTable({
 
                   {/* Title */}
                   <div role="gridcell" className="min-w-0">
-                    <p className="text-xs font-semibold text-(--foreground) line-clamp-2 break-words leading-tight">{incident.title}</p>
+                    <p className="text-xs font-semibold text-(--foreground) line-clamp-2 wrap-break-word leading-tight">{incident.title}</p>
                     {incident.aiConfidence && (
                       <div className="flex items-center gap-0.5 mt-0.5 text-[9px] text-(--primary) font-mono whitespace-nowrap shrink-0">
                         <Brain size={8} className="shrink-0" aria-hidden="true" />
@@ -343,7 +343,7 @@ export function IncidentTable({
 
                   {/* Zone */}
                   <div role="gridcell" className="hidden sm:block min-w-0">
-                    <p className="text-[10px] text-(--foreground-muted) line-clamp-2 break-words leading-normal">{incident.location.zone}</p>
+                    <p className="text-[10px] text-(--foreground-muted) line-clamp-2 wrap-break-word leading-normal">{incident.location.zone}</p>
                   </div>
 
                   {/* Time */}
