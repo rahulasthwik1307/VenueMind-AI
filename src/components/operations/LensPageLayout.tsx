@@ -405,68 +405,98 @@ export function LensPageLayout({
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
-                          className="flex flex-col items-center justify-center text-center py-3.5 px-4"
+                          className="flex flex-col items-center justify-center text-center py-4 px-4 h-full justify-between"
                         >
-                          <div className="w-9 h-9 rounded-full bg-(--primary-muted) flex items-center justify-center mb-1.5">
-                            <Sparkles size={15} className="text-(--primary) live-indicator" />
-                          </div>
-                          <p className="text-xs font-semibold text-(--foreground)">Operational Assistant</p>
-                          <p className="text-[10px] text-(--foreground-subtle) mt-0.5 max-w-xs leading-relaxed">
-                            Generate real-time tactical briefs, risk predictions, and response workflows scoped to {domain} events.
-                          </p>
-
-                          {/* Mini Operational Summary — staggered fade-in on appearance */}
-                          <div className="w-full grid grid-cols-2 gap-2 mt-3 text-left">
-                            <m.div
-                              initial={{ opacity: 0, y: 4 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ duration: 0.2, delay: 0.05 }}
-                              className="bg-(--surface-1) border border-(--border)/60 rounded-md py-1.5 px-2 shadow-2xs hover:border-(--border-strong) transition-colors"
-                            >
-                              <span className="block text-[7px] text-(--foreground-subtle) font-mono tracking-wider uppercase">AI Readiness</span>
-                              <span className="text-[11px] font-extrabold text-(--foreground) mt-0.5 block">
-                                <AnimatedNumber value={98} suffix="%" /> — Ready
-                              </span>
-                            </m.div>
-                            <m.div
-                              initial={{ opacity: 0, y: 4 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ duration: 0.2, delay: 0.1 }}
-                              className="bg-(--surface-1) border border-(--border)/60 rounded-md py-1.5 px-2 shadow-2xs hover:border-(--border-strong) transition-colors"
-                            >
-                              <span className="block text-[7px] text-(--foreground-subtle) font-mono tracking-wider uppercase">System Focus</span>
-                              <span className="text-[11px] font-extrabold text-(--foreground) uppercase truncate block mt-0.5">{domain} Ops</span>
-                            </m.div>
-                            <m.div
-                              initial={{ opacity: 0, y: 4 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ duration: 0.2, delay: 0.15 }}
-                              className="bg-(--surface-1) border border-(--border)/60 rounded-md py-1.5 px-2 shadow-2xs hover:border-(--border-strong) transition-colors"
-                            >
-                              <span className="block text-[7px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Active Alerts</span>
-                              <span className="text-[11px] font-extrabold text-amber-600 dark:text-amber-400 mt-0.5 block">1 Warning Active</span>
-                            </m.div>
-                            <m.div
-                              initial={{ opacity: 0, y: 4 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ duration: 0.2, delay: 0.2 }}
-                              className="bg-(--surface-1) border border-(--border)/60 rounded-md py-1.5 px-2 shadow-2xs hover:border-(--border-strong) transition-colors"
-                            >
-                              <span className="block text-[7px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Telemetry Feeds</span>
-                              <span className="text-[11px] font-extrabold text-(--foreground) mt-0.5 block">
-                                <AnimatedNumber value={100} suffix="%" /> Online
-                              </span>
-                            </m.div>
+                          {/* Section 1: Header */}
+                          <div className="flex flex-col items-center">
+                            <div className="w-9 h-9 rounded-full bg-(--primary-muted) flex items-center justify-center mb-1">
+                              <Sparkles size={15} className="text-(--primary) live-indicator" />
+                            </div>
+                            <p className="text-xs font-semibold text-(--foreground)">Operational Assistant</p>
+                            <p className="text-[10px] text-(--foreground-subtle) mt-0.5 max-w-xs leading-relaxed">
+                              Generate real-time tactical briefs, risk predictions, and response workflows scoped to {domain} events.
+                            </p>
                           </div>
 
-                          <button
-                            onClick={handleAskAI}
-                            className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md bg-(--primary) hover:bg-(--primary-hover) hover:-translate-y-px hover:shadow-md active:scale-[0.98] text-white text-xs font-semibold shadow-sm transition-all duration-150 cursor-pointer"
-                            aria-label={`Ask AI about ${domain} operations`}
-                          >
-                            <Brain size={12} />
-                            Ask AI about {domain}
-                          </button>
+                          {/* Section 2: Core Metrics */}
+                          <div className="w-full border-t border-(--border)/60 pt-3 mt-3">
+                            <div className="flex flex-col space-y-1.5 w-full">
+                              <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
+                                <span className="text-(--foreground-muted) font-medium">AI Readiness</span>
+                                <span className="font-bold text-(--foreground)">
+                                  <AnimatedNumber value={98} suffix="%" /> — Ready
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
+                                <span className="text-(--foreground-muted) font-medium">System Focus</span>
+                                <span className="font-bold text-(--foreground) uppercase">{domain} Ops</span>
+                              </div>
+                              <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
+                                <span className="text-(--foreground-muted) font-medium">Active Alerts</span>
+                                <span className="font-bold text-amber-600 dark:text-amber-400">1 Warning Active</span>
+                              </div>
+                              <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
+                                <span className="text-(--foreground-muted) font-medium">Telemetry</span>
+                                <span className="font-bold text-(--foreground)">
+                                  <AnimatedNumber value={100} suffix="%" /> Online
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Section 3: AI Diagnostics */}
+                          <div className="w-full border-t border-(--border)/60 pt-3 mt-3">
+                            <div className="flex flex-col space-y-1.5 w-full">
+                              <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
+                                <span className="text-(--foreground-muted) font-medium">AI Status</span>
+                                <span className="font-bold text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/40 px-1.5 py-0.5 rounded text-[8px] uppercase tracking-wider w-max">
+                                  Nominal
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
+                                <span className="text-(--foreground-muted) font-medium">Last Analysis</span>
+                                <span className="font-bold text-(--foreground)">Just now</span>
+                              </div>
+                              <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
+                                <span className="text-(--foreground-muted) font-medium">Confidence</span>
+                                <span className="font-bold text-(--foreground)">99.2%</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Section 4: Operational Intelligence */}
+                          <div className="w-full border-t border-(--border)/60 pt-3 mt-3">
+                            <div className="flex flex-col space-y-1.5 w-full">
+                              <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
+                                <span className="text-(--foreground-muted) font-medium">Threat Assessment</span>
+                                <span className="font-bold text-green-500">Updated</span>
+                              </div>
+                              <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
+                                <span className="text-(--foreground-muted) font-medium">Decision Model</span>
+                                <span className="font-bold text-(--foreground)">Active</span>
+                              </div>
+                              <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
+                                <span className="text-(--foreground-muted) font-medium">Recommendation Queue</span>
+                                <span className="font-bold text-(--foreground)">Ready</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Section 5: Action Area */}
+                          <div className="w-full border-t border-(--border)/60 pt-3 mt-3">
+                            <div className="flex items-center justify-center gap-1.5 text-[8.5px] font-mono text-(--foreground-muted) mb-2 uppercase tracking-wider">
+                              <span className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
+                              <span>Monitoring Cycle: Live</span>
+                            </div>
+                            <button
+                              onClick={handleAskAI}
+                              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md bg-(--primary) hover:bg-(--primary-hover) hover:-translate-y-px hover:shadow-md active:scale-[0.98] text-white text-xs font-semibold shadow-sm transition-all duration-150 cursor-pointer"
+                              aria-label={`Ask AI about ${domain} operations`}
+                            >
+                              <Brain size={12} />
+                              Ask AI about {domain}
+                            </button>
+                          </div>
                         </m.div>
                       )}
 
