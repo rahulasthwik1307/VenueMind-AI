@@ -50,20 +50,21 @@ export function DecisionCard({ recommendation, onExecute, onDismiss, isIncidentR
       exit={{ opacity: 0, y: -8 }}
       transition={{ duration: 0.2 }}
       className={cn(
-        'border border-(--border) border-l-4 rounded-md p-4 bg-(--surface-1)',
+        'border border-(--border) border-l-4 rounded-md p-3.5 bg-linear-to-b from-(--surface-1) to-(--surface-2)/20 transition-all duration-200 shadow-xs hover:shadow-sm',
         styles.border,
-        recommendation.executed && 'opacity-75 border-l-gray-400 bg-gray-50/30 dark:bg-gray-900/10'
+        styles.bg,
+        recommendation.executed && 'opacity-70 border-l-gray-400 bg-gray-50/20 dark:bg-gray-900/10'
       )}
       role="article"
       aria-label={`AI Recommendation: ${recommendation.title}`}
     >
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex items-start justify-between gap-2.5">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
             {recommendation.priority === 'critical' && (
               <ShieldAlert size={12} className="text-red-500 shrink-0 animate-pulse" />
             )}
-            <h4 className="text-xs font-bold text-(--foreground) leading-snug">
+            <h4 className="text-[11.5px] font-bold text-(--foreground) leading-snug tracking-tight">
               {recommendation.title}
             </h4>
           </div>
@@ -71,11 +72,11 @@ export function DecisionCard({ recommendation, onExecute, onDismiss, isIncidentR
 
         {/* Confidence Badge */}
         <div className="flex flex-col items-end shrink-0 gap-1">
-          <span className="text-[9px] font-bold text-(--primary) bg-(--primary-light) dark:bg-green-950/40 dark:text-green-300 px-1.5 py-0.5 rounded font-mono">
+          <span className="text-[8.5px] font-bold text-(--primary) bg-(--primary-light) dark:bg-emerald-950/40 dark:text-emerald-300 px-1.5 py-0.5 rounded font-mono">
             {recommendation.confidence}% CF
           </span>
           {recommendation.priority === 'critical' && (
-            <span className="text-[8px] font-extrabold uppercase px-1 py-0.2 rounded bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 tracking-wide font-mono">
+            <span className="text-[7.5px] font-extrabold uppercase px-1 py-0.2 rounded bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 tracking-wider font-mono">
               CRITICAL
             </span>
           )}
@@ -83,60 +84,60 @@ export function DecisionCard({ recommendation, onExecute, onDismiss, isIncidentR
       </div>
 
       {/* Structured Reasoning & Explanation */}
-      <div className="mt-3 space-y-2 border-t border-(--border) pt-3 text-[10px] leading-relaxed">
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+      <div className="mt-2.5 space-y-2 border-t border-(--border)/60 pt-2.5 text-[10px] leading-relaxed">
+        <div className="grid grid-cols-1 gap-2">
           {/* Situation */}
           <div className="space-y-0.5">
-            <span className="font-semibold text-(--foreground) flex items-center gap-1">
-              <HelpCircle size={11} className="text-(--foreground-subtle)" />
+            <span className="font-semibold flex items-center gap-1 text-[9px] uppercase tracking-wider text-(--foreground-muted)">
+              <HelpCircle size={10} className="text-(--foreground-subtle)" />
               Current Situation
             </span>
-            <p className="text-(--foreground-muted) pl-4">{recommendation.explanation}</p>
+            <p className="text-(--foreground-muted) pl-3.5 text-[9.5px]">{recommendation.explanation}</p>
           </div>
 
           {/* Reason */}
           <div className="space-y-0.5">
-            <span className="font-semibold text-(--foreground) flex items-center gap-1">
-              <Brain size={11} className="text-(--primary)" />
-              AI Reason
+            <span className="font-semibold flex items-center gap-1 text-[9px] uppercase tracking-wider text-(--foreground-muted)">
+              <Brain size={10} className="text-(--primary)" />
+              AI Reasoning
             </span>
-            <p className="text-(--foreground-muted) pl-4">
+            <p className="text-(--foreground-muted) pl-3.5 text-[9.5px]">
               Tactical modeling indicates this action resolves core stress factors with minimal resource displacement.
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 mt-2 border-t border-(--border) pt-2">
+        <div className="grid grid-cols-1 gap-2 mt-2 border-t border-(--border)/60 pt-2">
           {/* Expected Outcome */}
           <div className="space-y-0.5">
-            <span className="font-semibold text-(--foreground) flex items-center gap-1">
-              <Sparkles size={11} className="text-(--primary)" />
+            <span className="font-semibold flex items-center gap-1 text-[9px] uppercase tracking-wider text-(--foreground-muted)">
+              <Sparkles size={10} className="text-(--primary)" />
               Expected Result
             </span>
-            <p className="text-(--foreground-muted) pl-4">{recommendation.expectedImpact}</p>
+            <p className="text-(--foreground-muted) pl-3.5 text-[9.5px]">{recommendation.expectedImpact}</p>
           </div>
 
           {/* Response ETA */}
           <div className="space-y-0.5">
-            <span className="font-semibold text-(--foreground) flex items-center gap-1">
-              <Clock size={11} className="text-blue-500" />
+            <span className="font-semibold flex items-center gap-1 text-[9px] uppercase tracking-wider text-(--foreground-muted)">
+              <Clock size={10} className="text-blue-500" />
               Est. Resolution Time
             </span>
-            <p className="text-(--foreground-muted) pl-4 font-mono">{recommendation.eta}</p>
+            <p className="text-(--foreground-muted) pl-3.5 text-[9.5px] font-mono font-medium">{recommendation.eta}</p>
           </div>
         </div>
       </div>
 
       {/* Action Buttons */}
-      <div className="mt-3 flex items-center justify-between border-t border-(--border) pt-3">
-        <span className="text-[9px] text-(--foreground-subtle) max-w-70 truncate">
+      <div className="mt-2.5 flex items-center justify-between border-t border-(--border)/60 pt-2.5">
+        <span className="text-[8.5px] text-(--foreground-subtle) max-w-40 truncate">
           Action: <span className="font-medium font-mono text-(--foreground-muted)">{recommendation.action}</span>
         </span>
         
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0">
           {recommendation.executed ? (
-            <span className="flex items-center gap-1 text-[9px] font-bold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/20 px-2.5 py-1 rounded-sm border border-green-200 dark:border-green-900">
-              <Check size={10} strokeWidth={3} />
+            <span className="flex items-center gap-1 text-[8.5px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+              <Check size={9} strokeWidth={3} />
               DISPATCHED
             </span>
           ) : (
@@ -146,15 +147,15 @@ export function DecisionCard({ recommendation, onExecute, onDismiss, isIncidentR
                   onClick={onDismiss}
                   disabled={isDisabled}
                   className={cn(
-                    'flex items-center gap-1 text-[9px] font-bold text-(--foreground-muted) bg-(--surface-3) border border-(--border-strong)',
-                    'px-2.5 py-1 rounded-sm cursor-pointer',
-                    'hover:bg-(--surface-4) hover:text-(--foreground) active:scale-95 transition-all duration-150',
+                    'flex items-center gap-1 text-[8.5px] font-bold text-(--foreground-muted) bg-(--surface-2)/60 border border-(--border-strong)',
+                    'px-2 py-0.5 rounded cursor-pointer',
+                    'hover:bg-(--surface-3) hover:text-(--foreground) active:scale-[0.97] transition-all duration-150',
                     'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-(--primary)',
-                    isDisabled && 'opacity-40 cursor-not-allowed hover:bg-(--surface-3) hover:text-(--foreground-muted) active:scale-100'
+                    isDisabled && 'opacity-40 cursor-not-allowed hover:bg-(--surface-2)/60 hover:text-(--foreground-muted) active:scale-100'
                   )}
                   aria-label={`Dismiss recommendation: ${recommendation.title}`}
                 >
-                  <EyeOff size={10} />
+                  <EyeOff size={9} />
                   Dismiss
                 </button>
               )}
@@ -163,15 +164,15 @@ export function DecisionCard({ recommendation, onExecute, onDismiss, isIncidentR
                 onClick={onExecute}
                 disabled={isDisabled}
                 className={cn(
-                  'flex items-center gap-1 text-[9px] font-bold text-white bg-(--primary)',
-                  'px-3 py-1 rounded-sm',
-                  'hover:bg-(--primary-hover) active:scale-95 transition-all duration-150',
+                  'flex items-center gap-1 text-[8.5px] font-bold text-white bg-(--primary)',
+                  'px-2.5 py-0.5 rounded cursor-pointer',
+                  'hover:bg-(--primary-hover) active:scale-[0.97] transition-all duration-150',
                   'focus-visible:outline-(--focus-ring)',
                   isDisabled && 'opacity-40 cursor-not-allowed hover:bg-(--primary) active:scale-100'
                 )}
                 aria-label={`Dispatch Action: ${recommendation.title}`}
               >
-                <Send size={10} strokeWidth={2.5} />
+                <Send size={9} strokeWidth={2.5} />
                 Dispatch
               </button>
             </>

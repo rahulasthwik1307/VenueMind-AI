@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { ExpandableAICard } from '@/components/ai/ExpandableAICard';
 import { DecisionCard } from '@/components/cards/DecisionCard';
+import { cn } from '@/utils/cn';
 import type { Incident, IncidentAnalysis } from '@/types/incident';
 import type { StadiumTelemetry } from '@/types/telemetry';
 
@@ -64,34 +65,37 @@ export function AIContextPanel({
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Panel header */}
-      <div className="px-3 pt-3 pb-2 border-b border-(--border) shrink-0 bg-(--surface-2)">
+      <div className="px-4 py-3 border-b border-(--border) shrink-0 bg-(--surface-1)">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <Brain size={13} className="text-(--primary)" aria-hidden="true" />
+            <Brain size={12} className="text-(--primary)" aria-hidden="true" />
             <span className="text-[10px] font-mono font-bold text-(--foreground) uppercase tracking-wider">AI Operations Analyst</span>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-(--primary-muted) border border-(--primary-light)">
-              <Sparkles size={9} className="text-(--primary)" aria-hidden="true" />
-              <span className="text-[8px] font-semibold text-(--primary) uppercase tracking-wide font-mono">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+              </span>
+              <span className="text-[8px] font-semibold text-(--primary) uppercase tracking-wide font-mono leading-none">
                 Live Feed
               </span>
             </div>
             {onCollapseClick && (
               <button
                 onClick={onCollapseClick}
-                className="w-8 h-8 border border-(--border) rounded-md flex items-center justify-center bg-(--surface-1) text-(--foreground-muted) hover:text-(--foreground) hover:bg-(--surface-3) transition-colors cursor-pointer"
+                className="w-7 h-7 border border-(--border) rounded-md flex items-center justify-center bg-(--surface-1) text-(--foreground-muted) hover:text-(--foreground) hover:bg-(--surface-2) transition-colors cursor-pointer"
                 title="Collapse panel"
                 aria-label="Collapse panel"
               >
-                <ChevronRight size={16} />
+                <ChevronRight size={14} />
               </button>
             )}
           </div>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-3 py-2 space-y-3">
+      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
         <AnimatePresence mode="wait">
           {activeIncident && activeAnalysis ? (
             <m.div
@@ -139,7 +143,7 @@ export function AIContextPanel({
               />
 
               {/* ── Estimated Impact ────────────────────────────────── */}
-              <div className="text-[10px] text-(--foreground-muted) bg-(--surface-2) border border-(--border) rounded px-2.5 py-1.5">
+              <div className="text-[10px] text-(--foreground-muted) bg-linear-to-b from-(--surface-1) to-(--surface-2)/20 border border-(--border) rounded px-2.5 py-1.5">
                 <span className="font-semibold text-(--foreground)">Estimated Impact: </span>
                 {activeAnalysis.estimatedImpact}
               </div>
@@ -170,7 +174,7 @@ export function AIContextPanel({
 
               {/* All cleared */}
               {activeRecommendations.length === 0 && (
-                <div className="flex flex-col items-center py-4 text-center border border-dashed border-(--border) rounded-md bg-(--surface-2)">
+                <div className="flex flex-col items-center py-4 text-center border border-dashed border-(--border) rounded-md bg-linear-to-b from-(--surface-1) to-(--surface-2)/20">
                   <Sparkles size={16} className="text-(--primary) opacity-40 mb-1.5" aria-hidden="true" />
                   <p className="text-[10px] font-semibold text-(--foreground)">All recommendations cleared</p>
                   <p className="text-[9px] text-(--foreground-subtle) mt-0.5">
@@ -189,22 +193,22 @@ export function AIContextPanel({
               className="space-y-3"
             >
               {/* Stadium Overview status title */}
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 py-0.5">
                 <Gauge size={12} className="text-(--primary)" aria-hidden="true" />
-                <span className="text-[9px] font-mono text-(--foreground) uppercase tracking-wider font-bold">
+                <span className="text-[9.5px] font-mono text-(--foreground) uppercase tracking-wider font-bold">
                   Stadium Operations Dashboard
                 </span>
               </div>
 
               {/* Live operational overview cards */}
-              <div className="grid grid-cols-2 gap-1.5">
-                <div className="p-2 rounded bg-(--surface-2) border border-(--border)">
-                  <span className="text-[7.5px] font-bold font-mono text-(--foreground-subtle) uppercase block">Open Incidents</span>
-                  <span className="text-sm font-black text-(--foreground) font-mono">{openIncidents.length}</span>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="p-2.5 rounded bg-linear-to-b from-(--surface-1) to-(--surface-2)/20 border border-(--border) hover:border-(--border-strong) transition-colors duration-155 shadow-2xs">
+                  <span className="text-[7.5px] font-bold font-mono text-(--foreground-subtle) uppercase block tracking-wider">Open Incidents</span>
+                  <span className="text-base font-black text-(--foreground) font-mono leading-tight">{openIncidents.length}</span>
                 </div>
-                <div className="p-2 rounded bg-(--surface-2) border border-(--border)">
-                  <span className="text-[7.5px] font-bold font-mono text-(--foreground-subtle) uppercase block">Critical Alerts</span>
-                  <span className="text-sm font-black text-red-650 font-mono">{criticalCount}</span>
+                <div className="p-2.5 rounded bg-linear-to-b from-(--surface-1) to-(--surface-2)/20 border border-(--border) hover:border-(--border-strong) transition-colors duration-155 shadow-2xs">
+                  <span className="text-[7.5px] font-bold font-mono text-(--foreground-subtle) uppercase block tracking-wider">Critical Alerts</span>
+                  <span className={cn("text-base font-black font-mono leading-tight", criticalCount > 0 ? "text-red-500 animate-pulse" : "text-(--foreground)")}>{criticalCount}</span>
                 </div>
               </div>
 
@@ -232,8 +236,8 @@ export function AIContextPanel({
                 theme="success"
               />
 
-              <div className="text-[9.5px] text-center text-(--foreground-subtle) border border-dashed border-(--border) rounded-md py-3.5 px-2 bg-(--surface-1)">
-                Select any incident queue item or zone section above to filter individual analytics and dispatcher controls.
+              <div className="text-[9px] text-center text-(--foreground-subtle) border border-dashed border-(--border) rounded-md py-3 px-2 bg-linear-to-b from-(--surface-1) to-(--surface-2)/10 font-mono leading-relaxed">
+                Select an incident or zone from the stadium map to inspect details & dispatcher tools.
               </div>
             </m.div>
           )}
