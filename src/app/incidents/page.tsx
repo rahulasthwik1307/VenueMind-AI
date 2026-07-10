@@ -151,7 +151,14 @@ export default function IncidentsPage() {
 
   return (
     <PageContainer>
-      <div className="space-y-(--card-gap) animate-fade-in pb-10">
+      <div className="@container/page space-y-(--card-gap) animate-fade-in pb-10">
+        <style>{`
+          @container page (max-width: 1000px) {
+            #live-incidents-grid {
+              grid-template-columns: 1fr 310px !important;
+            }
+          }
+        `}</style>
         {/* Page Header */}
         <div className="bg-(--surface-1) border border-(--border) rounded-card p-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -459,9 +466,9 @@ export default function IncidentsPage() {
         </AnimatePresence>
 
         {/* Main content grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-(--card-gap)">
+        <div id="live-incidents-grid" className="grid grid-cols-1 min-[1440px]:grid-cols-[1fr_360px] gap-(--card-gap) min-w-0 w-full">
           {/* Left: Incident Table */}
-          <div>
+          <div className="min-w-0">
             {isLoading ? (
               <LoadingState label="Loading incident queue…" />
             ) : (

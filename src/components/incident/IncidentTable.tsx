@@ -177,16 +177,16 @@ export function IncidentTable({
       role="grid"
       aria-label="Incident management table"
       aria-rowcount={processed.length}
-      className="bg-(--surface-1) border border-(--border) rounded-xl overflow-hidden"
+      className="@container bg-(--surface-1) border border-(--border) rounded-xl overflow-hidden min-w-0 w-full"
     >
       {/* Header Row */}
       <div
         role="row"
-        className="grid items-center gap-3 px-4 py-2.5 bg-(--surface-2) border-b border-(--border)"
-        style={{ gridTemplateColumns: '28px 56px 1fr 90px 90px 120px auto 80px' }}
+        className="grid items-center gap-3 px-4 py-2.5 bg-(--surface-2) border-b border-(--border) [--table-cols:45px_1fr_70px_80px] sm:[--table-cols:20px_45px_1fr_28px_70px_70px_80px] md:[--table-cols:20px_45px_minmax(120px,_1.8fr)_minmax(28px,_80px)_70px_minmax(90px,_1.2fr)_55px_80px]"
+        style={{ gridTemplateColumns: 'var(--table-cols)' }}
       >
         {/* Select All */}
-        <div role="columnheader">
+        <div role="columnheader" className="hidden sm:block">
           <input
             type="checkbox"
             checked={allSelected}
@@ -204,8 +204,8 @@ export function IncidentTable({
         <div role="columnheader" className="text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle)">
           Incident
         </div>
-        <div role="columnheader" className="text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle)">
-          Category
+        <div role="columnheader" className="hidden sm:block text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle)">
+          <span className="hidden @[400px]:inline">Category</span>
         </div>
         <div
           role="columnheader"
@@ -219,11 +219,12 @@ export function IncidentTable({
             onSort={handleSortColumn}
           />
         </div>
-        <div role="columnheader" className="text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle)">
+        <div role="columnheader" className="hidden sm:block text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle)">
           Zone
         </div>
         <div
           role="columnheader"
+          className="hidden md:block"
           aria-sort={sortKey === 'time' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
         >
           <SortableHeader
@@ -234,7 +235,7 @@ export function IncidentTable({
             onSort={handleSortColumn}
           />
         </div>
-        <div role="columnheader" className="text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle) text-right">
+        <div role="columnheader" className="text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle) text-right w-20">
           Actions
         </div>
       </div>
@@ -268,14 +269,15 @@ export function IncidentTable({
                   className={cn(
                     'grid items-center gap-3 px-4 py-3 border-b border-(--border) transition-colors cursor-default outline-none',
                     'focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-(--primary)',
+                    '[--table-cols:45px_1fr_70px_80px] sm:[--table-cols:20px_45px_1fr_28px_70px_70px_80px] md:[--table-cols:20px_45px_minmax(120px,_1.8fr)_minmax(28px,_80px)_70px_minmax(90px,_1.2fr)_55px_80px]',
                     isSelected
                       ? 'bg-(--primary-muted)/30'
                       : 'hover:bg-(--surface-2)/60'
                   )}
-                  style={{ gridTemplateColumns: '28px 56px 1fr 90px 90px 120px auto 80px' }}
+                  style={{ gridTemplateColumns: 'var(--table-cols)' }}
                 >
                   {/* Checkbox */}
-                  <div role="gridcell">
+                  <div role="gridcell" className="hidden sm:block">
                     <input
                       type="checkbox"
                       checked={isSelected}
@@ -303,20 +305,20 @@ export function IncidentTable({
 
                   {/* Title */}
                   <div role="gridcell" className="min-w-0">
-                    <p className="text-xs font-semibold text-(--foreground) truncate">{incident.title}</p>
+                    <p className="text-xs font-semibold text-(--foreground) line-clamp-2 break-words leading-tight">{incident.title}</p>
                     {incident.aiConfidence && (
-                      <div className="flex items-center gap-0.5 mt-0.5 text-[9px] text-(--primary) font-mono">
-                        <Brain size={8} aria-hidden="true" />
+                      <div className="flex items-center gap-0.5 mt-0.5 text-[9px] text-(--primary) font-mono whitespace-nowrap shrink-0">
+                        <Brain size={8} className="shrink-0" aria-hidden="true" />
                         <span>{incident.aiConfidence}% AI</span>
                       </div>
                     )}
                   </div>
 
                   {/* Category */}
-                  <div role="gridcell">
-                    <div className="flex items-center gap-1.5 text-(--foreground-muted)">
-                      <CategoryIcon size={12} />
-                      <span className="text-[10px] capitalize">{incident.category}</span>
+                  <div role="gridcell" className="hidden sm:block">
+                    <div className="flex items-center gap-1.5 text-(--foreground-muted) min-w-0">
+                      <CategoryIcon size={12} className="shrink-0" />
+                      <span className="truncate text-[10px] capitalize hidden @[400px]:inline">{incident.category}</span>
                     </div>
                   </div>
 
@@ -340,19 +342,19 @@ export function IncidentTable({
                   </div>
 
                   {/* Zone */}
-                  <div role="gridcell" className="min-w-0">
-                    <p className="text-[10px] text-(--foreground-muted) truncate">{incident.location.zone}</p>
+                  <div role="gridcell" className="hidden sm:block min-w-0">
+                    <p className="text-[10px] text-(--foreground-muted) line-clamp-2 break-words leading-normal">{incident.location.zone}</p>
                   </div>
 
                   {/* Time */}
-                  <div role="gridcell">
+                  <div role="gridcell" className="hidden md:block">
                     <span className="text-[10px] font-mono text-(--foreground-subtle) whitespace-nowrap" suppressHydrationWarning>
                       {getTimeAgo(incident.createdAt)}
                     </span>
                   </div>
 
                   {/* Actions */}
-                  <div role="gridcell" className="flex items-center gap-1.5 justify-end">
+                  <div role="gridcell" className="flex items-center gap-1.5 justify-end w-20">
                     <button
                       onClick={() => handleToggleExpand(incident.id)}
                       className={cn(
@@ -398,7 +400,7 @@ export function IncidentTable({
                     >
                       <div className="px-6 py-4 bg-(--surface-2)/40">
                         <p className="text-[9px] font-mono font-bold text-(--foreground-subtle) uppercase tracking-wider mb-3">
-                          Incident Timeline
+                           Incident Timeline
                         </p>
                         <IncidentTimeline events={incident.timeline} />
                       </div>
