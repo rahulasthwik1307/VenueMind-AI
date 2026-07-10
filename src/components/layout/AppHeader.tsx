@@ -166,7 +166,7 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
   return (
     <header
       className={cn(
-        'shrink-0 flex items-center justify-between gap-4',
+        'shrink-0 grid grid-cols-[1fr_minmax(0,480px)_1fr] items-center',
         'bg-(--surface-1) border-b border-(--border)',
         'px-4 md:px-5',
         'z-20 sticky top-0'
@@ -208,14 +208,14 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
           <span className="text-[13px] font-bold text-(--foreground) leading-none tracking-tight">
             Stadium Operations
           </span>
-          <span className="text-[10px] font-semibold text-(--foreground-subtle) tracking-wide leading-none mt-[3px]">
+          <span className="text-[10px] font-semibold text-(--foreground-subtle) tracking-wide leading-none mt-0.75">
             FIFA World Cup 2026
           </span>
         </div>
       </div>
 
-      {/* --- Center: Global Search --- */}
-      <div className="flex-1 max-w-md hidden sm:block group">
+      {/* --- Center: Global Search (grid center column — always the true midpoint) --- */}
+      <div className="w-full hidden sm:block px-3 group">
         <label htmlFor="global-search" className="sr-only">
           Search incidents, alerts, and operations
         </label>
@@ -254,7 +254,7 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
       </div>
 
       {/* --- Right: Controls --- */}
-      <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
+      <div className="flex items-center justify-end gap-1.5 md:gap-2">
         {/* Premium Global Capacity Widget */}
         {(() => {
           const occupancyPercent = telemetry?.stadiumCapacity.value ?? 62;
@@ -271,7 +271,7 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
               className={cn(
                 'flex items-center gap-3 px-3 py-2 rounded-lg border border-(--border)',
                 'bg-(--surface-1) shadow-xs select-none',
-                'min-h-[42px] md:min-w-[164px]',
+                'min-h-10.5 md:min-w-41',
                 'cursor-default'
               )}
               title={`Global Stadium Occupancy: ${occupancyPercent}% capacity`}
@@ -334,7 +334,7 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
         <m.div
           className={cn(
             'hidden lg:flex items-center gap-3 px-3 py-2 rounded-lg border border-(--border)',
-            'bg-(--surface-1) shadow-xs select-none min-h-[42px] cursor-default'
+            'bg-(--surface-1) shadow-xs select-none min-h-10.5 cursor-default'
           )}
           aria-label={`Current time: ${time}, ${date}`}
           role="timer"
@@ -358,7 +358,7 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
               <span className="text-[9px] font-semibold text-(--foreground-subtle) ml-1.5 uppercase tracking-widest">UTC</span>
             </span>
             <span
-              className="text-[9px] font-semibold text-(--foreground-muted) uppercase tracking-wider leading-none mt-[3px]"
+              className="text-[9px] font-semibold text-(--foreground-muted) uppercase tracking-wider leading-none mt-0.75"
               suppressHydrationWarning
             >
               {date}
@@ -642,7 +642,7 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
         <div className="relative group shrink-0 select-none mr-1">
           <div
             className={cn(
-              'w-8.5 h-8.5 rounded-full bg-gradient-to-br from-(--primary) to-emerald-600',
+              'w-8.5 h-8.5 rounded-full bg-linear-to-br from-(--primary) to-emerald-600',
               'flex items-center justify-center text-white text-[11px] font-extrabold shadow-xs',
               'border border-(--border-strong)/30',
               'group-hover:scale-105 group-hover:shadow-md transition-all duration-200 ease-out cursor-pointer'
