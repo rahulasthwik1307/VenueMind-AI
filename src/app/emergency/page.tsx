@@ -373,7 +373,7 @@ export default function EmergencyPage() {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 flex-1">
             {/* Medical Stations */}
-            <div className="bg-(--surface-1) border border-(--border) rounded-md p-3.5 flex flex-col justify-between min-h-40 shadow-xs hover:border-(--border-strong) transition-colors">
+            <div className="bg-(--surface-1) border border-(--border) rounded-md p-3.5 flex flex-col justify-between min-h-40 shadow-xs hover:border-(--border-strong) transition-colors @container">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <HeartPulse size={14} className="text-red-500" />
@@ -383,36 +383,34 @@ export default function EmergencyPage() {
                   {getStatusText(systemHealth.medical)}
                 </span>
               </div>
-              <p className="text-[10px] text-(--foreground-muted) mt-1.5 leading-relaxed">
+              <p className="text-[10px] text-(--foreground-muted) mt-1 leading-normal sm:h-[34px] overflow-hidden">
                 Total availability: {medicalStandby} standby units. Nearest station East gate reports average response time of 2.8 minutes.
               </p>
-              <div className="grid grid-cols-2 gap-x-2 gap-y-1 mt-2.5 pt-2 border-t border-(--border) text-[9px] font-mono">
-                <div className="flex justify-between">
-                  <span className="text-(--foreground-subtle)">Readiness:</span>
-                  <span className="font-semibold text-(--foreground)">98%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-(--foreground-subtle)">Active Res:</span>
-                  <span className="font-semibold text-(--foreground)">{medicalStandby} Units</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-(--foreground-subtle)">Monitor State:</span>
-                  <span className="font-semibold text-(--foreground)">Live-Pulse</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-(--foreground-subtle)">Verified:</span>
-                  <span className="font-semibold text-(--foreground)">1m ago</span>
-                </div>
+              <div className="grid grid-cols-[max-content_1fr] @[310px]:grid-cols-[max-content_1fr_max-content_1fr] gap-x-3 gap-y-1.5 mt-2.5 pt-2 border-t border-(--border) text-[9.5px] font-mono">
+                <span className="text-(--foreground-muted) font-medium">Readiness</span>
+                <span className="font-bold text-(--foreground)">98%</span>
+                <span className="text-(--foreground-muted) font-medium @[310px]:pl-3">Active Resources</span>
+                <span className="font-bold text-(--foreground)">{medicalStandby} Units</span>
+                <span className="text-(--foreground-muted) font-medium">Monitor State</span>
+                <span className="font-bold text-(--foreground)">Live-Pulse</span>
+                <span className="text-(--foreground-muted) font-medium @[310px]:pl-3">Last Verified</span>
+                <span className="font-bold text-(--foreground)">1 min ago</span>
               </div>
-              <div className="w-full bg-(--surface-2) h-1.5 rounded-full overflow-hidden mt-3">
-                <div className={cn("h-full rounded-full transition-all duration-300", 
-                  systemHealth.medical === 'operational' ? 'bg-(--color-success)' : 'bg-(--color-warning)'
-                )} style={{ width: '98%' }} />
+              <div className="mt-3.5">
+                <div className="flex items-center justify-between text-[8px] font-mono text-(--foreground-muted) uppercase tracking-wider mb-1 w-11/12">
+                  <span>System Health</span>
+                  <span className="font-bold text-(--foreground)">98%</span>
+                </div>
+                <div className="w-11/12 bg-(--surface-2) h-1.5 rounded-full overflow-hidden">
+                  <div className={cn("h-full rounded-full transition-all duration-300", 
+                    systemHealth.medical === 'operational' ? 'bg-(--color-success)' : 'bg-(--color-warning)'
+                  )} style={{ width: '98%' }} />
+                </div>
               </div>
             </div>
 
             {/* Perimeter & Security */}
-            <div className="bg-(--surface-1) border border-(--border) rounded-md p-3.5 flex flex-col justify-between min-h-40 shadow-xs hover:border-(--border-strong) transition-colors">
+            <div className="bg-(--surface-1) border border-(--border) rounded-md p-3.5 flex flex-col justify-between min-h-40 shadow-xs hover:border-(--border-strong) transition-colors @container">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <Shield size={14} className="text-blue-500" />
@@ -422,36 +420,34 @@ export default function EmergencyPage() {
                   {getStatusText(systemHealth.perimeter)}
                 </span>
               </div>
-              <p className="text-[10px] text-(--foreground-muted) mt-1.5 leading-relaxed">
+              <p className="text-[10px] text-(--foreground-muted) mt-1 leading-normal sm:h-[34px] overflow-hidden">
                 CCTV coverage: 99.8% active. 240 security staff deployed on site. Quick response squads stand by on sectors A & D.
               </p>
-              <div className="grid grid-cols-2 gap-x-2 gap-y-1 mt-2.5 pt-2 border-t border-(--border) text-[9px] font-mono">
-                <div className="flex justify-between">
-                  <span className="text-(--foreground-subtle)">Readiness:</span>
-                  <span className="font-semibold text-(--foreground)">99.8%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-(--foreground-subtle)">Active Res:</span>
-                  <span className="font-semibold text-(--foreground)">240 Staff</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-(--foreground-subtle)">Monitor State:</span>
-                  <span className="font-semibold text-(--foreground)">CCTV Feed</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-(--foreground-subtle)">Verified:</span>
-                  <span className="font-semibold text-(--foreground)">3m ago</span>
-                </div>
+              <div className="grid grid-cols-[max-content_1fr] @[310px]:grid-cols-[max-content_1fr_max-content_1fr] gap-x-3 gap-y-1.5 mt-2.5 pt-2 border-t border-(--border) text-[9.5px] font-mono">
+                <span className="text-(--foreground-muted) font-medium">Readiness</span>
+                <span className="font-bold text-(--foreground)">99.8%</span>
+                <span className="text-(--foreground-muted) font-medium @[310px]:pl-3">Active Resources</span>
+                <span className="font-bold text-(--foreground)">240 Staff</span>
+                <span className="text-(--foreground-muted) font-medium">Monitor State</span>
+                <span className="font-bold text-(--foreground)">CCTV Feed</span>
+                <span className="text-(--foreground-muted) font-medium @[310px]:pl-3">Last Verified</span>
+                <span className="font-bold text-(--foreground)">3 min ago</span>
               </div>
-              <div className="w-full bg-(--surface-2) h-1.5 rounded-full overflow-hidden mt-3">
-                <div className={cn("h-full rounded-full transition-all duration-300", 
-                  systemHealth.perimeter === 'operational' ? 'bg-(--color-success)' : 'bg-(--color-warning)'
-                )} style={{ width: '99.8%' }} />
+              <div className="mt-3.5">
+                <div className="flex items-center justify-between text-[8px] font-mono text-(--foreground-muted) uppercase tracking-wider mb-1 w-11/12">
+                  <span>System Health</span>
+                  <span className="font-bold text-(--foreground)">99.8%</span>
+                </div>
+                <div className="w-11/12 bg-(--surface-2) h-1.5 rounded-full overflow-hidden">
+                  <div className={cn("h-full rounded-full transition-all duration-300", 
+                    systemHealth.perimeter === 'operational' ? 'bg-(--color-success)' : 'bg-(--color-warning)'
+                  )} style={{ width: '99.8%' }} />
+                </div>
               </div>
             </div>
 
             {/* Fire Panels */}
-            <div className="bg-(--surface-1) border border-(--border) rounded-md p-3.5 flex flex-col justify-between min-h-40 shadow-xs hover:border-(--border-strong) transition-colors">
+            <div className="bg-(--surface-1) border border-(--border) rounded-md p-3.5 flex flex-col justify-between min-h-40 shadow-xs hover:border-(--border-strong) transition-colors @container">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <Flame size={14} className="text-orange-500" />
@@ -461,36 +457,34 @@ export default function EmergencyPage() {
                   {getStatusText(systemHealth.fireAlarms)}
                 </span>
               </div>
-              <p className="text-[10px] text-(--foreground-muted) mt-1.5 leading-relaxed">
+              <p className="text-[10px] text-(--foreground-muted) mt-1 leading-normal sm:h-[34px] overflow-hidden">
                 Relays tested at pre-match briefing. All 4,200 sensors reporting normal temperature thresholds. Fire control board operational.
               </p>
-              <div className="grid grid-cols-2 gap-x-2 gap-y-1 mt-2.5 pt-2 border-t border-(--border) text-[9px] font-mono">
-                <div className="flex justify-between">
-                  <span className="text-(--foreground-subtle)">Readiness:</span>
-                  <span className="font-semibold text-(--foreground)">100%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-(--foreground-subtle)">Active Res:</span>
-                  <span className="font-semibold text-(--foreground)">0 Faults</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-(--foreground-subtle)">Monitor State:</span>
-                  <span className="font-semibold text-(--foreground)">Sensor Grid</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-(--foreground-subtle)">Verified:</span>
-                  <span className="font-semibold text-(--foreground)">5m ago</span>
-                </div>
+              <div className="grid grid-cols-[max-content_1fr] @[310px]:grid-cols-[max-content_1fr_max-content_1fr] gap-x-3 gap-y-1.5 mt-2.5 pt-2 border-t border-(--border) text-[9.5px] font-mono">
+                <span className="text-(--foreground-muted) font-medium">Readiness</span>
+                <span className="font-bold text-(--foreground)">100%</span>
+                <span className="text-(--foreground-muted) font-medium @[310px]:pl-3">Active Resources</span>
+                <span className="font-bold text-(--foreground)">0 Faults</span>
+                <span className="text-(--foreground-muted) font-medium">Monitor State</span>
+                <span className="font-bold text-(--foreground)">Sensor Grid</span>
+                <span className="text-(--foreground-muted) font-medium @[310px]:pl-3">Last Verified</span>
+                <span className="font-bold text-(--foreground)">5 min ago</span>
               </div>
-              <div className="w-full bg-(--surface-2) h-1.5 rounded-full overflow-hidden mt-3">
-                <div className={cn("h-full rounded-full transition-all duration-300", 
-                  systemHealth.fireAlarms === 'operational' ? 'bg-(--color-success)' : 'bg-(--color-warning)'
-                )} style={{ width: '100%' }} />
+              <div className="mt-3.5">
+                <div className="flex items-center justify-between text-[8px] font-mono text-(--foreground-muted) uppercase tracking-wider mb-1 w-11/12">
+                  <span>System Health</span>
+                  <span className="font-bold text-(--foreground)">100%</span>
+                </div>
+                <div className="w-11/12 bg-(--surface-2) h-1.5 rounded-full overflow-hidden">
+                  <div className={cn("h-full rounded-full transition-all duration-300", 
+                    systemHealth.fireAlarms === 'operational' ? 'bg-(--color-success)' : 'bg-(--color-warning)'
+                  )} style={{ width: '100%' }} />
+                </div>
               </div>
             </div>
 
             {/* Evacuation Paths */}
-            <div className="bg-(--surface-1) border border-(--border) rounded-md p-3.5 flex flex-col justify-between min-h-40 shadow-xs hover:border-(--border-strong) transition-colors">
+            <div className="bg-(--surface-1) border border-(--border) rounded-md p-3.5 flex flex-col justify-between min-h-40 shadow-xs hover:border-(--border-strong) transition-colors @container">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <ShieldAlert size={14} className="text-green-500" />
@@ -500,31 +494,29 @@ export default function EmergencyPage() {
                   {getStatusText(systemHealth.evacPaths)}
                 </span>
               </div>
-              <p className="text-[10px] text-(--foreground-muted) mt-1.5 leading-relaxed">
+              <p className="text-[10px] text-(--foreground-muted) mt-1 leading-normal sm:h-[34px] overflow-hidden">
                 Emergency gate locks monitored. Electromagnetic releases verified online. All auxiliary corridors and exit lanes clear of debris.
               </p>
-              <div className="grid grid-cols-2 gap-x-2 gap-y-1 mt-2.5 pt-2 border-t border-(--border) text-[9px] font-mono">
-                <div className="flex justify-between">
-                  <span className="text-(--foreground-subtle)">Readiness:</span>
-                  <span className="font-semibold text-(--foreground)">100%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-(--foreground-subtle)">Active Res:</span>
-                  <span className="font-semibold text-(--foreground)">Relays OK</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-(--foreground-subtle)">Monitor State:</span>
-                  <span className="font-semibold text-(--foreground)">Loop Verif</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-(--foreground-subtle)">Verified:</span>
-                  <span className="font-semibold text-(--foreground)">2m ago</span>
-                </div>
+              <div className="grid grid-cols-[max-content_1fr] @[310px]:grid-cols-[max-content_1fr_max-content_1fr] gap-x-3 gap-y-1.5 mt-2.5 pt-2 border-t border-(--border) text-[9.5px] font-mono">
+                <span className="text-(--foreground-muted) font-medium">Readiness</span>
+                <span className="font-bold text-(--foreground)">100%</span>
+                <span className="text-(--foreground-muted) font-medium @[310px]:pl-3">Active Resources</span>
+                <span className="font-bold text-(--foreground)">Relays OK</span>
+                <span className="text-(--foreground-muted) font-medium">Monitor State</span>
+                <span className="font-bold text-(--foreground)">Loop Verif</span>
+                <span className="text-(--foreground-muted) font-medium @[310px]:pl-3">Last Verified</span>
+                <span className="font-bold text-(--foreground)">2 min ago</span>
               </div>
-              <div className="w-full bg-(--surface-2) h-1.5 rounded-full overflow-hidden mt-3">
-                <div className={cn("h-full rounded-full transition-all duration-300", 
-                  systemHealth.evacPaths === 'operational' ? 'bg-(--color-success)' : 'bg-(--color-warning)'
-                )} style={{ width: '100%' }} />
+              <div className="mt-3.5">
+                <div className="flex items-center justify-between text-[8px] font-mono text-(--foreground-muted) uppercase tracking-wider mb-1 w-11/12">
+                  <span>System Health</span>
+                  <span className="font-bold text-(--foreground)">100%</span>
+                </div>
+                <div className="w-11/12 bg-(--surface-2) h-1.5 rounded-full overflow-hidden">
+                  <div className={cn("h-full rounded-full transition-all duration-300", 
+                    systemHealth.evacPaths === 'operational' ? 'bg-(--color-success)' : 'bg-(--color-warning)'
+                  )} style={{ width: '100%' }} />
+                </div>
               </div>
             </div>
           </div>
