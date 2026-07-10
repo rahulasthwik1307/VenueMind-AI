@@ -201,14 +201,14 @@ export function IncidentTable({
         {/* Left scroll shadow hint */}
         <div
           className={cn(
-            'absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-black/5 dark:from-black/20 to-transparent pointer-events-none transition-opacity duration-200 z-10',
+            'absolute left-0 top-0 bottom-0 w-6 bg-linear-to-r from-black/5 dark:from-black/20 to-transparent pointer-events-none transition-opacity duration-200 z-10',
             showLeftShadow ? 'opacity-100' : 'opacity-0'
           )}
         />
         {/* Right scroll shadow hint */}
         <div
           className={cn(
-            'absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-black/5 dark:from-black/20 to-transparent pointer-events-none transition-opacity duration-200 z-10',
+            'absolute right-0 top-0 bottom-0 w-6 bg-linear-to-l from-black/5 dark:from-black/20 to-transparent pointer-events-none transition-opacity duration-200 z-10',
             showRightShadow ? 'opacity-100' : 'opacity-0'
           )}
         />
@@ -218,7 +218,7 @@ export function IncidentTable({
           onScroll={checkScroll}
           className="overflow-x-auto min-w-0 w-full scrollbar-thin"
         >
-        <div className="min-w-0 @[600px]:min-w-[780px] w-full">
+        <div className="min-w-0 @[600px]:min-w-195 w-full">
           {/* Header Row */}
           <div
             role="row"
@@ -346,7 +346,7 @@ export function IncidentTable({
 
                       {/* Title */}
                       <div role="gridcell" className="min-w-0">
-                        <p className="text-xs font-semibold text-(--foreground) break-words leading-tight">{incident.title}</p>
+                        <p className="text-xs font-semibold text-(--foreground) wrap-break-word leading-tight">{incident.title}</p>
                         {incident.aiConfidence && (
                           <div className="flex items-center gap-0.5 mt-0.5 text-[9px] text-(--primary) font-mono whitespace-nowrap shrink-0">
                             <Brain size={8} className="shrink-0" aria-hidden="true" />
@@ -359,7 +359,7 @@ export function IncidentTable({
                       <div role="gridcell" className="hidden @[600px]:block min-w-0 pt-0.5">
                         <div className="flex items-start gap-1.5 text-(--foreground-muted) min-w-0">
                           <CategoryIcon size={12} className="shrink-0 mt-0.5" />
-                          <span className="text-[10px] capitalize leading-tight break-words">{incident.category}</span>
+                          <span className="text-[10px] capitalize leading-tight wrap-break-word">{incident.category}</span>
                         </div>
                       </div>
 
@@ -388,7 +388,7 @@ export function IncidentTable({
                           {zoneParts.map((part, i) => {
                             const formatted = part.replace(/\s+(\d+)/g, '\u00a0$1');
                             return (
-                              <span key={i} className="block break-words">
+                              <span key={i} className="block wrap-break-word">
                                 {formatted}
                                 {i < zoneParts.length - 1 && (
                                   <span className="text-(--foreground-subtle)/50 select-none"> ·</span>

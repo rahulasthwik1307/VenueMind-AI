@@ -14,7 +14,7 @@ export function OperationalConsoleStatus({
 }: OperationalConsoleStatusProps) {
   return (
     <div
-      className="rounded-xl border border-(--border) bg-(--surface-2)/30 px-3 py-2.5 flex flex-col gap-2 select-none shrink-0 shadow-xs max-h-[105px] overflow-hidden"
+      className="rounded-xl border border-(--border) bg-(--surface-2)/30 px-3 py-2.5 flex flex-col gap-2 select-none shrink-0 shadow-xs max-h-26.25 overflow-hidden"
       aria-label="AI system status widget"
     >
       {/* Top Status Header */}
