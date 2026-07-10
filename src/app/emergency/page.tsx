@@ -53,7 +53,7 @@ export default function EmergencyPage() {
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <h4 className="text-xs font-bold text-(--foreground) uppercase tracking-wider truncate max-w-[240px] sm:max-w-xs md:max-w-md lg:max-w-[200px] xl:max-w-xs">
+            <h4 className="text-xs font-bold text-(--foreground) uppercase tracking-wider truncate max-w-60 sm:max-w-xs md:max-w-md lg:max-w-50 xl:max-w-xs">
               {activeCriticalIncident.title}
             </h4>
             <span className="text-[8px] font-mono font-bold uppercase bg-red-500/15 text-red-700 dark:text-red-300 border border-red-500/25 px-1.5 py-0.5 rounded shrink-0 animate-pulse">
@@ -142,7 +142,7 @@ export default function EmergencyPage() {
 
           {/* Running step: Response Team Dispatched */}
           <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-            <div className="absolute -left-[21px] top-1 w-3.5 h-3.5 rounded-full bg-background border-2 border-amber-500 ring-2 ring-amber-500/25 shrink-0 flex items-center justify-center">
+            <div className="absolute -left-5.25 top-1 w-3.5 h-3.5 rounded-full bg-background border-2 border-amber-500 ring-2 ring-amber-500/25 shrink-0 flex items-center justify-center">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
             </div>
             <div className="flex items-center gap-1.5 min-w-0">
@@ -287,7 +287,7 @@ export default function EmergencyPage() {
 
           {/* Running step */}
           <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-            <div className="absolute -left-[21px] top-1 w-3.5 h-3.5 rounded-full bg-background border-2 border-amber-500 ring-2 ring-amber-500/25 shrink-0 flex items-center justify-center">
+            <div className="absolute -left-5.25 top-1 w-3.5 h-3.5 rounded-full bg-background border-2 border-amber-500 ring-2 ring-amber-500/25 shrink-0 flex items-center justify-center">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
             </div>
             <div className="flex items-center gap-1.5 min-w-0">
@@ -383,7 +383,7 @@ export default function EmergencyPage() {
                   {getStatusText(systemHealth.medical)}
                 </span>
               </div>
-              <p className="text-[10px] text-(--foreground-muted) mt-1 leading-normal sm:h-[34px] overflow-hidden">
+              <p className="text-[10px] text-(--foreground-muted) mt-1 leading-normal sm:h-8.5 overflow-hidden">
                 Total availability: {medicalStandby} standby units. Nearest station East gate reports average response time of 2.8 minutes.
               </p>
               <div className="grid grid-cols-[max-content_1fr] @[310px]:grid-cols-[max-content_1fr_max-content_1fr] gap-x-3 gap-y-1.5 mt-2.5 pt-2 border-t border-(--border) text-[9.5px] font-mono">
@@ -420,7 +420,7 @@ export default function EmergencyPage() {
                   {getStatusText(systemHealth.perimeter)}
                 </span>
               </div>
-              <p className="text-[10px] text-(--foreground-muted) mt-1 leading-normal sm:h-[34px] overflow-hidden">
+              <p className="text-[10px] text-(--foreground-muted) mt-1 leading-normal sm:h-8.5 overflow-hidden">
                 CCTV coverage: 99.8% active. 240 security staff deployed on site. Quick response squads stand by on sectors A & D.
               </p>
               <div className="grid grid-cols-[max-content_1fr] @[310px]:grid-cols-[max-content_1fr_max-content_1fr] gap-x-3 gap-y-1.5 mt-2.5 pt-2 border-t border-(--border) text-[9.5px] font-mono">
@@ -457,7 +457,7 @@ export default function EmergencyPage() {
                   {getStatusText(systemHealth.fireAlarms)}
                 </span>
               </div>
-              <p className="text-[10px] text-(--foreground-muted) mt-1 leading-normal sm:h-[34px] overflow-hidden">
+              <p className="text-[10px] text-(--foreground-muted) mt-1 leading-normal sm:h-8.5 overflow-hidden">
                 Relays tested at pre-match briefing. All 4,200 sensors reporting normal temperature thresholds. Fire control board operational.
               </p>
               <div className="grid grid-cols-[max-content_1fr] @[310px]:grid-cols-[max-content_1fr_max-content_1fr] gap-x-3 gap-y-1.5 mt-2.5 pt-2 border-t border-(--border) text-[9.5px] font-mono">
@@ -494,7 +494,7 @@ export default function EmergencyPage() {
                   {getStatusText(systemHealth.evacPaths)}
                 </span>
               </div>
-              <p className="text-[10px] text-(--foreground-muted) mt-1 leading-normal sm:h-[34px] overflow-hidden">
+              <p className="text-[10px] text-(--foreground-muted) mt-1 leading-normal sm:h-8.5 overflow-hidden">
                 Emergency gate locks monitored. Electromagnetic releases verified online. All auxiliary corridors and exit lanes clear of debris.
               </p>
               <div className="grid grid-cols-[max-content_1fr] @[310px]:grid-cols-[max-content_1fr_max-content_1fr] gap-x-3 gap-y-1.5 mt-2.5 pt-2 border-t border-(--border) text-[9.5px] font-mono">

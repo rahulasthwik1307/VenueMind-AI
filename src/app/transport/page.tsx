@@ -226,7 +226,7 @@ export default function TransportPage() {
 
           {/* Running step */}
           <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-            <div className="absolute -left-[21px] top-1 w-3.5 h-3.5 rounded-full bg-background border-2 border-amber-500 ring-2 ring-amber-500/25 shrink-0 flex items-center justify-center">
+            <div className="absolute -left-5.25 top-1 w-3.5 h-3.5 rounded-full bg-background border-2 border-amber-500 ring-2 ring-amber-500/25 shrink-0 flex items-center justify-center">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
             </div>
             <div className="flex items-center gap-1.5 min-w-0">
@@ -347,7 +347,7 @@ export default function TransportPage() {
 
           {/* Running step */}
           <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-            <div className="absolute -left-[21px] top-1 w-3.5 h-3.5 rounded-full bg-background border-2 border-amber-500 ring-2 ring-amber-500/25 shrink-0 flex items-center justify-center">
+            <div className="absolute -left-5.25 top-1 w-3.5 h-3.5 rounded-full bg-background border-2 border-amber-500 ring-2 ring-amber-500/25 shrink-0 flex items-center justify-center">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
             </div>
             <div className="flex items-center gap-1.5 min-w-0">
@@ -454,7 +454,7 @@ export default function TransportPage() {
         </div>
       }
       mainContent={
-        <div className="border border-(--border) rounded-xl p-4 bg-(--surface-2)/20 h-[380px] flex flex-col justify-between shadow-sm relative">
+        <div className="border border-(--border) rounded-xl p-4 bg-(--surface-2)/20 h-95 flex flex-col justify-between shadow-sm relative">
           <h3 className="text-xs font-bold text-(--foreground) uppercase tracking-wider shrink-0 mb-3">
             Transit Node Monitor
           </h3>
@@ -462,7 +462,7 @@ export default function TransportPage() {
           {/* Top scroll fade shadow */}
           <div
             className={cn(
-              "absolute left-4 right-4 top-[45px] h-6 bg-gradient-to-b from-gray-900/5 to-transparent pointer-events-none transition-opacity duration-200 z-10 dark:from-black/15",
+              "absolute left-4 right-4 top-11.25 h-6 bg-linear-to-b from-gray-900/5 to-transparent pointer-events-none transition-opacity duration-200 z-10 dark:from-black/15",
               showTopShadow ? "opacity-100" : "opacity-0"
             )}
           />
@@ -546,7 +546,7 @@ export default function TransportPage() {
           {/* Bottom scroll fade shadow */}
           <div
             className={cn(
-              "absolute left-4 right-4 bottom-4 h-6 bg-gradient-to-t from-gray-900/5 to-transparent pointer-events-none transition-opacity duration-200 z-10 dark:from-black/15",
+              "absolute left-4 right-4 bottom-4 h-6 bg-linear-to-t from-gray-900/5 to-transparent pointer-events-none transition-opacity duration-200 z-10 dark:from-black/15",
               showBottomShadow ? "opacity-100" : "opacity-0"
             )}
           />

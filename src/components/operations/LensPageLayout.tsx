@@ -405,7 +405,7 @@ export function LensPageLayout({
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
-                          className="flex flex-col items-center justify-center text-center py-4 px-4 h-full justify-between"
+                          className="flex flex-col items-center text-center py-4 px-4 h-full justify-between"
                         >
                           {/* Section 1: Header */}
                           <div className="flex flex-col items-center">
