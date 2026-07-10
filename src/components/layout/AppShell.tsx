@@ -35,7 +35,7 @@ export function AppShell({ children }: AppShellProps) {
       className="flex flex-col min-h-screen h-dvh max-h-dvh bg-(--background) overflow-hidden"
       style={
         {
-          '--header-height': '60px',
+          '--header-height': '68px',
           '--sidebar-width': '240px',
           '--sidebar-collapsed-width': '64px',
           '--right-panel-width': '280px',

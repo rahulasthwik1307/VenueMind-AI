@@ -3,7 +3,7 @@
  * Used in both CSS tokens and component logic.
  */
 
-export const HEADER_HEIGHT = 60 as const;
+export const HEADER_HEIGHT = 68 as const;
 export const SIDEBAR_WIDTH = 240 as const;
 export const SIDEBAR_COLLAPSED_WIDTH = 64 as const;
 export const RIGHT_PANEL_WIDTH = 280 as const;

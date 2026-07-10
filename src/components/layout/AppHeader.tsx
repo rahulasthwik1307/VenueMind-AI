@@ -79,6 +79,21 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
     setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
+  // Search focus state & keyboard shortcut ref
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // Trigger search focus on Cmd+K or Ctrl+K
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, []);
+
   // Notification center state
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
@@ -165,14 +180,14 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
         <button
           onClick={onMobileMenuOpen}
           className={cn(
-            'md:hidden flex items-center justify-center w-9 h-9 rounded-md',
-            'text-(--foreground-muted) hover:bg-(--surface-3) hover:text-(--foreground)',
-            'transition-colors duration-150'
+            'md:hidden flex items-center justify-center w-9.5 h-9.5 rounded-lg border border-(--border)',
+            'bg-(--surface-1) text-(--foreground-muted) hover:text-(--foreground) hover:bg-(--surface-2)',
+            'transition-all duration-200 focus-visible:ring-2 focus-visible:ring-(--primary-muted)/40 focus-visible:outline-none'
           )}
           aria-label="Open navigation menu"
           aria-haspopup="dialog"
         >
-          <Menu size={18} strokeWidth={1.75} aria-hidden="true" />
+          <Menu size={16} strokeWidth={1.75} aria-hidden="true" />
         </button>
 
         {/* Mobile Logo (hidden on desktop since sidebar shows it) */}
@@ -188,139 +203,197 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
           </span>
         </div>
 
-        {/* Desktop page title area */}
-        <div className="hidden md:block">
-          <span className="text-xs font-medium text-(--foreground-muted)">
-            FIFA World Cup 2026 — Stadium Operations
+        {/* Desktop — Primary operational branding (sidebar already shows VenueMind AI) */}
+        <div className="hidden md:flex flex-col justify-center select-none">
+          <span className="text-[13px] font-bold text-(--foreground) leading-none tracking-tight">
+            Stadium Operations
+          </span>
+          <span className="text-[10px] font-semibold text-(--foreground-subtle) tracking-wide leading-none mt-[3px]">
+            FIFA World Cup 2026
           </span>
         </div>
       </div>
 
       {/* --- Center: Global Search --- */}
-      <div className="flex-1 max-w-md hidden sm:block">
+      <div className="flex-1 max-w-md hidden sm:block group">
         <label htmlFor="global-search" className="sr-only">
           Search incidents, alerts, and operations
         </label>
-        <div className="relative">
+        <div className="relative flex items-center">
           <Search
             size={14}
-            strokeWidth={1.75}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-(--foreground-subtle) pointer-events-none"
+            className="absolute left-3.5 text-(--foreground-subtle) pointer-events-none group-focus-within:text-(--primary) transition-colors duration-200"
             aria-hidden="true"
           />
           <input
+            ref={searchInputRef}
             id="global-search"
             type="search"
-            placeholder="Search incidents by title, location, category…"
+            placeholder="Search incidents, alerts, or operations..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className={cn(
-              'w-full pl-9 pr-3 py-1.5 text-sm',
+              'w-full pl-10 pr-12 h-9.5 text-xs',
               'bg-(--surface-2) border border-(--border)',
-              'rounded-md text-(--foreground)',
-              'placeholder:text-(--foreground-subtle)',
-              'focus:outline-none focus-visible:ring-1 focus-visible:ring-(--primary)'
+              'rounded-lg text-(--foreground) placeholder:text-(--foreground-subtle)/70',
+              'focus:outline-none focus:bg-(--surface-1) focus:border-(--primary)',
+              'focus:ring-2 focus:ring-(--primary-muted)/40',
+              'hover:bg-(--surface-3)/45 hover:border-(--border-strong)',
+              'shadow-xs focus:shadow-sm',
+              'transition-all duration-200 ease-in-out'
             )}
             aria-label="Search incidents"
           />
-          <span
-            className="hidden lg:flex absolute right-2.5 top-1/2 -translate-y-1/2 items-center gap-0.5 text-[10px] text-(--foreground-subtle) font-mono border border-(--border) rounded px-1 py-0.5"
+          <kbd
+            className="hidden lg:flex absolute right-3 items-center justify-center h-5.5 px-1.5 rounded bg-(--surface-3) border border-(--border-strong)/30 text-[9px] font-medium font-mono text-(--foreground-subtle) select-none pointer-events-none transition-all duration-200 group-focus-within:scale-90 group-focus-within:opacity-0"
             aria-hidden="true"
           >
             ⌘K
-          </span>
+          </kbd>
         </div>
       </div>
 
       {/* --- Right: Controls --- */}
-      <div className="flex items-center gap-1 shrink-0">
-        {/* Stadium Occupancy Gauge */}
+      <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
+        {/* Premium Global Capacity Widget */}
         {(() => {
           const occupancyPercent = telemetry?.stadiumCapacity.value ?? 62;
+          const maxCapacity = 80000;
+          const currentPax = maxCapacity * (occupancyPercent / 100);
+          
+          // SVG Gauge parameters
+          const radius = 13;
+          const circumference = 2 * Math.PI * radius;
+          const strokeDashoffset = circumference * (1 - occupancyPercent / 100);
+
           return (
-            <div 
-              className="flex items-center gap-2 mr-3 px-2 py-0.5 rounded bg-(--surface-2) border border-(--border)"
+            <m.div
+              className={cn(
+                'flex items-center gap-3 px-3 py-2 rounded-lg border border-(--border)',
+                'bg-(--surface-1) shadow-xs select-none',
+                'min-h-[42px] md:min-w-[164px]',
+                'cursor-default'
+              )}
               title={`Global Stadium Occupancy: ${occupancyPercent}% capacity`}
               role="img"
               aria-label={`Global Stadium Occupancy: ${occupancyPercent}%`}
+              whileHover={{ boxShadow: 'var(--shadow-sm)', y: -1 }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
             >
-              <div className="relative w-6 h-6 flex items-center justify-center shrink-0">
-                <svg 
-                  className="w-full h-full select-none"
-                  style={{ transform: 'rotate(-90deg)', transformOrigin: 'center', animation: 'none' }}
-                >
+              {/* Animated progress ring — larger and crisper */}
+              <div className="relative w-8 h-8 flex items-center justify-center shrink-0">
+                <svg className="w-full h-full -rotate-90 select-none" viewBox="0 0 32 32">
                   <circle
-                    cx="12"
-                    cy="12"
-                    r="9"
+                    cx="16"
+                    cy="16"
+                    r={radius}
                     className="stroke-(--border-strong)"
-                    strokeWidth="2"
+                    strokeWidth="2.5"
                     fill="transparent"
                   />
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="9"
+                  <m.circle
+                    cx="16"
+                    cy="16"
+                    r={radius}
                     className="stroke-(--primary)"
-                    strokeWidth="2"
+                    strokeWidth="2.5"
                     fill="transparent"
-                    strokeDasharray={`${2 * Math.PI * 9}`}
-                    strokeDashoffset={`${2 * Math.PI * 9 * (1 - occupancyPercent / 100)}`}
                     strokeLinecap="round"
-                    style={{ transition: 'stroke-dashoffset 0.5s ease' }}
+                    initial={{ strokeDashoffset: circumference }}
+                    animate={{ strokeDashoffset }}
+                    transition={{ duration: 0.9, ease: 'easeOut' }}
+                    strokeDasharray={circumference}
                   />
                 </svg>
-                <span className="absolute text-[7.5px] font-black font-mono text-(--foreground)">{occupancyPercent}%</span>
+                <span className="absolute text-[9px] font-black font-mono text-(--foreground) leading-none">
+                  {occupancyPercent}%
+                </span>
               </div>
-              <div className="flex flex-col text-right">
-                <span className="text-[7px] font-bold font-mono text-(--foreground-subtle) uppercase leading-none">Global Cap</span>
-                <span className="text-[8.5px] font-extrabold font-mono text-(--foreground) leading-tight mt-0.5">{(80000 * occupancyPercent / 100).toLocaleString()} pax</span>
+
+              {/* Text block — hidden on mobile, shown md+ */}
+              <div className="hidden md:flex flex-col justify-center min-w-0">
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <span className="text-[9px] font-bold text-(--foreground-muted) uppercase tracking-widest leading-none">
+                    Capacity
+                  </span>
+                  <span className="relative flex h-1.5 w-1.5 shrink-0">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
+                  </span>
+                </div>
+                <span className="text-[11px] font-bold font-mono text-(--foreground) leading-none tracking-tight tabular-nums">
+                  {currentPax.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                  <span className="text-[9px] font-medium text-(--foreground-muted) ml-0.5">pax</span>
+                </span>
               </div>
-            </div>
+            </m.div>
           );
         })()}
 
-        {/* Date/Time */}
-        <div
-          className="hidden lg:flex flex-col items-end mr-2"
+        {/* Premium Time & Date Capsule — sibling of Capacity card */}
+        <m.div
+          className={cn(
+            'hidden lg:flex items-center gap-3 px-3 py-2 rounded-lg border border-(--border)',
+            'bg-(--surface-1) shadow-xs select-none min-h-[42px] cursor-default'
+          )}
           aria-label={`Current time: ${time}, ${date}`}
           role="timer"
+          whileHover={{ boxShadow: 'var(--shadow-sm)', y: -1 }}
+          transition={{ duration: 0.18, ease: 'easeOut' }}
         >
-          <span className="text-sm font-semibold text-(--foreground) leading-tight font-mono tabular-nums">
-            {time || '──:──'}
-          </span>
-          <span className="text-[10px] text-(--foreground-subtle) leading-tight" suppressHydrationWarning>
-            {date}
-          </span>
-        </div>
+          {/* Clock icon — appears first, mirrors ring position in Capacity card */}
+          <div
+            className="w-8 h-8 rounded-md bg-(--surface-2) flex items-center justify-center border border-(--border) text-(--foreground-muted) shrink-0"
+            aria-hidden="true"
+          >
+            <Clock size={14} strokeWidth={1.75} />
+          </div>
+          {/* Text block */}
+          <div className="flex flex-col justify-center">
+            <span
+              className="text-[13px] font-bold text-(--foreground) font-mono leading-none tracking-tight tabular-nums"
+              suppressHydrationWarning
+            >
+              {time || '──:──'}
+              <span className="text-[9px] font-semibold text-(--foreground-subtle) ml-1.5 uppercase tracking-widest">UTC</span>
+            </span>
+            <span
+              className="text-[9px] font-semibold text-(--foreground-muted) uppercase tracking-wider leading-none mt-[3px]"
+              suppressHydrationWarning
+            >
+              {date}
+            </span>
+          </div>
+        </m.div>
 
         {/* Language Selector */}
         <div className="relative" ref={langRef}>
           <button
             onClick={() => setIsLangOpen(!isLangOpen)}
             className={cn(
-              'flex items-center justify-center gap-1 w-auto h-8 px-2 rounded-md border border-(--border)',
-              'bg-(--surface-1) text-(--foreground-muted)',
-              'hover:text-(--foreground) hover:bg-(--surface-3) transition-colors duration-150',
-              isLangOpen && 'bg-(--surface-3) text-(--foreground)'
+              'flex items-center justify-center gap-1.5 h-9.5 px-2.5 rounded-lg border border-(--border)',
+              'bg-(--surface-1) text-(--foreground-muted) shadow-xs',
+              'hover:text-(--foreground) hover:bg-(--surface-2) hover:border-(--border-strong)',
+              'transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-(--primary-muted)/40 focus-visible:outline-none',
+              isLangOpen && 'bg-(--surface-3) text-(--foreground) border-(--border-strong)'
             )}
             aria-label={`AI Response Language: ${language.toUpperCase()}. Click to change.`}
             aria-expanded={isLangOpen}
             aria-haspopup="listbox"
             title="AI Response Language (does not translate full UI)"
           >
-            <Languages size={12} strokeWidth={1.75} aria-hidden="true" />
-            <span className="text-[9px] font-bold font-mono">{language.toUpperCase()}</span>
+            <Languages size={15} className="shrink-0 text-(--foreground-muted)" aria-hidden="true" />
+            <span className="hidden md:inline text-[10px] font-bold font-mono tracking-wider">{language.toUpperCase()}</span>
           </button>
 
           <AnimatePresence>
             {isLangOpen && (
               <m.ul
-                initial={{ opacity: 0, y: 6, scale: 0.96 }}
+                initial={{ opacity: 0, y: 8, scale: 0.96 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 4, scale: 0.97 }}
+                exit={{ opacity: 0, y: 5, scale: 0.97 }}
                 transition={{ duration: 0.15 }}
-                className="absolute right-0 mt-1.5 w-40 bg-(--surface-1) border border-(--border) rounded-md shadow-lg z-50 py-1 overflow-hidden"
+                className="absolute right-0 mt-2 w-40 bg-(--surface-1) border border-(--border) rounded-lg shadow-lg z-50 py-1 overflow-hidden"
                 role="listbox"
                 aria-label="Select AI Response Language"
               >
@@ -372,11 +445,16 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
         {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
-          className="flex items-center justify-center w-8 h-8 rounded-md border border-(--border) bg-(--surface-1) text-(--foreground-muted) hover:text-(--foreground) hover:bg-(--surface-3) transition-colors cursor-pointer mr-2"
+          className={cn(
+            'flex items-center justify-center w-9.5 h-9.5 rounded-lg border border-(--border)',
+            'bg-(--surface-1) text-(--foreground-muted) shadow-xs',
+            'hover:text-(--foreground) hover:bg-(--surface-2) hover:border-(--border-strong)',
+            'transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-(--primary-muted)/40 focus-visible:outline-none'
+          )}
           title={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
           aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
         >
-          {theme === 'light' ? <Moon size={14} /> : <Sun size={14} />}
+          {theme === 'light' ? <Moon size={15} /> : <Sun size={15} />}
         </button>
 
         {/* Notifications */}
@@ -384,23 +462,35 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
           <button
             onClick={() => setIsNotifOpen(!isNotifOpen)}
             className={cn(
-              'relative flex items-center justify-center w-9 h-9 rounded-md',
-              'text-(--foreground-muted) hover:bg-(--surface-3) hover:text-(--foreground)',
-              isNotifOpen && 'bg-(--surface-3) text-(--foreground)',
-              'transition-colors duration-150'
+              'relative flex items-center justify-center w-9.5 h-9.5 rounded-lg border border-(--border)',
+              'bg-(--surface-1) text-(--foreground-muted) shadow-xs',
+              'hover:text-(--foreground) hover:bg-(--surface-2) hover:border-(--border-strong)',
+              'transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-(--primary-muted)/40 focus-visible:outline-none',
+              isNotifOpen && 'bg-(--surface-3) text-(--foreground) border-(--border-strong)'
             )}
             aria-label={`View notifications (${unreadCount} unread)`}
             aria-expanded={isNotifOpen}
           >
-            <Bell size={16} strokeWidth={1.75} aria-hidden="true" />
-            {unreadCount > 0 && (
-              <span
-                className="absolute top-1.5 right-1.5 flex items-center justify-center min-w-3.5 h-3.5 px-0.5 rounded-full bg-red-500 border border-(--surface-1) text-[8px] font-bold font-mono text-white"
-                aria-label={`${unreadCount} unread`}
-              >
-                {unreadCount}
-              </span>
-            )}
+            <Bell size={15} className={cn(unreadCount > 0 && 'animate-pulse')} aria-hidden="true" />
+            
+            <AnimatePresence>
+              {unreadCount > 0 && (
+                <m.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  className={cn(
+                    'absolute -top-1 -right-1 flex items-center justify-center',
+                    'min-w-4 h-4 px-1 rounded-full bg-red-500 border border-(--surface-1)',
+                    'text-[9px] font-bold font-mono text-white shadow-xs'
+                  )}
+                >
+                  {/* Glowing background halo */}
+                  <span className="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-35" />
+                  <span className="relative z-10">{unreadCount}</span>
+                </m.span>
+              )}
+            </AnimatePresence>
           </button>
 
           <AnimatePresence>
@@ -413,9 +503,9 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
                 />
                 
                 <m.div
-                  initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                  initial={{ opacity: 0, y: 12, scale: 0.96 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 5, scale: 0.97 }}
+                  exit={{ opacity: 0, y: 8, scale: 0.97 }}
                   transition={{ duration: 0.15, ease: 'easeOut' }}
                   className="absolute right-0 mt-2 w-80 bg-(--surface-1) border border-(--border) rounded-lg shadow-xl z-50 flex flex-col max-h-105 overflow-hidden"
                   role="dialog"
@@ -532,27 +622,37 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
         <Link
           href="/settings"
           className={cn(
-            'hidden sm:flex items-center justify-center w-9 h-9 rounded-md',
-            'text-(--foreground-muted) hover:bg-(--surface-3) hover:text-(--foreground)',
-            'transition-colors duration-150'
+            'hidden sm:flex items-center justify-center w-9.5 h-9.5 rounded-lg border border-(--border)',
+            'bg-(--surface-1) text-(--foreground-muted) shadow-xs',
+            'hover:text-(--foreground) hover:bg-(--surface-2) hover:border-(--border-strong)',
+            'transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-(--primary-muted)/40 focus-visible:outline-none'
           )}
           aria-label="Open settings"
         >
-          <Settings size={16} strokeWidth={1.75} aria-hidden="true" />
+          <Settings size={15} aria-hidden="true" />
         </Link>
 
         {/* Divider */}
         <div
-          className="hidden sm:block w-px h-5 bg-(--border-strong) mx-1"
+          className="hidden sm:block w-px h-6 bg-(--border-strong) mx-1"
           aria-hidden="true"
         />
 
         {/* Operator Avatar */}
-        <div
-          className="w-7 h-7 rounded-full bg-(--primary) flex items-center justify-center text-white text-[10px] font-bold shrink-0 mr-2"
-          aria-hidden="true"
-        >
-          {OPERATOR_INITIALS}
+        <div className="relative group shrink-0 select-none mr-1">
+          <div
+            className={cn(
+              'w-8.5 h-8.5 rounded-full bg-gradient-to-br from-(--primary) to-emerald-600',
+              'flex items-center justify-center text-white text-[11px] font-extrabold shadow-xs',
+              'border border-(--border-strong)/30',
+              'group-hover:scale-105 group-hover:shadow-md transition-all duration-200 ease-out cursor-pointer'
+            )}
+            aria-label="User profile"
+          >
+            {OPERATOR_INITIALS}
+          </div>
+          {/* Live Status Online Indicator */}
+          <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-emerald-500 border-2 border-(--surface-1) shadow-xs animate-pulse" />
         </div>
       </div>
     </header>
