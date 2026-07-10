@@ -155,11 +155,11 @@ export function IncidentQueueAI() {
 
   return (
     <section
-      className="bg-(--surface-1) border border-(--border) rounded-xl overflow-hidden flex flex-col h-full shadow-sm"
+      className="bg-(--surface-1) border border-(--border) rounded-xl overflow-hidden flex flex-col h-fit self-start shadow-sm"
       aria-label="AI Queue Prioritization Panel"
     >
       {/* Header */}
-      <div className="flex items-center justify-between gap-3 px-5 py-3.5 bg-(--surface-2) border-b border-(--border) shrink-0">
+      <div className="flex items-center justify-between gap-3 px-4.5 py-3 bg-(--surface-2) border-b border-(--border) shrink-0">
         <div className="flex items-center gap-2">
           <Brain size={13} className="text-(--primary)" />
           <h3 className="text-xs font-bold text-(--foreground) uppercase tracking-wider">
@@ -183,7 +183,7 @@ export function IncidentQueueAI() {
       </div>
 
       {/* Body */}
-      <div className="p-5 flex-1 flex flex-col min-h-0 justify-between">
+      <div className="p-4 flex-1 flex flex-col min-h-0">
         <AnimatePresence mode="wait">
           {responseState === 'idle' && (
             <m.div
@@ -191,12 +191,12 @@ export function IncidentQueueAI() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex flex-col items-center text-center h-full justify-between flex-1 min-h-100"
+              className="flex flex-col items-center text-center w-full gap-6 flex-1"
             >
               {/* Section 1: Header */}
-              <div className="flex flex-col items-center">
-                <div className="w-9 h-9 rounded-full bg-(--primary-muted) flex items-center justify-center mb-1">
-                  <Sparkles size={15} className="text-(--primary) live-indicator" />
+              <div className="flex flex-col items-center pt-6">
+                <div className="w-8 h-8 rounded-full bg-(--primary-muted) flex items-center justify-center mb-1">
+                  <Sparkles size={14} className="text-(--primary) live-indicator" />
                 </div>
                 <p className="text-xs font-semibold text-(--foreground)">Prioritize Open Queue</p>
                 <p className="text-[10px] text-(--foreground-subtle) mt-0.5 max-w-xs leading-relaxed">
@@ -205,7 +205,7 @@ export function IncidentQueueAI() {
               </div>
 
               {/* Section 2: Operational Metrics */}
-              <div className="w-full border-t border-(--border)/60 pt-3 mt-3">
+              <div className="w-full border-t border-(--border)/60 pt-3 mt-1">
                 <div className="flex flex-col space-y-1.5 w-full">
                   <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
                     <span className="text-(--foreground-muted) font-medium">Queue Size</span>
@@ -233,7 +233,7 @@ export function IncidentQueueAI() {
               </div>
 
               {/* Section 3: Operational Intelligence */}
-              <div className="w-full border-t border-(--border)/60 pt-3 mt-3">
+              <div className="w-full border-t border-(--border)/60 pt-3 mt-1">
                 <div className="flex flex-col space-y-1.5 w-full">
                   <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
                     <span className="text-(--foreground-muted) font-medium">Risk Assessment</span>
@@ -255,8 +255,8 @@ export function IncidentQueueAI() {
               </div>
 
               {/* Section 4: Action Area */}
-              <div className="w-full border-t border-(--border)/60 pt-3 mt-auto">
-                <div className="flex items-center justify-center gap-1.5 text-[8.5px] font-mono text-(--foreground-muted) mb-2.5 uppercase tracking-wider">
+              <div className="w-full border-t border-(--border)/60 pt-3 mt-1">
+                <div className="flex items-center justify-center gap-1.5 text-[8.5px] font-mono text-(--foreground-muted) mb-2 uppercase tracking-wider">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                   <span>Monitoring Cycle: Live</span>
                 </div>
