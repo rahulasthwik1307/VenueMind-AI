@@ -155,7 +155,7 @@ export default function IncidentsPage() {
         <style>{`
           @container page (max-width: 1000px) {
             #live-incidents-grid {
-              grid-template-columns: 1fr 310px !important;
+              grid-template-columns: 1fr 280px !important;
             }
           }
         `}</style>

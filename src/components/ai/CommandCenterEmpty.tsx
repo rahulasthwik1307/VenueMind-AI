@@ -38,7 +38,7 @@ export function CommandCenterEmpty({
 }: CommandCenterEmptyProps) {
   return (
     <div
-      className="flex flex-col items-center justify-start py-2 px-4 text-center gap-5 w-full min-w-0"
+      className="flex flex-col items-center justify-start py-2 px-4 text-center gap-4 w-full min-w-0"
       role="region"
       aria-label="AI Command Center — Idle dashboard"
     >
@@ -98,7 +98,7 @@ export function CommandCenterEmpty({
       </div>
 
       {/* Suggestions Chips */}
-      <div className="w-full max-w-lg border-t border-(--border) pt-4">
+      <div className="w-full max-w-lg border-t border-(--border) pt-3">
         <h3 className="text-[9.5px] font-bold font-mono text-(--foreground-subtle) uppercase tracking-wider text-center mb-2.5">
           Suggested Queries
         </h3>
@@ -144,7 +144,7 @@ export function CommandCenterEmpty({
       </div>
 
       {/* Capability List (Subtly color tinted capability cards) */}
-      <div className="w-full max-w-lg border-t border-(--border) pt-4">
+      <div className="w-full max-w-lg border-t border-(--border) pt-3">
         <h3 className="text-[9.5px] font-bold font-mono text-(--foreground-subtle) uppercase tracking-wider text-center mb-2.5">
           AI Capabilities
         </h3>
@@ -193,7 +193,7 @@ export function CommandCenterEmpty({
       </div>
 
       {/* Recent Dispatches strip */}
-      <div className="w-full max-w-lg border-t border-(--border) pt-4">
+      <div className="w-full max-w-lg border-t border-(--border) pt-3">
         <h3 className="text-[9.5px] font-bold font-mono text-(--foreground-subtle) uppercase tracking-wider text-center mb-2.5">
           Recent Command Actions
         </h3>

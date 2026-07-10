@@ -26,7 +26,7 @@ export function ConversationHistory({ messages, className }: ConversationHistory
   if (pairs.length === 0) return null;
 
   return (
-    <div className={cn('h-auto min-h-0 flex flex-col gap-2', className)}>
+    <div className={cn('flex flex-col gap-2 min-h-0', className)}>
       <div className="flex items-center justify-between shrink-0">
         <div className="flex items-center gap-1.5">
           <MessageSquare size={11} className="text-(--foreground-subtle)" aria-hidden="true" />
@@ -36,7 +36,7 @@ export function ConversationHistory({ messages, className }: ConversationHistory
         </div>
       </div>
 
-      <div className="max-h-48 md:max-h-56 overflow-y-auto pr-1.5 space-y-2 pb-3 custom-scrollbar-always min-h-0">
+      <div className="flex-1 overflow-y-auto pr-1.5 space-y-2 pb-3 custom-scrollbar-always min-h-0">
         <AnimatePresence initial={false}>
           {pairs.map(({ user, assistant }, idx) => (
             <m.div

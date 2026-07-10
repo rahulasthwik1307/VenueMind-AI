@@ -80,44 +80,50 @@ export function AppFooter() {
         </p>
 
         <div className="flex items-center gap-1">
-          {/* GitHub placeholder */}
-          <button
+          {/* GitHub */}
+          <a
+            href="https://github.com/rahulasthwik1307"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Rahul Asthwik on GitHub (opens in new tab)"
             className={cn(
               'flex items-center justify-center w-6 h-6 rounded-sm',
               'text-(--foreground-subtle) hover:text-(--foreground) hover:bg-(--surface-3)',
-              'transition-colors duration-150'
+              'transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) focus-visible:ring-offset-1'
             )}
-            aria-label="GitHub profile (link coming soon)"
-            aria-disabled="true"
           >
             <GitHubIcon size={13} />
-          </button>
+          </a>
 
-          {/* LinkedIn placeholder */}
-          <button
+          {/* LinkedIn */}
+          <a
+            href="https://www.linkedin.com/in/rahul-asthwik-sunki/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Rahul Asthwik on LinkedIn (opens in new tab)"
             className={cn(
               'flex items-center justify-center w-6 h-6 rounded-sm',
               'text-(--foreground-subtle) hover:text-(--foreground) hover:bg-(--surface-3)',
-              'transition-colors duration-150'
+              'transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) focus-visible:ring-offset-1'
             )}
-            aria-label="LinkedIn profile (link coming soon)"
-            aria-disabled="true"
           >
             <LinkedInIcon size={13} />
-          </button>
+          </a>
 
-          {/* External link placeholder */}
-          <button
+          {/* Repository */}
+          <a
+            href="https://github.com/rahulasthwik1307/VenueMind-AI"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="VenueMind AI repository on GitHub (opens in new tab)"
             className={cn(
               'flex items-center justify-center w-6 h-6 rounded-sm',
               'text-(--foreground-subtle) hover:text-(--foreground) hover:bg-(--surface-3)',
-              'transition-colors duration-150'
+              'transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) focus-visible:ring-offset-1'
             )}
-            aria-label="Project link (coming soon)"
-            aria-disabled="true"
           >
             <Link2 size={12} strokeWidth={1.75} aria-hidden="true" />
-          </button>
+          </a>
         </div>
       </div>
     </footer>

@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { AppProvider } from '@/components/providers/AppProvider';
-import { AppShell } from '@/components/layout/AppShell';
 import { SkipToContent } from '@/components/layout/SkipToContent';
 import './globals.css';
 
@@ -78,7 +77,7 @@ export default function RootLayout({
       <body className="min-h-dvh flex flex-col">
         <AppProvider>
           <SkipToContent />
-          <AppShell>{children}</AppShell>
+          {children}
         </AppProvider>
       </body>
     </html>

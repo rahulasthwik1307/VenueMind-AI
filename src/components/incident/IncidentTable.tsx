@@ -182,7 +182,7 @@ export function IncidentTable({
       {/* Header Row */}
       <div
         role="row"
-        className="grid items-center gap-3 px-4 py-2.5 bg-(--surface-2) border-b border-(--border) [--table-cols:45px_1fr_70px_80px] sm:[--table-cols:20px_45px_1fr_28px_70px_70px_80px] md:[--table-cols:20px_45px_minmax(120px,1.8fr)_minmax(28px,80px)_70px_minmax(90px,1.2fr)_55px_80px]"
+        className="grid items-center gap-3 px-4 py-2.5 bg-(--surface-2) border-b border-(--border) [--table-cols:45px_1fr_70px_80px] sm:[--table-cols:20px_45px_1fr_28px_70px_70px_80px] md:[--table-cols:20px_56px_minmax(120px,2.2fr)_minmax(90px,1fr)_70px_minmax(85px,1.3fr)_50px_80px]"
         style={{ gridTemplateColumns: 'var(--table-cols)' }}
       >
         {/* Select All */}
@@ -205,7 +205,7 @@ export function IncidentTable({
           Incident
         </div>
         <div role="columnheader" className="hidden sm:block text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle)">
-          <span className="hidden @[400px]:inline">Category</span>
+          Category
         </div>
         <div
           role="columnheader"
@@ -269,7 +269,7 @@ export function IncidentTable({
                   className={cn(
                     'grid items-center gap-3 px-4 py-3 border-b border-(--border) transition-colors cursor-default outline-none',
                     'focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-(--primary)',
-                    '[--table-cols:45px_1fr_70px_80px] sm:[--table-cols:20px_45px_1fr_28px_70px_70px_80px] md:[--table-cols:20px_45px_minmax(120px,1.8fr)_minmax(28px,80px)_70px_minmax(90px,1.2fr)_55px_80px]',
+                    '[--table-cols:45px_1fr_70px_80px] sm:[--table-cols:20px_45px_1fr_28px_70px_70px_80px] md:[--table-cols:20px_56px_minmax(120px,2.2fr)_minmax(90px,1fr)_70px_minmax(85px,1.3fr)_50px_80px]',
                     isSelected
                       ? 'bg-(--primary-muted)/30'
                       : 'hover:bg-(--surface-2)/60'
@@ -318,7 +318,7 @@ export function IncidentTable({
                   <div role="gridcell" className="hidden sm:block">
                     <div className="flex items-center gap-1.5 text-(--foreground-muted) min-w-0">
                       <CategoryIcon size={12} className="shrink-0" />
-                      <span className="truncate text-[10px] capitalize hidden @[400px]:inline">{incident.category}</span>
+                      <span className="truncate text-[10px] capitalize">{incident.category}</span>
                     </div>
                   </div>
 

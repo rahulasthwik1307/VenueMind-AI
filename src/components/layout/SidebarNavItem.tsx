@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/utils/cn';
+import { computeIsActive } from '@/utils/navIsActive';
 import type { NavItem } from '@/constants/navigation';
 
 interface SidebarNavItemProps {
@@ -13,10 +14,7 @@ interface SidebarNavItemProps {
 export function SidebarNavItem({ item, collapsed }: SidebarNavItemProps) {
   const pathname = usePathname();
 
-  const isActive =
-    item.href === '/dashboard'
-      ? pathname === '/' || pathname === '/dashboard'
-      : pathname.startsWith(item.href);
+  const isActive = computeIsActive(item.href, pathname);
 
   const inner = (
     <span

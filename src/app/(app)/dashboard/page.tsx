@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { WelcomeBanner } from '@/components/operations/WelcomeBanner';
 import { QuickStats } from '@/components/operations/QuickStats';
@@ -6,8 +7,16 @@ import { AIRecommendations } from '@/components/operations/AIRecommendations';
 import { RecentActivity } from '@/components/operations/RecentActivity';
 import { LiveStadiumOverview } from '@/components/operations/LiveStadiumOverview';
 
+export const metadata: Metadata = {
+  title: 'Dashboard',
+};
+
 /**
  * Dashboard — VenueMind AI Operations Command Center home page.
+ *
+ * Moved from app/page.tsx to app/(app)/dashboard/page.tsx as part of Stage 6.
+ * The root "/" now serves the marketing landing page; the dashboard lives at
+ * "/dashboard" inside the (app) route group (inherits AppShell).
  *
  * Layout:
  * ┌────────────────────────────────┐

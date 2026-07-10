@@ -209,15 +209,15 @@ export default function AICommandPage() {
   else if (lastResponse) responseAreaState = 'response';
 
   return (
-    <div className="flex flex-col gap-6 h-full pt-4 px-6 pb-8 max-w-350 mx-auto w-full min-w-0">
+    <div className="flex flex-col gap-4 flex-1 min-h-0 pt-4 px-6 pb-6 max-w-350 mx-auto w-full">
       {/* Page header */}
       <CommandCenterHeader />
 
       {/* Main content grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-[380px_minmax(0,1fr)] gap-6 flex-1 min-h-0">
+      <div className="grid grid-cols-1 lg:grid-cols-[380px_minmax(0,1fr)] gap-4 flex-1 min-h-0">
         {/* ── LEFT PANEL — Query ─────────────────────────────────────────────── */}
         <aside
-          className="flex flex-col gap-4 bg-(--surface-1) border border-(--border) rounded-xl p-4 shadow-sm h-full min-h-0"
+          className="flex flex-col gap-4 bg-(--surface-1) border border-(--border) rounded-xl p-4 shadow-sm min-h-0"
           aria-label="AI query panel"
         >
           {/* Interaction mode tabs */}
@@ -304,10 +304,7 @@ export default function AICommandPage() {
           aria-label="AI response area"
           aria-live="polite"
           aria-atomic="false"
-          className={cn(
-            "flex flex-col gap-4 bg-(--surface-1) border border-(--border) rounded-xl p-5 shadow-sm min-w-0",
-            responseAreaState === 'empty' ? 'overflow-visible h-auto' : 'overflow-y-auto h-full'
-          )}
+          className="flex flex-col gap-4 bg-(--surface-1) border border-(--border) rounded-xl p-5 shadow-sm min-w-0 min-h-0 overflow-y-auto"
         >
           <AnimatePresence mode="wait">
             {responseAreaState === 'empty' && (
