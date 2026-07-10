@@ -408,7 +408,7 @@ export default function AccessibilityPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -6 }}
                     transition={{ duration: 0.15 }}
-                    className="bg-(--surface-1) border border-(--border) rounded-md p-4 space-y-4 text-left shadow-2xs"
+                    className="bg-(--surface-1) border border-(--border) rounded-md p-5 space-y-5.5 text-left shadow-2xs"
                   >
                     {/* Header */}
                     <div className="flex items-center justify-between border-b border-(--border)/45 pb-2.5">
@@ -424,13 +424,13 @@ export default function AccessibilityPage() {
                     </div>
 
                     {/* Briefing Checklist Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
                       {/* Operator input checklist */}
                       <div className="space-y-2.5">
                         <span className="block text-[9px] font-mono font-bold text-(--foreground-subtle) uppercase tracking-wider">
                           1. Operator Inputs Required
                         </span>
-                        <ul className="space-y-2 text-(--foreground-muted)">
+                        <ul className="space-y-3 text-(--foreground-muted)">
                           <li className="flex items-start gap-2.5">
                             <span className="w-4 h-4 rounded-full bg-(--primary-muted) text-(--primary) flex items-center justify-center text-[9px] font-mono font-bold shrink-0 mt-0.5">
                               ✓
@@ -457,7 +457,7 @@ export default function AccessibilityPage() {
                         <span className="block text-[9px] font-mono font-bold text-(--foreground-subtle) uppercase tracking-wider">
                           2. Model Inclusions Checked
                         </span>
-                        <ul className="space-y-2 text-(--foreground-muted)">
+                        <ul className="space-y-3 text-(--foreground-muted)">
                           <li className="flex items-start gap-2.5">
                             <span className="w-4 h-4 rounded-full bg-blue-950/20 text-blue-500 flex items-center justify-center shrink-0 mt-0.5 animate-pulse">
                               ●
@@ -481,7 +481,7 @@ export default function AccessibilityPage() {
                     </div>
 
                     {/* Bottom Status bar */}
-                    <div className="bg-(--surface-2)/45 rounded-md p-2.5 text-[10px] text-(--foreground-muted) text-center border border-(--border)/60 flex items-center justify-center gap-2">
+                    <div className="bg-(--surface-2)/45 rounded-md p-3.5 text-[10px] text-(--foreground-muted) text-center border border-(--border)/60 flex items-center justify-center gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-ping" />
                       <span>Ready to query the inclusion model. Click below to execute dispatch.</span>
                     </div>
@@ -493,7 +493,7 @@ export default function AccessibilityPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: 0.2, ease: 'easeOut' }}
-                    className="bg-(--surface-1) border border-(--border) rounded-md p-4 space-y-4 shadow-xs text-left"
+                    className="bg-(--surface-1) border border-(--border) rounded-md p-5 space-y-4 shadow-xs text-left"
                   >
                     <div className="flex items-center justify-between border-b border-(--border) pb-2 flex-wrap gap-2">
                       <div className="flex items-center gap-1.5">
@@ -512,17 +512,19 @@ export default function AccessibilityPage() {
                       <p className="text-[10px] font-mono font-bold text-(--foreground-subtle) uppercase tracking-wider">
                         Step-by-Step Guidance
                       </p>
-                      <div className="relative pl-6 space-y-3.5">
-                        {/* Vertical line connector */}
-                        <div className="absolute left-3 top-2.5 bottom-2.5 w-[1.5px] bg-(--border) dark:bg-slate-700/60" />
-
+                      <div className="flex flex-col">
                         {generatedRoute.steps.map((step, idx) => (
-                          <div key={idx} className="relative flex items-start gap-3">
+                          <div key={idx} className="relative flex items-start gap-3 pb-4 last:pb-0">
+                            {/* Vertical connector line segment */}
+                            {idx < generatedRoute.steps.length - 1 && (
+                              <div className="absolute left-2.25 top-5 bottom-0 w-0.5 bg-(--border) dark:bg-slate-700/60 z-0" />
+                            )}
+                            
                             {/* Circular Number Badge */}
-                            <div className="absolute -left-6 flex items-center justify-center w-4.5 h-4.5 rounded-full bg-(--surface-1) border border-(--border-strong) text-[9px] font-mono font-bold text-(--foreground) z-10 shadow-2xs">
+                            <div className="relative z-10 flex items-center justify-center w-5 h-5 rounded-full bg-(--surface-1) border border-(--border-strong) text-[10px] font-mono font-bold text-(--foreground) shrink-0 shadow-2xs">
                               {idx + 1}
                             </div>
-                            <p className="text-xs text-(--foreground) leading-relaxed">
+                            <p className="text-xs text-(--foreground) leading-relaxed pt-0.5">
                               {step}
                             </p>
                           </div>
@@ -553,7 +555,7 @@ export default function AccessibilityPage() {
                     </div>
 
                     {/* Advisory Notice Callout */}
-                    <div className="bg-amber-500/3 dark:bg-amber-950/4 border border-amber-500/20 dark:border-amber-900/30 rounded-md p-3 flex items-start gap-2.5 shadow-2xs">
+                    <div className="bg-amber-500/3 dark:bg-amber-950/4 border border-amber-500/20 dark:border-amber-900/30 rounded-md p-3.5 flex items-start gap-2.5 shadow-2xs">
                       <Info size={14} className="text-amber-500 shrink-0 mt-0.5 animate-pulse" />
                       <div className="min-w-0">
                         <span className="block text-[9px] font-mono font-bold text-amber-600 dark:text-amber-400 uppercase leading-none">Operational Advisory</span>

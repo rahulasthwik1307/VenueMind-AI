@@ -405,7 +405,7 @@ export function LensPageLayout({
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
-                          className="flex flex-col items-center text-center py-4 px-4 h-full justify-between"
+                          className="flex flex-col items-center text-center pt-2 px-1 pb-0 h-full justify-between"
                         >
                           {/* Section 1: Header */}
                           <div className="flex flex-col items-center">
@@ -483,18 +483,21 @@ export function LensPageLayout({
                           </div>
 
                           {/* Section 5: Action Area */}
-                          <div className="w-full border-t border-(--border)/60 pt-3 mt-3">
-                            <div className="flex items-center justify-center gap-1.5 text-[8.5px] font-mono text-(--foreground-muted) mb-2 uppercase tracking-wider">
-                              <span className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
+                          <div className="w-full border-t border-(--border)/60 pt-3 mt-auto">
+                            <div className="flex items-center justify-center gap-1.5 text-[8.5px] font-mono text-(--foreground-muted) mb-2.5 uppercase tracking-wider">
+                              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                               <span>Monitoring Cycle: Live</span>
                             </div>
                             <button
                               onClick={handleAskAI}
-                              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md bg-(--primary) hover:bg-(--primary-hover) hover:-translate-y-px hover:shadow-md active:scale-[0.98] text-white text-xs font-semibold shadow-sm transition-all duration-150 cursor-pointer"
+                              className={cn(
+                                "w-full h-11 flex items-center justify-center gap-2 rounded-md shrink-0",
+                                "bg-(--primary) text-white font-semibold text-xs shadow-sm hover:bg-(--primary-hover) active:scale-[0.99] transition-all duration-150 cursor-pointer group"
+                              )}
                               aria-label={`Ask AI about ${domain} operations`}
                             >
-                              <Brain size={12} />
-                              Ask AI about {domain}
+                              <Brain size={13} className="group-hover:rotate-12 transition-transform duration-200" />
+                              <span>Ask AI about {domain === 'accessibility' ? 'Accessibility' : domain.charAt(0).toUpperCase() + domain.slice(1)}</span>
                             </button>
                           </div>
                         </m.div>

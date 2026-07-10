@@ -14,7 +14,7 @@ import {
   Users,
   Bus,
   ShieldAlert,
-  Accessibility,
+  HelpingHand,
   Clock,
   Settings,
 } from 'lucide-react';
@@ -93,7 +93,7 @@ export const NAV_GROUPS: NavGroup[] = [
         id: 'accessibility',
         label: 'Accessibility',
         href: ROUTES.accessibility,
-        icon: Accessibility,
+        icon: HelpingHand,
       },
     ],
   },
