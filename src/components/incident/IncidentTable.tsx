@@ -36,6 +36,7 @@ interface IncidentTableProps {
   selectedIds: string[];
   onSelectionChange: (ids: string[]) => void;
   onOpenDetails: (id: string) => void;
+  cardHeight?: number;
 }
 
 function SortIcon({ active, direction }: { active: boolean; direction: SortDirection }) {
@@ -86,6 +87,7 @@ export function IncidentTable({
   selectedIds,
   onSelectionChange,
   onOpenDetails,
+  cardHeight,
 }: IncidentTableProps) {
   const [sortKey, setSortKey] = useState<IncidentSortKey>('time');
   const [sortDir, setSortDir] = useState<SortDirection>('desc');
@@ -97,21 +99,29 @@ export function IncidentTable({
 
   const [showLeftShadow, setShowLeftShadow] = useState(false);
   const [showRightShadow, setShowRightShadow] = useState(false);
+  const [showBottomShadow, setShowBottomShadow] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const checkScroll = useCallback(() => {
     const el = scrollContainerRef.current;
     if (!el) return;
-    const { scrollLeft, scrollWidth, clientWidth } = el;
+    const { scrollLeft, scrollWidth, clientWidth, scrollTop, scrollHeight, clientHeight } = el;
     setShowLeftShadow(scrollLeft > 2);
     setShowRightShadow(scrollLeft < scrollWidth - clientWidth - 2);
+    setShowBottomShadow(scrollTop < scrollHeight - clientHeight - 2 && scrollHeight > clientHeight);
   }, []);
 
   useEffect(() => {
-    checkScroll();
+    const timer = setTimeout(() => {
+      checkScroll();
+    }, 50);
+
     window.addEventListener('resize', checkScroll);
-    return () => window.removeEventListener('resize', checkScroll);
-  }, [processed, checkScroll]);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', checkScroll);
+    };
+  }, [processed, cardHeight, expandedIds, checkScroll]);
 
   const handleSortColumn = useCallback(
     (key: IncidentSortKey) => {
@@ -195,9 +205,10 @@ export function IncidentTable({
       role="grid"
       aria-label="Incident management table"
       aria-rowcount={processed.length}
-      className="@container bg-(--surface-1) border border-(--border) rounded-xl overflow-hidden min-w-0 w-full"
+      className="@container bg-(--surface-1) border border-(--border) rounded-xl overflow-hidden min-w-0 w-full flex flex-col"
+      style={cardHeight ? { height: `${cardHeight}px` } : undefined}
     >
-      <div className="relative min-w-0 w-full">
+      <div className="relative min-w-0 w-full flex-1 min-h-0 flex flex-col">
         {/* Left scroll shadow hint */}
         <div
           className={cn(
@@ -216,13 +227,13 @@ export function IncidentTable({
         <div
           ref={scrollContainerRef}
           onScroll={checkScroll}
-          className="overflow-x-auto min-w-0 w-full scrollbar-thin"
+          className="overflow-x-auto overflow-y-auto min-w-0 w-full custom-scrollbar-always scrollbar-thin flex-1 min-h-0"
         >
         <div className="min-w-0 @[600px]:min-w-195 w-full">
           {/* Header Row */}
           <div
             role="row"
-            className="grid items-center gap-3 px-4 py-2.5 bg-(--surface-2) border-b border-(--border) [--table-cols:68px_1fr_76px_96px] @[600px]:[--table-cols:20px_68px_minmax(140px,2.5fr)_minmax(85px,1fr)_76px_minmax(110px,1.8fr)_64px_96px]"
+            className="grid items-center gap-3 px-4 py-2.5 bg-(--surface-2) border-b border-(--border) [--table-cols:68px_1fr_76px_96px] @[600px]:[--table-cols:20px_68px_minmax(140px,2.5fr)_minmax(85px,1fr)_76px_minmax(110px,1.8fr)_64px_96px] sticky top-0 z-20"
             style={{ gridTemplateColumns: 'var(--table-cols)' }}
           >
             {/* Select All */}
@@ -466,20 +477,34 @@ export function IncidentTable({
             </AnimatePresence>
           </div>
         </div>
-      </div>
+        </div>
+        {/* Bottom scroll shadow hint */}
+        <div
+          className={cn(
+            'absolute left-0 right-0 bottom-0 h-6 bg-linear-to-t from-black/5 dark:from-black/20 to-transparent pointer-events-none transition-opacity duration-200 z-10',
+            showBottomShadow ? 'opacity-100' : 'opacity-0'
+          )}
+        />
       </div>
 
       {/* Footer count */}
       <div className="px-4 py-2.5 bg-(--surface-2)/40 border-t border-(--border) flex justify-between items-center text-[9px] font-mono text-(--foreground-subtle)">
         <span>{processed.length} incident{processed.length !== 1 ? 's' : ''} shown</span>
-        {showRightShadow && (
-          <span className="text-(--primary) font-bold animate-pulse flex items-center gap-1 select-none">
-            Scroll right to view actions →
-          </span>
-        )}
-        {selectedIds.length > 0 && (
-          <span className="text-(--primary) font-bold">{selectedIds.length} selected</span>
-        )}
+        <div className="flex items-center gap-4">
+          {showBottomShadow && (
+            <span className="text-(--primary) font-bold animate-pulse flex items-center gap-1 select-none">
+              ↓ Scroll down to view more incidents
+            </span>
+          )}
+          {showRightShadow && (
+            <span className="text-(--primary) font-bold animate-pulse flex items-center gap-1 select-none">
+              Scroll right to view actions →
+            </span>
+          )}
+          {selectedIds.length > 0 && (
+            <span className="text-(--primary) font-bold">{selectedIds.length} selected</span>
+          )}
+        </div>
       </div>
     </div>
   );

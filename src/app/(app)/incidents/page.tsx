@@ -15,7 +15,7 @@
  * No modifications to Dashboard or any Stage 1-5 components.
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { Filter, X, Search } from 'lucide-react';
 import { cn } from '@/utils/cn';
@@ -67,6 +67,29 @@ export default function IncidentsPage() {
   const [filters, setFilters] = useState<IncidentFilters>(DEFAULT_FILTERS);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+
+  const aiCardRef = useRef<HTMLDivElement>(null);
+  const [aiCardHeight, setAiCardHeight] = useState<number | null>(null);
+
+  useEffect(() => {
+    const el = aiCardRef.current;
+    if (!el) return;
+
+    const updateHeight = () => {
+      setAiCardHeight(el.offsetHeight);
+    };
+
+    updateHeight();
+
+    const observer = new ResizeObserver(() => {
+      updateHeight();
+    });
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
   // Loading simulation (SimulationService starts up async)
   const isLoading = incidents.length === 0 && !searchQuery;
@@ -479,12 +502,15 @@ export default function IncidentsPage() {
                 selectedIds={selectedIds}
                 onSelectionChange={setSelectedIds}
                 onOpenDetails={handleOpenDetails}
+                cardHeight={aiCardHeight ?? undefined}
               />
             )}
           </div>
 
           {/* Right: AI Panel */}
-          <IncidentQueueAI />
+          <div ref={aiCardRef} className="h-fit">
+            <IncidentQueueAI />
+          </div>
         </div>
 
         {/* Footer */}
