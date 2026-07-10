@@ -12,7 +12,7 @@
  * - Keyboard: Space toggles selection, Enter expands timeline, arrow keys navigate
  */
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { AnimatePresence, m } from 'framer-motion';
 import {
   ChevronUp,
@@ -91,9 +91,27 @@ export function IncidentTable({
   const [sortDir, setSortDir] = useState<SortDirection>('desc');
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const gridRef = useRef<HTMLDivElement>(null);
-
+  
   // Apply filter + search, then sort
   const processed = sortIncidents(filterIncidents(incidents, filters, searchQuery), sortKey, sortDir);
+
+  const [showLeftShadow, setShowLeftShadow] = useState(false);
+  const [showRightShadow, setShowRightShadow] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const checkScroll = useCallback(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setShowLeftShadow(scrollLeft > 2);
+    setShowRightShadow(scrollLeft < scrollWidth - clientWidth - 2);
+  }, []);
+
+  useEffect(() => {
+    checkScroll();
+    window.addEventListener('resize', checkScroll);
+    return () => window.removeEventListener('resize', checkScroll);
+  }, [processed, checkScroll]);
 
   const handleSortColumn = useCallback(
     (key: IncidentSortKey) => {
@@ -179,243 +197,286 @@ export function IncidentTable({
       aria-rowcount={processed.length}
       className="@container bg-(--surface-1) border border-(--border) rounded-xl overflow-hidden min-w-0 w-full"
     >
-      {/* Header Row */}
-      <div
-        role="row"
-        className="grid items-center gap-3 px-4 py-2.5 bg-(--surface-2) border-b border-(--border) [--table-cols:45px_1fr_70px_80px] sm:[--table-cols:20px_45px_1fr_28px_70px_70px_80px] md:[--table-cols:20px_56px_minmax(120px,2.2fr)_minmax(90px,1fr)_70px_minmax(85px,1.3fr)_50px_80px]"
-        style={{ gridTemplateColumns: 'var(--table-cols)' }}
-      >
-        {/* Select All */}
-        <div role="columnheader" className="hidden sm:block">
-          <input
-            type="checkbox"
-            checked={allSelected}
-            ref={(el) => {
-              if (el) el.indeterminate = someSelected;
-            }}
-            onChange={handleSelectAll}
-            aria-label="Select all incidents"
-            className="w-3.5 h-3.5 rounded accent-(--primary) cursor-pointer"
-          />
-        </div>
-        <div role="columnheader" className="text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle)">
-          Severity
-        </div>
-        <div role="columnheader" className="text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle)">
-          Incident
-        </div>
-        <div role="columnheader" className="hidden sm:block text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle)">
-          Category
-        </div>
+      <div className="relative min-w-0 w-full">
+        {/* Left scroll shadow hint */}
         <div
-          role="columnheader"
-          aria-sort={sortKey === 'status' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
-        >
-          <SortableHeader
-            label="Status"
-            colKey="status"
-            sortKey={sortKey}
-            sortDir={sortDir}
-            onSort={handleSortColumn}
-          />
-        </div>
-        <div role="columnheader" className="hidden sm:block text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle)">
-          Zone
-        </div>
+          className={cn(
+            'absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-black/5 dark:from-black/20 to-transparent pointer-events-none transition-opacity duration-200 z-10',
+            showLeftShadow ? 'opacity-100' : 'opacity-0'
+          )}
+        />
+        {/* Right scroll shadow hint */}
         <div
-          role="columnheader"
-          className="hidden md:block"
-          aria-sort={sortKey === 'time' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
+          className={cn(
+            'absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-black/5 dark:from-black/20 to-transparent pointer-events-none transition-opacity duration-200 z-10',
+            showRightShadow ? 'opacity-100' : 'opacity-0'
+          )}
+        />
+
+        <div
+          ref={scrollContainerRef}
+          onScroll={checkScroll}
+          className="overflow-x-auto min-w-0 w-full scrollbar-thin"
         >
-          <SortableHeader
-            label="Time"
-            colKey="time"
-            sortKey={sortKey}
-            sortDir={sortDir}
-            onSort={handleSortColumn}
-          />
-        </div>
-        <div role="columnheader" className="text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle) text-right w-20">
-          Actions
+        <div className="min-w-0 @[600px]:min-w-[780px] w-full">
+          {/* Header Row */}
+          <div
+            role="row"
+            className="grid items-center gap-3 px-4 py-2.5 bg-(--surface-2) border-b border-(--border) [--table-cols:68px_1fr_76px_96px] @[600px]:[--table-cols:20px_68px_minmax(140px,2.5fr)_minmax(85px,1fr)_76px_minmax(110px,1.8fr)_64px_96px]"
+            style={{ gridTemplateColumns: 'var(--table-cols)' }}
+          >
+            {/* Select All */}
+            <div role="columnheader" className="hidden @[600px]:block">
+              <input
+                type="checkbox"
+                checked={allSelected}
+                ref={(el) => {
+                  if (el) el.indeterminate = someSelected;
+                }}
+                onChange={handleSelectAll}
+                aria-label="Select all incidents"
+                className="w-3.5 h-3.5 rounded accent-(--primary) cursor-pointer"
+              />
+            </div>
+            <div role="columnheader" className="text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle)">
+              Severity
+            </div>
+            <div role="columnheader" className="text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle)">
+              Incident
+            </div>
+            <div role="columnheader" className="hidden @[600px]:block text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle)">
+              Category
+            </div>
+            <div
+              role="columnheader"
+              aria-sort={sortKey === 'status' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
+            >
+              <SortableHeader
+                label="Status"
+                colKey="status"
+                sortKey={sortKey}
+                sortDir={sortDir}
+                onSort={handleSortColumn}
+              />
+            </div>
+            <div role="columnheader" className="hidden @[600px]:block text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle)">
+              Zone
+            </div>
+            <div
+              role="columnheader"
+              className="hidden @[600px]:block"
+              aria-sort={sortKey === 'time' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
+            >
+              <SortableHeader
+                label="Time"
+                colKey="time"
+                sortKey={sortKey}
+                sortDir={sortDir}
+                onSort={handleSortColumn}
+              />
+            </div>
+            <div role="columnheader" className="text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle) text-right w-24">
+              Actions
+            </div>
+          </div>
+
+          {/* Data Rows */}
+          <div>
+            <AnimatePresence initial={false}>
+              {processed.map((incident, rowIndex) => {
+                const styles = SEVERITY_STYLES[incident.severity] || SEVERITY_STYLES.low;
+                const CategoryIcon = CATEGORY_ICONS[incident.category] || HelpCircle;
+                const isSelected = selectedIds.includes(incident.id);
+                const isExpanded = expandedIds.has(incident.id);
+                const zoneParts = incident.location.zone.split(' · ');
+
+                return (
+                  <m.div
+                    key={incident.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                  >
+                    {/* Main Row */}
+                    <div
+                      role="row"
+                      data-row
+                      tabIndex={0}
+                      aria-selected={isSelected}
+                      aria-expanded={isExpanded}
+                      aria-rowindex={rowIndex + 1}
+                      onKeyDown={(e) => handleRowKeyDown(e, incident, rowIndex)}
+                      className={cn(
+                        'grid items-start gap-3 px-4 py-3 border-b border-(--border) transition-colors cursor-default outline-none',
+                        'focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-(--primary)',
+                        '[--table-cols:68px_1fr_76px_96px] @[600px]:[--table-cols:20px_68px_minmax(140px,2.5fr)_minmax(85px,1fr)_76px_minmax(110px,1.8fr)_64px_96px]',
+                        isSelected
+                          ? 'bg-(--primary-muted)/30'
+                          : 'hover:bg-(--surface-2)/60'
+                      )}
+                      style={{ gridTemplateColumns: 'var(--table-cols)' }}
+                    >
+                      {/* Checkbox */}
+                      <div role="gridcell" className="hidden @[600px]:block pt-0.5">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => handleToggleSelect(incident.id)}
+                          aria-label={`Select incident: ${incident.title}`}
+                          className="w-3.5 h-3.5 rounded accent-(--primary) cursor-pointer"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </div>
+
+                      {/* Severity */}
+                      <div role="gridcell" className="pt-0.5">
+                        <span
+                          className={cn(
+                            'inline-flex items-center gap-1 text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded border font-mono tracking-wide',
+                            styles.bg,
+                            styles.text,
+                            styles.border
+                          )}
+                        >
+                          <span className={cn('w-1 h-1 rounded-full shrink-0', styles.dot)} aria-hidden="true" />
+                          {incident.severity}
+                        </span>
+                      </div>
+
+                      {/* Title */}
+                      <div role="gridcell" className="min-w-0">
+                        <p className="text-xs font-semibold text-(--foreground) break-words leading-tight">{incident.title}</p>
+                        {incident.aiConfidence && (
+                          <div className="flex items-center gap-0.5 mt-0.5 text-[9px] text-(--primary) font-mono whitespace-nowrap shrink-0">
+                            <Brain size={8} className="shrink-0" aria-hidden="true" />
+                            <span>{incident.aiConfidence}% AI</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Category */}
+                      <div role="gridcell" className="hidden @[600px]:block min-w-0 pt-0.5">
+                        <div className="flex items-start gap-1.5 text-(--foreground-muted) min-w-0">
+                          <CategoryIcon size={12} className="shrink-0 mt-0.5" />
+                          <span className="text-[10px] capitalize leading-tight break-words">{incident.category}</span>
+                        </div>
+                      </div>
+
+                      {/* Status */}
+                      <div role="gridcell" className="pt-0.5">
+                        <span
+                          className={cn(
+                            'text-[9px] font-bold px-1.5 py-0.5 rounded-sm uppercase tracking-wide',
+                            incident.status === 'open' &&
+                              'text-red-700 bg-red-50 dark:bg-red-950/20 dark:text-red-400',
+                            incident.status === 'investigating' &&
+                              'text-yellow-700 bg-yellow-50 dark:bg-yellow-950/20 dark:text-yellow-400',
+                            incident.status === 'mitigated' &&
+                              'text-blue-700 bg-blue-50 dark:bg-blue-950/20 dark:text-blue-400',
+                            incident.status === 'resolved' &&
+                              'text-green-700 bg-green-50 dark:bg-green-950/20 dark:text-green-400'
+                          )}
+                        >
+                          {incident.status}
+                        </span>
+                      </div>
+
+                      {/* Zone */}
+                      <div role="gridcell" className="hidden @[600px]:block min-w-0 pt-0.5">
+                        <div className="flex flex-col text-[10px] text-(--foreground-muted) leading-tight">
+                          {zoneParts.map((part, i) => {
+                            const formatted = part.replace(/\s+(\d+)/g, '\u00a0$1');
+                            return (
+                              <span key={i} className="block break-words">
+                                {formatted}
+                                {i < zoneParts.length - 1 && (
+                                  <span className="text-(--foreground-subtle)/50 select-none"> ·</span>
+                                )}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Time */}
+                      <div role="gridcell" className="hidden @[600px]:block pt-0.5">
+                        <span className="text-[10px] text-(--foreground-subtle) whitespace-nowrap" suppressHydrationWarning>
+                          {getTimeAgo(incident.createdAt)}
+                        </span>
+                      </div>
+
+                      {/* Actions */}
+                      <div role="gridcell" className="flex items-start gap-1.5 justify-end w-24 pt-0.5">
+                        <button
+                          onClick={() => handleToggleExpand(incident.id)}
+                          className={cn(
+                            'text-[9px] font-mono px-1.5 py-0.5 rounded border transition-all cursor-pointer',
+                            'text-(--foreground-muted) border-(--border) bg-(--surface-2)',
+                            'hover:text-(--foreground) hover:border-(--border-strong)',
+                            'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-(--primary)'
+                          )}
+                          aria-label={`${isExpanded ? 'Collapse' : 'Expand'} timeline for ${incident.title}`}
+                        >
+                          <ChevronRight
+                            size={10}
+                            className={cn('transition-transform duration-200', isExpanded && 'rotate-90')}
+                          />
+                        </button>
+                        <button
+                          onClick={() => onOpenDetails(incident.id)}
+                          className={cn(
+                            'text-[9px] font-mono px-1.5 py-0.5 rounded border transition-all cursor-pointer',
+                            'text-(--primary) border-(--primary-light) bg-(--primary-muted)',
+                            'hover:bg-(--primary) hover:text-white',
+                            'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-(--primary)'
+                          )}
+                          aria-label={`Open full details for incident: ${incident.title}`}
+                        >
+                          Details
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Inline Timeline Expansion */}
+                    <AnimatePresence initial={false}>
+                      {isExpanded && (
+                        <m.div
+                          key={`timeline-${incident.id}`}
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden border-b border-(--border)"
+                          role="region"
+                          aria-label={`Timeline for ${incident.title}`}
+                        >
+                          <div className="px-6 py-4 bg-(--surface-2)/40">
+                            <p className="text-[9px] font-mono font-bold text-(--foreground-subtle) uppercase tracking-wider mb-3">
+                               Incident Timeline
+                            </p>
+                            <IncidentTimeline events={incident.timeline} />
+                          </div>
+                        </m.div>
+                      )}
+                    </AnimatePresence>
+                  </m.div>
+                );
+              })}
+            </AnimatePresence>
+          </div>
         </div>
       </div>
-
-      {/* Data Rows */}
-      <div>
-        <AnimatePresence initial={false}>
-          {processed.map((incident, rowIndex) => {
-            const styles = SEVERITY_STYLES[incident.severity] || SEVERITY_STYLES.low;
-            const CategoryIcon = CATEGORY_ICONS[incident.category] || HelpCircle;
-            const isSelected = selectedIds.includes(incident.id);
-            const isExpanded = expandedIds.has(incident.id);
-
-            return (
-              <m.div
-                key={incident.id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
-              >
-                {/* Main Row */}
-                <div
-                  role="row"
-                  data-row
-                  tabIndex={0}
-                  aria-selected={isSelected}
-                  aria-expanded={isExpanded}
-                  aria-rowindex={rowIndex + 1}
-                  onKeyDown={(e) => handleRowKeyDown(e, incident, rowIndex)}
-                  className={cn(
-                    'grid items-center gap-3 px-4 py-3 border-b border-(--border) transition-colors cursor-default outline-none',
-                    'focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-(--primary)',
-                    '[--table-cols:45px_1fr_70px_80px] sm:[--table-cols:20px_45px_1fr_28px_70px_70px_80px] md:[--table-cols:20px_56px_minmax(120px,2.2fr)_minmax(90px,1fr)_70px_minmax(85px,1.3fr)_50px_80px]',
-                    isSelected
-                      ? 'bg-(--primary-muted)/30'
-                      : 'hover:bg-(--surface-2)/60'
-                  )}
-                  style={{ gridTemplateColumns: 'var(--table-cols)' }}
-                >
-                  {/* Checkbox */}
-                  <div role="gridcell" className="hidden sm:block">
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => handleToggleSelect(incident.id)}
-                      aria-label={`Select incident: ${incident.title}`}
-                      className="w-3.5 h-3.5 rounded accent-(--primary) cursor-pointer"
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  </div>
-
-                  {/* Severity */}
-                  <div role="gridcell">
-                    <span
-                      className={cn(
-                        'inline-flex items-center gap-1 text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded border font-mono tracking-wide',
-                        styles.bg,
-                        styles.text,
-                        styles.border
-                      )}
-                    >
-                      <span className={cn('w-1 h-1 rounded-full shrink-0', styles.dot)} aria-hidden="true" />
-                      {incident.severity}
-                    </span>
-                  </div>
-
-                  {/* Title */}
-                  <div role="gridcell" className="min-w-0">
-                    <p className="text-xs font-semibold text-(--foreground) line-clamp-2 wrap-break-word leading-tight">{incident.title}</p>
-                    {incident.aiConfidence && (
-                      <div className="flex items-center gap-0.5 mt-0.5 text-[9px] text-(--primary) font-mono whitespace-nowrap shrink-0">
-                        <Brain size={8} className="shrink-0" aria-hidden="true" />
-                        <span>{incident.aiConfidence}% AI</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Category */}
-                  <div role="gridcell" className="hidden sm:block">
-                    <div className="flex items-center gap-1.5 text-(--foreground-muted) min-w-0">
-                      <CategoryIcon size={12} className="shrink-0" />
-                      <span className="truncate text-[10px] capitalize">{incident.category}</span>
-                    </div>
-                  </div>
-
-                  {/* Status */}
-                  <div role="gridcell">
-                    <span
-                      className={cn(
-                        'text-[9px] font-bold px-1.5 py-0.5 rounded-sm uppercase tracking-wide',
-                        incident.status === 'open' &&
-                          'text-red-700 bg-red-50 dark:bg-red-950/20 dark:text-red-400',
-                        incident.status === 'investigating' &&
-                          'text-yellow-700 bg-yellow-50 dark:bg-yellow-950/20 dark:text-yellow-400',
-                        incident.status === 'mitigated' &&
-                          'text-blue-700 bg-blue-50 dark:bg-blue-950/20 dark:text-blue-400',
-                        incident.status === 'resolved' &&
-                          'text-green-700 bg-green-50 dark:bg-green-950/20 dark:text-green-400'
-                      )}
-                    >
-                      {incident.status}
-                    </span>
-                  </div>
-
-                  {/* Zone */}
-                  <div role="gridcell" className="hidden sm:block min-w-0">
-                    <p className="text-[10px] text-(--foreground-muted) line-clamp-2 wrap-break-word leading-normal">{incident.location.zone}</p>
-                  </div>
-
-                  {/* Time */}
-                  <div role="gridcell" className="hidden md:block">
-                    <span className="text-[10px] font-mono text-(--foreground-subtle) whitespace-nowrap" suppressHydrationWarning>
-                      {getTimeAgo(incident.createdAt)}
-                    </span>
-                  </div>
-
-                  {/* Actions */}
-                  <div role="gridcell" className="flex items-center gap-1.5 justify-end w-20">
-                    <button
-                      onClick={() => handleToggleExpand(incident.id)}
-                      className={cn(
-                        'text-[9px] font-mono px-1.5 py-0.5 rounded border transition-all cursor-pointer',
-                        'text-(--foreground-muted) border-(--border) bg-(--surface-2)',
-                        'hover:text-(--foreground) hover:border-(--border-strong)',
-                        'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-(--primary)'
-                      )}
-                      aria-label={`${isExpanded ? 'Collapse' : 'Expand'} timeline for ${incident.title}`}
-                    >
-                      <ChevronRight
-                        size={10}
-                        className={cn('transition-transform duration-200', isExpanded && 'rotate-90')}
-                      />
-                    </button>
-                    <button
-                      onClick={() => onOpenDetails(incident.id)}
-                      className={cn(
-                        'text-[9px] font-mono px-1.5 py-0.5 rounded border transition-all cursor-pointer',
-                        'text-(--primary) border-(--primary-light) bg-(--primary-muted)',
-                        'hover:bg-(--primary) hover:text-white',
-                        'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-(--primary)'
-                      )}
-                      aria-label={`Open full details for incident: ${incident.title}`}
-                    >
-                      Details
-                    </button>
-                  </div>
-                </div>
-
-                {/* Inline Timeline Expansion */}
-                <AnimatePresence initial={false}>
-                  {isExpanded && (
-                    <m.div
-                      key={`timeline-${incident.id}`}
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="overflow-hidden border-b border-(--border)"
-                      role="region"
-                      aria-label={`Timeline for ${incident.title}`}
-                    >
-                      <div className="px-6 py-4 bg-(--surface-2)/40">
-                        <p className="text-[9px] font-mono font-bold text-(--foreground-subtle) uppercase tracking-wider mb-3">
-                           Incident Timeline
-                        </p>
-                        <IncidentTimeline events={incident.timeline} />
-                      </div>
-                    </m.div>
-                  )}
-                </AnimatePresence>
-              </m.div>
-            );
-          })}
-        </AnimatePresence>
       </div>
 
       {/* Footer count */}
-      <div className="px-4 py-2.5 bg-(--surface-2)/40 border-t border-(--border) flex justify-between text-[9px] font-mono text-(--foreground-subtle)">
+      <div className="px-4 py-2.5 bg-(--surface-2)/40 border-t border-(--border) flex justify-between items-center text-[9px] font-mono text-(--foreground-subtle)">
         <span>{processed.length} incident{processed.length !== 1 ? 's' : ''} shown</span>
+        {showRightShadow && (
+          <span className="text-(--primary) font-bold animate-pulse flex items-center gap-1 select-none">
+            Scroll right to view actions →
+          </span>
+        )}
         {selectedIds.length > 0 && (
           <span className="text-(--primary) font-bold">{selectedIds.length} selected</span>
         )}
