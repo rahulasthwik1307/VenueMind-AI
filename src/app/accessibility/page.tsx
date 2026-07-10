@@ -2,14 +2,28 @@
 
 import { useState } from 'react';
 import { LensPageLayout } from '@/components/operations/LensPageLayout';
-import { Accessibility, AlertCircle, Info, Sparkles } from 'lucide-react';
+import { HelpingHand, AlertCircle, Info, Sparkles, ArrowUpDown, Users, Cpu, ChevronDown } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import { AnimatePresence, m } from 'framer-motion';
 
 interface RouteOption {
   steps: string[];
   elevator: string;
   volunteer: string;
   advisory: string;
+}
+
+interface ElevatorTelemetry {
+  id: string;
+  name: string;
+  level: 'operational' | 'critical';
+  note: string;
+  currentFloor: string;
+  capacity: string;
+  queueStatus: 'Clear' | 'Low' | 'Moderate' | 'N/A';
+  operationalState: string;
+  lastVerification: string;
+  estimatedResponseTime?: string;
 }
 
 const ROUTE_DATA: Record<string, RouteOption> = {
@@ -72,11 +86,52 @@ export default function AccessibilityPage() {
   const occupiedSpaces = 116; // 48% occupied
 
   // Elevator telemetry status - Elevator #3 is stuck (inc-010 active)
-  const elevators = [
-    { id: 'el-1', name: 'Elevator #1 (North)', level: 'operational' as const, note: 'Normal' },
-    { id: 'el-2', name: 'Elevator #2 (South)', level: 'operational' as const, note: 'Normal' },
-    { id: 'el-3', name: 'Elevator #3 (VIP West)', level: 'critical' as const, note: 'Door Lock Fault' },
-    { id: 'el-4', name: 'Elevator #4 (VIP East)', level: 'operational' as const, note: 'Normal' },
+  const elevators: ElevatorTelemetry[] = [
+    {
+      id: 'el-1',
+      name: 'Elevator #1 (North)',
+      level: 'operational' as const,
+      note: 'NORMAL',
+      currentFloor: 'L3',
+      capacity: '15/20',
+      queueStatus: 'Low',
+      operationalState: 'Ascending',
+      lastVerification: '14:35',
+    },
+    {
+      id: 'el-2',
+      name: 'Elevator #2 (South)',
+      level: 'operational' as const,
+      note: 'NORMAL',
+      currentFloor: 'G',
+      capacity: '4/20',
+      queueStatus: 'Clear',
+      operationalState: 'Idle',
+      lastVerification: '14:22',
+    },
+    {
+      id: 'el-3',
+      name: 'Elevator #3 (VIP West)',
+      level: 'critical' as const,
+      note: 'DOOR LOCK FAULT',
+      currentFloor: 'L2',
+      capacity: '0/15',
+      queueStatus: 'N/A',
+      operationalState: 'Stuck (L2)',
+      lastVerification: '14:20',
+      estimatedResponseTime: '8 mins',
+    },
+    {
+      id: 'el-4',
+      name: 'Elevator #4 (VIP East)',
+      level: 'operational' as const,
+      note: 'NORMAL',
+      currentFloor: 'L1',
+      capacity: '12/15',
+      queueStatus: 'Moderate',
+      operationalState: 'Descending',
+      lastVerification: '14:15',
+    },
   ];
 
   // ── Handlers ──────────────────────────────────────────────────────────────────
@@ -112,7 +167,7 @@ export default function AccessibilityPage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="bg-(--surface-2)/45 border border-(--border) rounded-xl p-3 flex items-center gap-3 shadow-xs">
             <div className="w-8 h-8 rounded bg-(--primary-muted) text-(--primary) flex items-center justify-center shrink-0">
-              <Accessibility size={15} />
+              <HelpingHand size={15} />
             </div>
             <div>
               <p className="text-[10px] font-mono font-semibold text-(--foreground-subtle) uppercase">A11y Seating</p>
@@ -134,7 +189,7 @@ export default function AccessibilityPage() {
 
           <div className="bg-(--surface-2)/45 border border-(--border) rounded-xl p-3 flex items-center gap-3 shadow-xs">
             <div className="w-8 h-8 rounded bg-blue-950/20 text-blue-500 flex items-center justify-center shrink-0">
-              <Info size={15} />
+              <Users size={15} />
             </div>
             <div>
               <p className="text-[10px] font-mono font-semibold text-(--foreground-subtle) uppercase">Hosts Active</p>
@@ -144,37 +199,111 @@ export default function AccessibilityPage() {
         </div>
       }
       mainContent={
-        <div className="border border-(--border) rounded-xl p-4 bg-(--surface-2)/20 space-y-3 h-full flex flex-col justify-between shadow-sm">
-          <h3 className="text-xs font-bold text-(--foreground) uppercase tracking-wider shrink-0">
-            SCADA Lift Monitor
-          </h3>
+        <div className="border border-(--border) rounded-xl p-4 bg-(--surface-2)/20 space-y-3.5 h-full flex flex-col justify-between shadow-sm">
+          <div className="flex items-center justify-between border-b border-(--border)/60 pb-2.5 shrink-0">
+            <div className="flex items-center gap-2">
+              <Cpu size={14} className="text-(--primary) shrink-0" />
+              <h3 className="text-xs font-bold text-(--foreground) uppercase tracking-wider">
+                SCADA Lift Monitor
+              </h3>
+            </div>
+            <div className="flex items-center gap-1.5 text-[9px] font-mono font-semibold text-(--foreground-muted)">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+              <span>ACTIVE SCANNING</span>
+            </div>
+          </div>
+          
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
-            {elevators.map((el) => (
-              <div
-                key={el.id}
-                className={cn(
-                  'flex items-center justify-between p-3 rounded-md border bg-(--surface-1) shadow-xs',
-                  el.level === 'critical'
-                    ? 'border-red-100/60 dark:border-red-900/30 bg-red-50/10'
-                    : 'border-(--border)'
-                )}
-                role="region"
-                aria-label={`${el.name} elevator status: ${el.level === 'operational' ? 'Normal' : el.note}`}
-              >
-                <div className="flex items-center gap-2">
-                  <span className={cn('w-2 h-2 rounded-full', el.level === 'critical' ? 'bg-red-500 animate-pulse' : 'bg-green-500')} />
-                  <span className="text-xs font-bold text-(--foreground)">{el.name}</span>
+            {elevators.map((el) => {
+              const match = el.name.match(/(Elevator #\d+)\s*\((.+)\)/);
+              const title = match ? match[1] : el.name;
+              const location = match ? `(${match[2]})` : '';
+
+              return (
+                <div
+                  key={el.id}
+                  className={cn(
+                    'flex flex-col p-3.5 rounded-lg border bg-(--surface-1) shadow-xs',
+                    'transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm hover:border-(--border-strong) group',
+                    el.level === 'critical'
+                      ? 'border-red-500/20 dark:border-red-900/40 bg-red-500/2 dark:bg-red-950/3'
+                      : 'border-(--border)'
+                  )}
+                  role="region"
+                  aria-label={`${el.name} status: ${el.level === 'operational' ? 'Normal' : el.note}`}
+                >
+                  {/* Card Header */}
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between border-b border-(--border)/40 pb-2.5 mb-2.5 gap-1.5">
+                    <div className="flex items-start gap-2 min-w-0">
+                      <span className={cn(
+                        'w-2 h-2 rounded-full shrink-0 mt-1',
+                        el.level === 'critical' ? 'bg-red-500 animate-pulse' : 'bg-green-500'
+                      )} />
+                      <div className="flex flex-col min-w-0 leading-tight">
+                        <span className="text-xs font-bold text-(--foreground) tracking-tight">
+                          {title}
+                        </span>
+                        {location && (
+                          <span className="text-[10px] text-(--foreground-subtle) font-medium mt-0.5">
+                            {location}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0 sm:self-start self-start pl-4 sm:pl-0 mt-0.5">
+                      <ArrowUpDown size={11} className="text-(--foreground-subtle) group-hover:scale-y-110 transition-transform duration-200" />
+                      <span className={cn(
+                        'text-[8px] font-mono font-bold px-1.5 py-0.5 rounded border tracking-wide whitespace-nowrap',
+                        el.level === 'critical'
+                          ? 'text-red-700 bg-red-50 border-red-200 dark:text-red-400 dark:bg-red-950/20 dark:border-red-900/40 animate-pulse'
+                          : 'text-green-700 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-950/20 dark:border-green-900/40'
+                      )}>
+                        {el.note}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Card Telemetry Fields Grid */}
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-[10px] flex-1">
+                    <div className="flex justify-between items-center py-0.5 border-b border-(--border)/30">
+                      <span className="text-(--foreground-muted) font-medium">Floor</span>
+                      <span className="font-mono font-bold text-(--foreground) bg-(--surface-2)/60 px-1 py-0.2 rounded dark:bg-(--surface-2)/40">{el.currentFloor}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-0.5 border-b border-(--border)/30">
+                      <span className="text-(--foreground-muted) font-medium">State</span>
+                      <span className={cn(
+                        "font-mono font-semibold truncate text-right max-w-28",
+                        el.level === 'critical' ? "text-red-500" : "text-(--foreground)"
+                      )}>{el.operationalState}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-0.5 border-b border-(--border)/30">
+                      <span className="text-(--foreground-muted) font-medium">Capacity</span>
+                      <span className="font-mono font-semibold text-(--foreground)">{el.capacity}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-0.5 border-b border-(--border)/30">
+                      <span className="text-(--foreground-muted) font-medium">Queue</span>
+                      <span className={cn(
+                        "font-mono font-semibold",
+                        el.queueStatus === 'Moderate' ? "text-amber-500" : el.queueStatus === 'Low' || el.queueStatus === 'Clear' ? "text-green-500" : "text-(--foreground-subtle)"
+                      )}>{el.queueStatus}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-0.5 col-span-2 text-[9.5px]">
+                      <span className="text-(--foreground-muted) font-medium">Last Inspection</span>
+                      <span className="font-mono text-(--foreground-subtle)">{el.lastVerification}</span>
+                    </div>
+                    {el.estimatedResponseTime && (
+                      <div className="flex justify-between items-center py-1 col-span-2 bg-red-500/5 dark:bg-red-950/10 border border-red-500/10 dark:border-red-900/20 rounded-md px-2 mt-1 shadow-2xs">
+                        <span className="text-red-600 dark:text-red-400 font-semibold flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                          Response ETA
+                        </span>
+                        <span className="font-mono font-bold text-red-600 dark:text-red-400">{el.estimatedResponseTime}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <span className={cn(
-                  'text-[9px] font-mono font-bold px-1.5 py-0.5 rounded border',
-                  el.level === 'critical'
-                    ? 'text-red-700 bg-red-50 border-red-100 dark:text-red-400 dark:bg-red-950/20 dark:border-red-900/40 animate-pulse'
-                    : 'text-green-700 bg-green-50 border-green-100 dark:text-green-400 dark:bg-green-950/20 dark:border-green-900/40'
-                )}>
-                  {el.note.toUpperCase()}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       }
@@ -188,23 +317,32 @@ export default function AccessibilityPage() {
           </div>
 
           {/* Form */}
-          <form onSubmit={handleGenerateRoute} className="space-y-4 font-sans text-xs flex-1 flex flex-col justify-between">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <form onSubmit={handleGenerateRoute} className="space-y-4 font-sans text-xs flex-1 flex flex-col justify-between min-h-0">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 shrink-0">
               {/* Need */}
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="need-select" className="font-semibold text-(--foreground-muted)">
                   Visitor Need
                 </label>
-                <select
-                  id="need-select"
-                  value={need}
-                  onChange={(e) => setNeed(e.target.value)}
-                  className="h-11 px-3 border border-(--border) bg-(--surface-1) text-(--foreground) rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) cursor-pointer shadow-xs"
-                >
-                  <option value="mobility">Mobility (Wheelchair)</option>
-                  <option value="sensory">Sensory (Low-Stimulus)</option>
-                  <option value="visual">Visual Escort</option>
-                </select>
+                <div className="relative">
+                  <select
+                    id="need-select"
+                    value={need}
+                    onChange={(e) => setNeed(e.target.value)}
+                    className={cn(
+                      "w-full h-11 pl-3.5 pr-10 border border-(--border) bg-(--surface-1) text-(--foreground) rounded-md appearance-none cursor-pointer shadow-xs",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary)",
+                      "hover:border-(--border-strong) transition-all duration-150 font-medium text-xs"
+                    )}
+                  >
+                    <option value="mobility">Mobility (Wheelchair)</option>
+                    <option value="sensory">Sensory (Low-Stimulus)</option>
+                    <option value="visual">Visual Escort</option>
+                  </select>
+                  <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-(--foreground-subtle) flex items-center">
+                    <ChevronDown size={14} />
+                  </div>
+                </div>
               </div>
 
               {/* Start */}
@@ -212,16 +350,25 @@ export default function AccessibilityPage() {
                 <label htmlFor="start-select" className="font-semibold text-(--foreground-muted)">
                   Starting Location
                 </label>
-                <select
-                  id="start-select"
-                  value={startLoc}
-                  onChange={(e) => setStartLoc(e.target.value)}
-                  className="h-11 px-3 border border-(--border) bg-(--surface-1) text-(--foreground) rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) cursor-pointer shadow-xs"
-                >
-                  <option value="gate-a">Gate A (North Plaza)</option>
-                  <option value="gate-c">Gate C (VIP East)</option>
-                  <option value="gate-d">Gate D (South Plaza)</option>
-                </select>
+                <div className="relative">
+                  <select
+                    id="start-select"
+                    value={startLoc}
+                    onChange={(e) => setStartLoc(e.target.value)}
+                    className={cn(
+                      "w-full h-11 pl-3.5 pr-10 border border-(--border) bg-(--surface-1) text-(--foreground) rounded-md appearance-none cursor-pointer shadow-xs",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary)",
+                      "hover:border-(--border-strong) transition-all duration-150 font-medium text-xs"
+                    )}
+                  >
+                    <option value="gate-a">Gate A (North Plaza)</option>
+                    <option value="gate-c">Gate C (VIP East)</option>
+                    <option value="gate-d">Gate D (South Plaza)</option>
+                  </select>
+                  <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-(--foreground-subtle) flex items-center">
+                    <ChevronDown size={14} />
+                  </div>
+                </div>
               </div>
 
               {/* Destination */}
@@ -229,17 +376,195 @@ export default function AccessibilityPage() {
                 <label htmlFor="dest-select" className="font-semibold text-(--foreground-muted)">
                   Target Seating
                 </label>
-                <select
-                  id="dest-select"
-                  value={targetSeat}
-                  onChange={(e) => setTargetSeat(e.target.value)}
-                  className="h-11 px-3 border border-(--border) bg-(--surface-1) text-(--foreground) rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) cursor-pointer shadow-xs"
-                >
-                  <option value="sec-110">North Stand Section 110</option>
-                  <option value="sec-120">South Stand Section 120</option>
-                  <option value="vip-4">VIP Suite 4</option>
-                </select>
+                <div className="relative">
+                  <select
+                    id="dest-select"
+                    value={targetSeat}
+                    onChange={(e) => setTargetSeat(e.target.value)}
+                    className={cn(
+                      "w-full h-11 pl-3.5 pr-10 border border-(--border) bg-(--surface-1) text-(--foreground) rounded-md appearance-none cursor-pointer shadow-xs",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary)",
+                      "hover:border-(--border-strong) transition-all duration-150 font-medium text-xs"
+                    )}
+                  >
+                    <option value="sec-110">North Stand Section 110</option>
+                    <option value="sec-120">South Stand Section 120</option>
+                    <option value="vip-4">VIP Suite 4</option>
+                  </select>
+                  <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-(--foreground-subtle) flex items-center">
+                    <ChevronDown size={14} />
+                  </div>
+                </div>
               </div>
+            </div>
+
+            {/* AI Pre-Dispatch Briefing Panel or Result Panel */}
+            <div aria-live="polite" className="flex-1 min-h-0 overflow-y-auto pr-0.5 my-2">
+              <AnimatePresence mode="wait">
+                {!generatedRoute ? (
+                  <m.div
+                    key="readiness-briefing"
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.15 }}
+                    className="bg-(--surface-1) border border-(--border) rounded-md p-4 space-y-4 text-left shadow-2xs"
+                  >
+                    {/* Header */}
+                    <div className="flex items-center justify-between border-b border-(--border)/45 pb-2.5">
+                      <div className="flex items-center gap-2">
+                        <Sparkles size={13} className="text-(--primary) animate-pulse" />
+                        <span className="text-[10px] font-mono font-bold text-(--primary) bg-(--primary-muted) px-2 py-0.5 rounded border border-(--primary-light)">
+                          AI PRE-DISPATCH BRIEFING
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-[8px] font-mono font-bold text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-950/20 px-1.5 py-0.5 rounded border border-green-200 dark:border-green-900/30">
+                        SYSTEM READY
+                      </div>
+                    </div>
+
+                    {/* Briefing Checklist Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                      {/* Operator input checklist */}
+                      <div className="space-y-2.5">
+                        <span className="block text-[9px] font-mono font-bold text-(--foreground-subtle) uppercase tracking-wider">
+                          1. Operator Inputs Required
+                        </span>
+                        <ul className="space-y-2 text-(--foreground-muted)">
+                          <li className="flex items-start gap-2.5">
+                            <span className="w-4 h-4 rounded-full bg-(--primary-muted) text-(--primary) flex items-center justify-center text-[9px] font-mono font-bold shrink-0 mt-0.5">
+                              ✓
+                            </span>
+                            <span className="leading-normal">Select visitor requirements (mobility, sensory, visual)</span>
+                          </li>
+                          <li className="flex items-start gap-2.5">
+                            <span className="w-4 h-4 rounded-full bg-(--primary-muted) text-(--primary) flex items-center justify-center text-[9px] font-mono font-bold shrink-0 mt-0.5">
+                              ✓
+                            </span>
+                            <span className="leading-normal">Choose starting location plaza gates</span>
+                          </li>
+                          <li className="flex items-start gap-2.5">
+                            <span className="w-4 h-4 rounded-full bg-(--primary-muted) text-(--primary) flex items-center justify-center text-[9px] font-mono font-bold shrink-0 mt-0.5">
+                              ✓
+                            </span>
+                            <span className="leading-normal">Select target seating sector allocation</span>
+                          </li>
+                        </ul>
+                      </div>
+
+                      {/* System live checks */}
+                      <div className="space-y-2.5">
+                        <span className="block text-[9px] font-mono font-bold text-(--foreground-subtle) uppercase tracking-wider">
+                          2. Model Inclusions Checked
+                        </span>
+                        <ul className="space-y-2 text-(--foreground-muted)">
+                          <li className="flex items-start gap-2.5">
+                            <span className="w-4 h-4 rounded-full bg-blue-950/20 text-blue-500 flex items-center justify-center shrink-0 mt-0.5 animate-pulse">
+                              ●
+                            </span>
+                            <span className="leading-normal">Generate optimal step-free path finding</span>
+                          </li>
+                          <li className="flex items-start gap-2.5">
+                            <span className="w-4 h-4 rounded-full bg-green-950/20 text-green-500 flex items-center justify-center text-[9px] font-mono font-bold shrink-0 mt-0.5">
+                              ✓
+                            </span>
+                            <span className="leading-normal">Verify live SCADA elevator telemetry feed</span>
+                          </li>
+                          <li className="flex items-start gap-2.5">
+                            <span className="w-4 h-4 rounded-full bg-amber-950/20 text-amber-500 flex items-center justify-center text-[9px] font-mono font-bold shrink-0 mt-0.5">
+                              ✓
+                            </span>
+                            <span className="leading-normal">Recommend host squad staffing dispatch</span>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    {/* Bottom Status bar */}
+                    <div className="bg-(--surface-2)/45 rounded-md p-2.5 text-[10px] text-(--foreground-muted) text-center border border-(--border)/60 flex items-center justify-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-ping" />
+                      <span>Ready to query the inclusion model. Click below to execute dispatch.</span>
+                    </div>
+                  </m.div>
+                ) : (
+                  <m.div
+                    key={`${need}-${startLoc}`}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.2, ease: 'easeOut' }}
+                    className="bg-(--surface-1) border border-(--border) rounded-md p-4 space-y-4 shadow-xs text-left"
+                  >
+                    <div className="flex items-center justify-between border-b border-(--border) pb-2 flex-wrap gap-2">
+                      <div className="flex items-center gap-1.5">
+                        <Sparkles size={12} className="text-(--primary) animate-pulse" />
+                        <span className="text-[10px] font-mono font-bold text-(--primary) bg-(--primary-muted) px-2 py-0.5 rounded border border-(--primary-light)">
+                          AI DISPATCH ROUTE GENERATED
+                        </span>
+                      </div>
+                      <span className="text-[9px] text-(--foreground-subtle) font-mono uppercase tracking-wider">
+                        FIFA Inclusion Protocol
+                      </span>
+                    </div>
+
+                    {/* Flowchart Timeline for Route Instructions */}
+                    <div className="space-y-3">
+                      <p className="text-[10px] font-mono font-bold text-(--foreground-subtle) uppercase tracking-wider">
+                        Step-by-Step Guidance
+                      </p>
+                      <div className="relative pl-6 space-y-3.5">
+                        {/* Vertical line connector */}
+                        <div className="absolute left-3 top-2.5 bottom-2.5 w-[1.5px] bg-(--border) dark:bg-slate-700/60" />
+
+                        {generatedRoute.steps.map((step, idx) => (
+                          <div key={idx} className="relative flex items-start gap-3">
+                            {/* Circular Number Badge */}
+                            <div className="absolute -left-6 flex items-center justify-center w-4.5 h-4.5 rounded-full bg-(--surface-1) border border-(--border-strong) text-[9px] font-mono font-bold text-(--foreground) z-10 shadow-2xs">
+                              {idx + 1}
+                            </div>
+                            <p className="text-xs text-(--foreground) leading-relaxed">
+                              {step}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Operational Telemetry Widget Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-b border-(--border)/60 py-3 mt-1.5 text-xs">
+                      <div className="flex items-center gap-2.5 bg-(--surface-2)/35 border border-(--border)/50 rounded-md p-2 shadow-2xs">
+                        <div className="w-7 h-7 rounded bg-(--primary-muted) text-(--primary) flex items-center justify-center shrink-0">
+                          <Users size={13} />
+                        </div>
+                        <div className="min-w-0">
+                          <span className="block text-[8px] font-mono font-bold text-(--foreground-subtle) uppercase leading-none">Assigned Host</span>
+                          <span className="text-(--foreground) font-semibold mt-1 block truncate leading-tight">{generatedRoute.volunteer}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2.5 bg-(--surface-2)/35 border border-(--border)/50 rounded-md p-2 shadow-2xs">
+                        <div className="w-7 h-7 rounded bg-blue-950/20 text-blue-500 flex items-center justify-center shrink-0">
+                          <ArrowUpDown size={13} />
+                        </div>
+                        <div className="min-w-0">
+                          <span className="block text-[8px] font-mono font-bold text-(--foreground-subtle) uppercase leading-none">Lift Status</span>
+                          <span className="text-(--foreground) font-semibold mt-1 block truncate leading-tight">{generatedRoute.elevator}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Advisory Notice Callout */}
+                    <div className="bg-amber-500/3 dark:bg-amber-950/4 border border-amber-500/20 dark:border-amber-900/30 rounded-md p-3 flex items-start gap-2.5 shadow-2xs">
+                      <Info size={14} className="text-amber-500 shrink-0 mt-0.5 animate-pulse" />
+                      <div className="min-w-0">
+                        <span className="block text-[9px] font-mono font-bold text-amber-600 dark:text-amber-400 uppercase leading-none">Operational Advisory</span>
+                        <p className="text-[10px] text-amber-800 dark:text-amber-300 leading-relaxed mt-1">
+                          {generatedRoute.advisory}
+                        </p>
+                      </div>
+                    </div>
+                  </m.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Submit Button (44px target) */}
@@ -250,58 +575,14 @@ export default function AccessibilityPage() {
                 'w-full h-11 flex items-center justify-center gap-2 rounded-md shrink-0',
                 'bg-(--primary) text-white font-semibold cursor-pointer shadow-sm',
                 'hover:bg-(--primary-hover) active:scale-[0.99] transition-all',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary)'
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) group'
               )}
               aria-label="Generate accessibility route and accommodations"
             >
+              <Cpu size={14} className="group-hover:rotate-12 transition-transform duration-200" />
               Generate Accommodation Route
             </button>
           </form>
-
-          {/* Result Panel (aria-live polite) */}
-          <div aria-live="polite" className="mt-4 shrink-0">
-            {generatedRoute && (
-              <div className="bg-(--surface-1) border border-(--border) rounded-md p-4 space-y-3.5 animate-fade-in shadow-xs">
-                <div className="flex items-center justify-between border-b border-(--border) pb-2 flex-wrap gap-2">
-                  <span className="text-[10px] font-mono font-bold text-(--primary) bg-(--primary-muted) px-2 py-0.5 rounded border border-(--primary-light)">
-                    TACTICAL DISPATCH ROUTE GENERATED
-                  </span>
-                  <span className="text-[9px] text-(--foreground-subtle) font-mono uppercase">
-                    FIFA Inclusion Guidelines
-                  </span>
-                </div>
-
-                {/* Step list - Ordered List */}
-                <div className="space-y-1.5">
-                  <p className="text-[10px] font-mono font-semibold text-(--foreground-subtle) uppercase">Route Instructions</p>
-                  <ol className="list-decimal pl-4.5 space-y-2 mt-1.5 text-xs text-(--foreground) leading-relaxed">
-                    {generatedRoute.steps.map((step, idx) => (
-                      <li key={idx} className="marker:font-mono marker:font-bold">{step}</li>
-                    ))}
-                  </ol>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 border-t border-(--border) pt-3 mt-1 text-xs">
-                  <div>
-                    <span className="font-semibold text-(--foreground-muted)">Assigned Host: </span>
-                    <span className="text-(--foreground) font-medium">{generatedRoute.volunteer}</span>
-                  </div>
-                  <div>
-                    <span className="font-semibold text-(--foreground-muted)">Lift Status: </span>
-                    <span className="text-(--foreground) font-medium">{generatedRoute.elevator}</span>
-                  </div>
-                </div>
-
-                {/* Advisory notice */}
-                <div className="bg-blue-50/50 dark:bg-blue-950/10 border border-blue-100/50 dark:border-blue-900/30 rounded p-3 flex items-start gap-2">
-                  <Info size={14} className="text-blue-500 shrink-0 mt-0.5" />
-                  <p className="text-[10px] text-blue-800 dark:text-blue-400 leading-normal">
-                    {generatedRoute.advisory}
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
         </div>
       }
     />
