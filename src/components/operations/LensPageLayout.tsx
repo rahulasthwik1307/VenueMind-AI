@@ -278,6 +278,36 @@ export function LensPageLayout({
                             </div>
                           </div>
                         </>
+                      ) : domain === 'emergency' ? (
+                        <>
+                          {/* Emergency-Specific Telemetry */}
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="bg-(--surface-1)/75 border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
+                              <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Response Readiness</span>
+                              <span className="text-[11px] font-extrabold text-(--foreground) mt-0.5 flex items-center gap-0.5">
+                                <AnimatedNumber value={98} suffix="%" /> <span className="text-[8.5px] text-(--foreground-subtle) font-normal">Ready</span>
+                              </span>
+                            </div>
+                            <div className="bg-(--surface-1)/75 border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
+                              <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Active Responders</span>
+                              <span className="text-[11px] font-extrabold text-(--foreground) mt-0.5 block">240 Staff</span>
+                            </div>
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <span className="block text-[7.5px] font-mono text-(--foreground-subtle) uppercase tracking-wider">Recent Activity Logs</span>
+                            <div className="text-[9.5px] space-y-2 text-(--foreground-muted) font-sans">
+                              <div className="flex items-center gap-2 border-l-2 border-(--primary)/25 pl-2 py-0.5">
+                                <Activity size={11} className="text-(--primary) shrink-0" />
+                                <span className="truncate leading-snug">Gate 3 Security Perimeter: <span className="font-semibold text-(--foreground)">Lock confirmed</span> (Auxiliary relay active)</span>
+                              </div>
+                              <div className="flex items-center gap-2 border-l-2 border-blue-500/25 pl-2 py-0.5">
+                                <Wifi size={11} className="text-blue-500 shrink-0" />
+                                <span className="truncate leading-snug">Medical Unit 4 Dispatch: <span className="font-semibold text-(--foreground)">Response time 2.1m</span> (Nominal)</span>
+                              </div>
+                            </div>
+                          </div>
+                        </>
                       ) : (
                         <>
                           {/* Crowd-Specific Telemetry */}
