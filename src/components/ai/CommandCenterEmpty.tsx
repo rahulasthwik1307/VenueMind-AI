@@ -38,18 +38,18 @@ export function CommandCenterEmpty({
 }: CommandCenterEmptyProps) {
   return (
     <div
-      className="flex flex-col items-center justify-start py-2 px-4 text-center gap-4 w-full min-w-0"
+      className="flex flex-col items-center justify-start py-2 px-4 text-center gap-4 w-full max-w-2xl mx-auto min-w-0"
       role="region"
       aria-label="AI Command Center — Idle dashboard"
     >
       {/* Icon & Welcome */}
       <div className="flex flex-col items-center gap-2">
-        <div className="w-11 h-11 rounded-lg bg-(--primary-muted) border border-(--primary-light) flex items-center justify-center shadow-xs">
-          <Brain size={20} strokeWidth={1.5} className="text-(--primary)" aria-hidden="true" />
+        <div className="w-10 h-10 rounded-lg bg-(--primary-muted) border border-(--primary-light) flex items-center justify-center shadow-xs">
+          <Brain size={18} strokeWidth={1.5} className="text-(--primary)" aria-hidden="true" />
         </div>
-        <div className="space-y-1 max-w-md">
+        <div className="space-y-0.5 max-w-md">
           <h2 className="text-xs font-bold text-(--foreground)">Ready for your query</h2>
-          <p className="text-[10px] text-(--foreground-muted) leading-relaxed">
+          <p className="text-[9.5px] text-(--foreground-muted) leading-relaxed">
             Select an incident, zone, or operational domain for a structured briefing — or type a direct
             question in free-form mode. The AI will return a structured analysis in seconds.
           </p>
@@ -98,11 +98,11 @@ export function CommandCenterEmpty({
       </div>
 
       {/* Suggestions Chips */}
-      <div className="w-full max-w-lg border-t border-(--border) pt-3">
-        <h3 className="text-[9.5px] font-bold font-mono text-(--foreground-subtle) uppercase tracking-wider text-center mb-2.5">
+      <div className="w-full max-w-lg border-t border-(--border) pt-2">
+        <h3 className="text-[9.5px] font-bold font-mono text-(--foreground-subtle) uppercase tracking-wider text-center mb-1.5">
           Suggested Queries
         </h3>
-        <div className="flex flex-wrap gap-2 justify-center">
+        <div className="flex flex-wrap gap-1.5 justify-center">
           {[
             {
               text: "What is the crowd risk at Gate D right now?",
@@ -144,8 +144,8 @@ export function CommandCenterEmpty({
       </div>
 
       {/* Capability List (Subtly color tinted capability cards) */}
-      <div className="w-full max-w-lg border-t border-(--border) pt-3">
-        <h3 className="text-[9.5px] font-bold font-mono text-(--foreground-subtle) uppercase tracking-wider text-center mb-2.5">
+      <div className="w-full max-w-lg border-t border-(--border) pt-2">
+        <h3 className="text-[9.5px] font-bold font-mono text-(--foreground-subtle) uppercase tracking-wider text-center mb-2">
           AI Capabilities
         </h3>
         <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-left max-w-md mx-auto" role="list">
@@ -193,8 +193,8 @@ export function CommandCenterEmpty({
       </div>
 
       {/* Recent Dispatches strip */}
-      <div className="w-full max-w-lg border-t border-(--border) pt-3">
-        <h3 className="text-[9.5px] font-bold font-mono text-(--foreground-subtle) uppercase tracking-wider text-center mb-2.5">
+      <div className="w-full max-w-lg border-t border-(--border) pt-2">
+        <h3 className="text-[9.5px] font-bold font-mono text-(--foreground-subtle) uppercase tracking-wider text-center mb-2">
           Recent Command Actions
         </h3>
         {recentActivities.length === 0 ? (
@@ -206,7 +206,7 @@ export function CommandCenterEmpty({
             {recentActivities.map((act) => (
               <li
                 key={act.id}
-                className="flex items-center justify-between gap-3 px-2.5 py-1.5 rounded bg-(--surface-2) border border-(--border) shadow-xs"
+                className="flex items-center justify-between gap-3 px-2.5 py-1 rounded bg-(--surface-2) border border-(--border) shadow-xs"
               >
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" aria-hidden="true" />

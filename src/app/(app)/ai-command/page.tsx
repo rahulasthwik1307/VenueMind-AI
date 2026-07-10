@@ -37,6 +37,7 @@ import { ConversationHistory } from '@/components/ai/ConversationHistory';
 import { AnalyzingState } from '@/components/ai/AnalyzingState';
 import { CommandCenterEmpty } from '@/components/ai/CommandCenterEmpty';
 import { CommandCenterError } from '@/components/ai/CommandCenterError';
+import { OperationalConsoleStatus } from '@/components/ai/OperationalConsoleStatus';
 
 import type { AssistantDomain } from '@/types/assistant';
 import type { StructuredMode } from '@/components/ai/ContextSelector';
@@ -209,12 +210,12 @@ export default function AICommandPage() {
   else if (lastResponse) responseAreaState = 'response';
 
   return (
-    <div className="flex flex-col gap-4 flex-1 min-h-0 pt-4 px-6 pb-6 max-w-350 mx-auto w-full">
+    <div className="flex flex-col gap-4 flex-1 min-h-0 pt-4 px-6 pb-6 max-w-7xl mx-auto w-full">
       {/* Page header */}
       <CommandCenterHeader />
 
       {/* Main content grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-[380px_minmax(0,1fr)] gap-4 flex-1 min-h-0">
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(380px,1fr)_1.5fr] xl:grid-cols-[minmax(420px,1fr)_1.5fr] gap-6 flex-1 min-h-0">
         {/* ── LEFT PANEL — Query ─────────────────────────────────────────────── */}
         <aside
           className="flex flex-col gap-4 bg-(--surface-1) border border-(--border) rounded-xl p-4 shadow-sm min-h-0"
@@ -291,6 +292,11 @@ export default function AICommandPage() {
             label={interactionMode === 'freeform' ? 'Operational Query' : 'Additional Context (Optional)'}
             inputId={interactionMode === 'freeform' ? 'freeform-query' : 'structured-context'}
           />
+                   {/* Operational Status Readout */}
+          <OperationalConsoleStatus
+            interactionMode={interactionMode}
+            isAnalyzing={isAnalyzing}
+          />
 
           {/* Divider */}
           <div className="border-t border-(--border)" role="separator" />
@@ -304,7 +310,10 @@ export default function AICommandPage() {
           aria-label="AI response area"
           aria-live="polite"
           aria-atomic="false"
-          className="flex flex-col gap-4 bg-(--surface-1) border border-(--border) rounded-xl p-5 shadow-sm min-w-0 min-h-0 overflow-y-auto"
+          className={cn(
+            "flex flex-col gap-4 bg-(--surface-1) border border-(--border) rounded-xl p-5 shadow-sm min-w-0 min-h-0",
+            responseAreaState === 'empty' ? 'overflow-hidden' : 'overflow-y-auto'
+          )}
         >
           <AnimatePresence mode="wait">
             {responseAreaState === 'empty' && (
