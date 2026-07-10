@@ -319,7 +319,7 @@ function RecentAlerts() {
           <span className="font-semibold uppercase tracking-wider">{alert.level} PRIORITY</span>
           <span>{alert.time}</span>
         </div>
-        <p className="text-(--foreground-muted) whitespace-pre-wrap break-words leading-relaxed">
+        <p className="text-(--foreground-muted) whitespace-pre-wrap wrap-break-word leading-relaxed">
           {alert.message}
         </p>
       </div>

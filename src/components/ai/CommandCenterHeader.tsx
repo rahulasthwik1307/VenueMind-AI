@@ -13,7 +13,7 @@ export function CommandCenterHeader() {
     >
       <div className="flex items-center gap-3">
         <div
-          className="w-9 h-9 rounded-lg bg-(--primary-muted) border border-(--primary-light) shadow-[inset_0_1px_2px_rgba(255,255,255,0.05),_0_1px_1px_rgba(0,0,0,0.05)] flex items-center justify-center shrink-0"
+          className="w-9 h-9 rounded-lg bg-(--primary-muted) border border-(--primary-light) shadow-[inset_0_1px_2px_rgba(255,255,255,0.05),0_1px_1px_rgba(0,0,0,0.05)] flex items-center justify-center shrink-0"
           aria-hidden="true"
         >
           <Brain size={18} strokeWidth={1.75} className="text-(--primary)" />

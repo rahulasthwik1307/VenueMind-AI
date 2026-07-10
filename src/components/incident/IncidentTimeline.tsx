@@ -110,7 +110,7 @@ export function IncidentTimeline({ events }: IncidentTimelineProps) {
             {/* Connector Line */}
             {!isLast && (
               <div
-                className="absolute left-[-20px] top-[12px] bottom-[-28px] w-px bg-(--border) z-0"
+                className="absolute -left-5 top-3 -bottom-7 w-px bg-(--border) z-0"
                 aria-hidden="true"
               />
             )}

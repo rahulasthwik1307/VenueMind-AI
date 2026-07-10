@@ -91,7 +91,7 @@ export function SharedNotes({
               <span className="font-semibold">Rahul Asthwik</span>
               <span>{notes[0].timestamp}</span>
             </div>
-            <p className="text-(--foreground-muted) whitespace-pre-wrap break-words">
+            <p className="text-(--foreground-muted) whitespace-pre-wrap wrap-break-word">
               {notes[0].content}
             </p>
             <button
@@ -137,7 +137,7 @@ export function SharedNotes({
                     <span className="font-semibold">Rahul Asthwik</span>
                     <span>{note.timestamp}</span>
                   </div>
-                  <p className="text-(--foreground-muted) whitespace-pre-wrap break-words">
+                  <p className="text-(--foreground-muted) whitespace-pre-wrap wrap-break-word">
                     {note.content}
                   </p>
                   <button

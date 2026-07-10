@@ -33,7 +33,7 @@ export default function DashboardPage() {
         <QuickStats />
 
         {/* Main two-column grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-(--card-gap) xl:h-[500px] items-stretch">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-(--card-gap) xl:h-125 items-stretch">
           <CriticalIncidents className="h-full" />
           <AIRecommendations className="h-full" />
         </div>

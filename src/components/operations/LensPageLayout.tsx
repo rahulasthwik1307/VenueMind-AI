@@ -2,8 +2,52 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { AnimatePresence, m } from 'framer-motion';
-import { Sparkles, Brain, CheckCircle } from 'lucide-react';
+import { Sparkles, Brain, CheckCircle, Activity, Wifi } from 'lucide-react';
 import { cn } from '@/utils/cn';
+
+// Lightweight count-up number component for operational telemetry metrics
+function AnimatedNumber({
+  value,
+  duration = 750,
+  suffix = '',
+  formatter,
+}: {
+  value: number;
+  duration?: number;
+  suffix?: string;
+  formatter?: (val: number) => string;
+}) {
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    const end = value;
+    if (end === 0) {
+      return;
+    }
+
+    const startTime = performance.now();
+    let animationFrameId: number;
+
+    const updateNumber = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const easedProgress = progress * (2 - progress); // easeOutQuad
+      const currentVal = Math.round(easedProgress * end);
+
+      setCurrent(currentVal);
+
+      if (progress < 1) {
+        animationFrameId = requestAnimationFrame(updateNumber);
+      }
+    };
+
+    animationFrameId = requestAnimationFrame(updateNumber);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [value, duration]);
+
+  const formatted = formatter ? formatter(current) : current.toLocaleString();
+  return <span className="tabular-nums font-bold">{formatted}{suffix}</span>;
+}
 
 import { PageContainer } from '@/components/layout/PageContainer';
 import { SectionHeader } from '@/components/shared/SectionHeader';
@@ -193,47 +237,49 @@ export function LensPageLayout({
                     </div>
 
                     {/* Telemetry Status Summary (fills dead space when incident queue is short) */}
-                    <div className="mt-4 pt-3 border-t border-(--border) space-y-2.5 shrink-0">
-                      <div className="flex items-center justify-between text-[9px] font-mono text-(--foreground-subtle) uppercase tracking-wider">
-                        <span>Telemetry Summary</span>
+                    <div className="mt-4 pt-3 border-t border-(--border) space-y-2.5 shrink-0 text-left">
+                      <div className="flex items-center justify-between text-[7.5px] font-mono text-(--foreground-subtle) uppercase tracking-wider">
+                        <span>Operational Telemetry</span>
                         <span className="text-(--color-success) flex items-center gap-1 font-bold">
                           <span className="w-1 h-1 rounded-full bg-(--color-success) live-indicator" />
-                          Live Feeds
+                          Feeds Active
                         </span>
                       </div>
                       
-                      <div className="grid grid-cols-2 gap-2 text-[10px]">
-                        <div className="bg-(--surface-1)/80 border border-(--border) rounded-md p-2 shadow-2xs">
-                          <span className="block text-[8px] text-(--foreground-subtle) font-mono uppercase">Monitored Sectors</span>
-                          <span className="font-semibold text-(--foreground)">6 Stadium Zones</span>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="bg-(--surface-1)/75 border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
+                          <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Monitored Sectors</span>
+                          <span className="text-[11px] font-extrabold text-(--foreground) mt-0.5 block">6 Active Stands</span>
                         </div>
-                        <div className="bg-(--surface-1)/80 border border-(--border) rounded-md p-2 shadow-2xs">
-                          <span className="block text-[8px] text-(--foreground-subtle) font-mono uppercase">Scanner Speed</span>
-                          <span className="font-semibold text-(--foreground)">94% Efficiency</span>
-                        </div>
-                      </div>
-
-                      <div className="space-y-1">
-                        <span className="block text-[8px] font-mono text-(--foreground-subtle) uppercase">Recent Activity logs</span>
-                        <div className="text-[9.5px] space-y-1 text-(--foreground-muted) font-sans leading-relaxed">
-                          <div className="flex items-start gap-1.5">
-                            <span className="w-1 h-1 rounded-full bg-(--primary) mt-1.5 shrink-0" />
-                            <span className="truncate">Gate 7 bottleneck under active mitigation.</span>
-                          </div>
-                          <div className="flex items-start gap-1.5">
-                            <span className="w-1 h-1 rounded-full bg-blue-500 mt-1.5 shrink-0" />
-                            <span className="truncate">Turnstile RFID connectivity verified.</span>
-                          </div>
+                        <div className="bg-(--surface-1)/75 border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
+                          <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Scanner Speed</span>
+                          <span className="text-[11px] font-extrabold text-(--foreground) mt-0.5 flex items-center gap-0.5">
+                            <AnimatedNumber value={94} suffix="%" /> <span className="text-[8.5px] text-(--foreground-subtle) font-normal">Efficiency</span>
+                          </span>
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between text-[8.5px] font-mono text-(--foreground-subtle) bg-(--surface-1)/50 p-1.5 rounded border border-(--border)/60">
-                        <span>AI Scanning: <span className="text-(--primary) font-bold">ENABLED</span></span>
-                        <span>Last Tick: {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+                      <div className="space-y-1.5">
+                        <span className="block text-[7.5px] font-mono text-(--foreground-subtle) uppercase tracking-wider">Recent Activity Logs</span>
+                        <div className="text-[9.5px] space-y-1.5 text-(--foreground-muted) font-sans leading-relaxed">
+                          <div className="flex items-center gap-2">
+                            <Activity size={11} className="text-(--primary) shrink-0" />
+                            <span className="truncate">Gate 7 scanner flow: <span className="font-semibold text-(--foreground)">12 p/m</span> (Mitigation active)</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Wifi size={11} className="text-blue-500 shrink-0" />
+                            <span className="truncate">Turnstile connectivity: <span className="font-semibold text-(--foreground)">100% online</span> (RFID check OK)</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between text-[8px] font-mono text-(--foreground-subtle) bg-(--surface-1)/50 px-2 py-1 rounded border border-(--border)/60">
+                        <span>AI Monitoring: <span className="text-(--primary) font-extrabold">ENABLED</span></span>
+                        <span>Scan Time: {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
                       </div>
                       
                       {filteredIncidents.length <= 1 && (
-                        <div className="text-[8.5px] text-center font-mono text-(--foreground-subtle) bg-green-500/[0.03] border border-green-500/10 rounded py-1">
+                        <div className="text-[8.5px] text-center font-mono text-(--foreground-subtle) bg-green-500/3 border border-green-500/10 rounded py-1">
                           No additional incidents detected.
                         </div>
                       )}
@@ -304,21 +350,25 @@ export function LensPageLayout({
 
                           {/* Mini Operational Summary (fills whitespace with useful parameters) */}
                           <div className="w-full grid grid-cols-2 gap-2 mt-4 text-left">
-                            <div className="bg-(--surface-1) border border-(--border)/60 rounded-md p-2 shadow-2xs">
-                              <span className="block text-[8px] text-(--foreground-subtle) font-mono uppercase">AI Readiness</span>
-                              <span className="text-[10px] font-bold text-(--foreground)">98% — Ready</span>
+                            <div className="bg-(--surface-1) border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
+                              <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">AI Readiness</span>
+                              <span className="text-[11px] font-extrabold text-(--foreground) mt-0.5 block">
+                                <AnimatedNumber value={98} suffix="%" /> — Ready
+                              </span>
                             </div>
-                            <div className="bg-(--surface-1) border border-(--border)/60 rounded-md p-2 shadow-2xs">
-                              <span className="block text-[8px] text-(--foreground-subtle) font-mono uppercase">System Focus</span>
-                              <span className="text-[10px] font-bold text-(--foreground) uppercase truncate block">{domain} Ops</span>
+                            <div className="bg-(--surface-1) border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
+                              <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">System Focus</span>
+                              <span className="text-[11px] font-extrabold text-(--foreground) uppercase truncate block mt-0.5">{domain} Ops</span>
                             </div>
-                            <div className="bg-(--surface-1) border border-(--border)/60 rounded-md p-2 shadow-2xs">
-                              <span className="block text-[8px] text-(--foreground-subtle) font-mono uppercase">Active Alerts</span>
-                              <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400">1 Warning Active</span>
+                            <div className="bg-(--surface-1) border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
+                              <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Active Alerts</span>
+                              <span className="text-[11px] font-extrabold text-amber-600 dark:text-amber-400 mt-0.5 block">1 Warning Active</span>
                             </div>
-                            <div className="bg-(--surface-1) border border-(--border)/60 rounded-md p-2 shadow-2xs">
-                              <span className="block text-[8px] text-(--foreground-subtle) font-mono uppercase">Telemetry Feeds</span>
-                              <span className="text-[10px] font-bold text-(--foreground)">100% Online</span>
+                            <div className="bg-(--surface-1) border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
+                              <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Telemetry Feeds</span>
+                              <span className="text-[11px] font-extrabold text-(--foreground) mt-0.5 block">
+                                <AnimatedNumber value={100} suffix="%" /> Online
+                              </span>
                             </div>
                           </div>
 

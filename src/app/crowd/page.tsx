@@ -5,6 +5,52 @@ import { LensPageLayout } from '@/components/operations/LensPageLayout';
 import { Users, Eye, Zap, Flame } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import type { SystemStatusLevel } from '@/types/common';
+import { m } from 'framer-motion';
+import { useEffect, useState } from 'react';
+
+// Lightweight count-up number component for operational telemetry metrics
+function AnimatedNumber({
+  value,
+  duration = 750,
+  suffix = '',
+  formatter,
+}: {
+  value: number;
+  duration?: number;
+  suffix?: string;
+  formatter?: (val: number) => string;
+}) {
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    const end = value;
+    if (end === 0) {
+      return;
+    }
+
+    const startTime = performance.now();
+    let animationFrameId: number;
+
+    const updateNumber = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const easedProgress = progress * (2 - progress); // easeOutQuad
+      const currentVal = Math.round(easedProgress * end);
+
+      setCurrent(currentVal);
+
+      if (progress < 1) {
+        animationFrameId = requestAnimationFrame(updateNumber);
+      }
+    };
+
+    animationFrameId = requestAnimationFrame(updateNumber);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [value, duration]);
+
+  const formatted = formatter ? formatter(current) : current.toLocaleString();
+  return <span className="tabular-nums font-bold">{formatted}{suffix}</span>;
+}
 
 export default function CrowdMonitoringPage() {
   const { stadiumStats } = useIncidentStore();
@@ -43,11 +89,12 @@ export default function CrowdMonitoringPage() {
     return styles[level];
   };
 
+  // Visually differentiate sector cards based on severity level to establish visual hierarchy
   const getBgStyle = (level: SystemStatusLevel) => {
     const styles = {
-      operational: 'bg-green-50/30 border-green-100/50 dark:bg-green-950/5 dark:border-green-900/10',
-      degraded: 'bg-yellow-50/30 border-yellow-100/50 dark:bg-yellow-950/5 dark:border-yellow-900/10',
-      critical: 'bg-red-50/30 border-red-100/50 dark:bg-red-950/5 dark:border-red-900/10',
+      operational: 'bg-(--surface-2)/20 border-(--border)/60 opacity-90 shadow-2xs hover:opacity-100 hover:border-(--border-strong) dark:bg-gray-900/5 dark:border-gray-800/20 dark:hover:border-gray-700/40',
+      degraded: 'bg-yellow-500/[0.03] border-yellow-500/20 hover:border-yellow-500/35 shadow-2xs dark:bg-yellow-950/5 dark:border-yellow-900/10 dark:hover:border-yellow-800/30',
+      critical: 'bg-red-500/[0.04] border-red-500/30 hover:border-red-500/45 shadow-sm shadow-red-500/5 dark:bg-red-950/10 dark:border-red-900/20 dark:hover:border-red-800/40 dark:shadow-none',
       offline: 'bg-gray-50/30 border-gray-100/50 dark:bg-gray-950/5 dark:border-gray-900/10',
     };
     return styles[level];
@@ -57,7 +104,7 @@ export default function CrowdMonitoringPage() {
     const styles = {
       operational: 'text-green-700 dark:text-green-400',
       degraded: 'text-yellow-700 dark:text-yellow-400',
-      critical: 'text-red-700 dark:text-red-400',
+      critical: 'text-red-700 dark:text-red-400 font-extrabold',
       offline: 'text-gray-500',
     };
     return styles[level];
@@ -81,8 +128,10 @@ export default function CrowdMonitoringPage() {
               <Users size={15} />
             </div>
             <div>
-              <p className="text-[10px] font-mono font-semibold text-(--foreground-subtle) uppercase">Ingress Index</p>
-              <p className="text-base font-bold font-mono tracking-tight mt-0.5">{baseDensity}%</p>
+              <p className="text-[7.5px] font-mono font-semibold text-(--foreground-subtle) uppercase tracking-wider">Ingress Index</p>
+              <p className="text-base font-bold font-mono tracking-tight mt-0.5">
+                <AnimatedNumber value={baseDensity} suffix="%" />
+              </p>
             </div>
           </div>
           
@@ -91,8 +140,10 @@ export default function CrowdMonitoringPage() {
               <Eye size={15} />
             </div>
             <div>
-              <p className="text-[10px] font-mono font-semibold text-(--foreground-subtle) uppercase">CCTV Feeds</p>
-              <p className="text-base font-bold font-mono tracking-tight mt-0.5">148 Online</p>
+              <p className="text-[7.5px] font-mono font-semibold text-(--foreground-subtle) uppercase tracking-wider">CCTV Feeds</p>
+              <p className="text-base font-bold font-mono tracking-tight mt-0.5">
+                <AnimatedNumber value={148} /> <span className="text-[9.5px] text-(--foreground-muted) font-normal font-sans">Online</span>
+              </p>
             </div>
           </div>
 
@@ -101,8 +152,10 @@ export default function CrowdMonitoringPage() {
               <Zap size={15} />
             </div>
             <div>
-              <p className="text-[10px] font-mono font-semibold text-(--foreground-subtle) uppercase">Scan Speed</p>
-              <p className="text-base font-bold font-mono tracking-tight mt-0.5">94% Efficiency</p>
+              <p className="text-[7.5px] font-mono font-semibold text-(--foreground-subtle) uppercase tracking-wider">Scan Speed</p>
+              <p className="text-base font-bold font-mono tracking-tight mt-0.5">
+                <AnimatedNumber value={94} suffix="%" /> <span className="text-[9.5px] text-(--foreground-muted) font-normal font-sans">Efficiency</span>
+              </p>
             </div>
           </div>
         </div>
@@ -113,11 +166,14 @@ export default function CrowdMonitoringPage() {
             Sector Saturation Map
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 flex-1">
-            {sectors.map((sec) => (
-              <div
+            {sectors.map((sec, idx) => (
+              <m.div
                 key={sec.id}
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: idx * 0.05 }}
                 className={cn(
-                  'p-3.5 rounded-md border transition-all duration-200 flex flex-col justify-between',
+                  'p-3.5 rounded-md border flex flex-col justify-between transition-all duration-150 cursor-pointer hover:-translate-y-px',
                   getBgStyle(sec.level)
                 )}
                 role="region"
@@ -125,46 +181,55 @@ export default function CrowdMonitoringPage() {
               >
                 <div className="flex items-center justify-between mb-2">
                   <div>
-                    <h4 className="text-xs font-bold text-(--foreground)">{sec.name}</h4>
-                    <p className="text-[9px] text-(--foreground-subtle) font-mono uppercase mt-0.5">{sec.type}</p>
+                    <h4 className={cn(
+                      "text-xs font-bold",
+                      sec.level === 'critical' ? 'text-red-700 dark:text-red-400' : 'text-(--foreground)'
+                    )}>{sec.name}</h4>
+                    <p className="text-[8px] text-(--foreground-subtle) font-mono uppercase mt-0.5">{sec.type}</p>
                   </div>
                   <span className={cn('text-[9px] font-mono font-bold uppercase tracking-wider', getTextStyle(sec.level))}>
                     {sec.level === 'operational' ? 'Normal' : sec.level === 'degraded' ? 'High' : 'Critical'}
                   </span>
                 </div>
                 
-                {/* Progress bar */}
-                <div className="w-full h-2 bg-(--surface-3) dark:bg-gray-800 rounded-full overflow-hidden mb-1">
-                  <div
-                    className={cn('h-full rounded-full transition-all duration-500', getProgressColor(sec.level))}
-                    style={{ width: `${sec.capacity}%` }}
+                {/* Progress bar with smooth width fill animation on load */}
+                <div className="w-full h-1.5 bg-(--surface-3) dark:bg-gray-800 rounded-full overflow-hidden mb-1.5">
+                  <m.div
+                    className={cn('h-full rounded-full', getProgressColor(sec.level))}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${sec.capacity}%` }}
+                    transition={{ duration: 0.7, ease: 'easeOut' }}
                   />
                 </div>
                 
-                <div className="flex justify-between text-[10px] font-semibold text-(--foreground-muted) font-mono">
-                  <span>{sec.capacity}% full</span>
-                  <span className="tabular-nums">{(sec.capacity * 250).toLocaleString()} / 25,000 spectators</span>
+                <div className="flex justify-between text-[9.5px] font-semibold text-(--foreground-muted) font-mono">
+                  <span>
+                    <AnimatedNumber value={sec.capacity} suffix="% full" />
+                  </span>
+                  <span className="tabular-nums">
+                    <AnimatedNumber value={sec.capacity * 250} /> / 25,000 Spectators
+                  </span>
                 </div>
-              </div>
+              </m.div>
             ))}
           </div>
         </div>
       }
       alertContent={
-        <div className="border border-amber-900/30 bg-amber-950/10 rounded-xl p-4 flex flex-col justify-between h-full shadow-sm">
+        <div className="border border-(--border) bg-(--surface-2)/20 rounded-xl p-4 flex flex-col justify-between h-full shadow-sm">
           {/* Header */}
-          <div className="flex items-start gap-3 pb-3 border-b border-amber-900/20">
+          <div className="flex items-start gap-3 pb-3 border-b border-(--border)">
             <div className="w-8 h-8 rounded bg-amber-500/10 flex items-center justify-center shrink-0">
               <Flame size={16} className="text-amber-500 animate-pulse" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h4 className="text-xs font-bold text-amber-600 dark:text-amber-400">Tac-Route Redirection Active</h4>
-                <span className="text-[8px] font-mono font-bold uppercase bg-amber-500/20 text-amber-700 dark:text-amber-300 px-1.5 py-0.5 rounded">
+                <h4 className="text-xs font-bold text-(--foreground)">Tac-Route Redirection Active</h4>
+                <span className="text-[8px] font-mono font-bold uppercase bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/20 px-1.5 py-0.5 rounded">
                   Active
                 </span>
               </div>
-              <p className="text-[10px] text-amber-700 dark:text-amber-200 leading-relaxed mt-1">
+              <p className="text-[10px] text-(--foreground-muted) leading-relaxed mt-1">
                 Redirection signage active on North Plaza screens. Spectators from VIP West dropoffs are routed towards Gate B to mitigate Gate 7 congestion.
               </p>
             </div>
@@ -172,61 +237,90 @@ export default function CrowdMonitoringPage() {
 
           {/* Operational Metadata Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 my-3">
-            <div className="bg-amber-500/[0.02] dark:bg-amber-950/5 border border-amber-500/10 dark:border-amber-900/10 rounded-md p-2">
-              <span className="block text-[8px] text-amber-700/70 dark:text-amber-400/60 font-mono uppercase">Reason</span>
-              <span className="text-[10px] font-bold text-amber-900 dark:text-amber-300">Gate 7 Congestion</span>
+            <div className="bg-(--surface-1)/80 border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
+              <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Reason</span>
+              <span className="text-[10.5px] font-bold text-(--foreground) mt-0.5 block truncate">Gate 7 Congestion</span>
             </div>
-            <div className="bg-amber-500/[0.02] dark:bg-amber-950/5 border border-amber-500/10 dark:border-amber-900/10 rounded-md p-2">
-              <span className="block text-[8px] text-amber-700/70 dark:text-amber-400/60 font-mono uppercase">Affected Stands</span>
-              <span className="text-[10px] font-bold text-amber-900 dark:text-amber-300">North, VIP West</span>
+            <div className="bg-(--surface-1)/80 border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
+              <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Affected Stands</span>
+              <span className="text-[10.5px] font-bold text-(--foreground) mt-0.5 block truncate">North, VIP West</span>
             </div>
-            <div className="bg-amber-500/[0.02] dark:bg-amber-950/5 border border-amber-500/10 dark:border-amber-900/10 rounded-md p-2">
-              <span className="block text-[8px] text-amber-700/70 dark:text-amber-400/60 font-mono uppercase">Redirected Flow</span>
-              <span className="text-[10px] font-bold text-amber-900 dark:text-amber-300 tabular-nums">1,200 Spectators</span>
+            <div className="bg-(--surface-1)/80 border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
+              <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Redirected Flow</span>
+              <span className="text-[10.5px] font-bold text-(--foreground) mt-0.5 block">
+                <AnimatedNumber value={1200} /> <span className="text-[8.5px] text-(--foreground-subtle) font-normal">Spectators</span>
+              </span>
             </div>
-            <div className="bg-amber-500/[0.02] dark:bg-amber-950/5 border border-amber-500/10 dark:border-amber-900/10 rounded-md p-2">
-              <span className="block text-[8px] text-amber-700/70 dark:text-amber-400/60 font-mono uppercase">Compliance</span>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="text-[10px] font-bold text-amber-900 dark:text-amber-300">85%</span>
-                <div className="flex-1 h-1.5 bg-amber-500/15 dark:bg-amber-950/20 rounded-full overflow-hidden">
-                  <div className="h-full bg-amber-500 rounded-full" style={{ width: '85%' }} />
+            <div className="bg-(--surface-1)/80 border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
+              <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Compliance</span>
+              <div className="flex items-center gap-1.5 mt-1">
+                <span className="text-[10.5px] font-bold text-(--foreground)">
+                  <AnimatedNumber value={85} suffix="%" />
+                </span>
+                <div className="flex-1 h-1.5 bg-(--surface-3) dark:bg-gray-800 rounded-full overflow-hidden">
+                  <m.div
+                    className="h-full bg-amber-500 rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: '85%' }}
+                    transition={{ duration: 0.65, ease: 'easeOut' }}
+                  />
                 </div>
               </div>
             </div>
-            <div className="bg-amber-500/[0.02] dark:bg-amber-950/5 border border-amber-500/10 dark:border-amber-900/10 rounded-md p-2">
-              <span className="block text-[8px] text-amber-700/70 dark:text-amber-400/60 font-mono uppercase">Assigned Team</span>
-              <span className="text-[10px] font-bold text-amber-900 dark:text-amber-300 truncate block">Transit Ops & Vol-A</span>
+            <div className="bg-(--surface-1)/80 border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
+              <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Assigned Team</span>
+              <span className="text-[10.5px] font-bold text-(--foreground) mt-0.5 block truncate">Transit Ops & Vol-A</span>
             </div>
-            <div className="bg-amber-500/[0.02] dark:bg-amber-950/5 border border-amber-500/10 dark:border-amber-900/10 rounded-md p-2">
-              <span className="block text-[8px] text-amber-700/70 dark:text-amber-400/60 font-mono uppercase">AI Confidence</span>
-              <span className="text-[10px] font-bold text-amber-900 dark:text-amber-300">94% (Optimal)</span>
+            <div className="bg-(--surface-1)/80 border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
+              <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">AI Confidence</span>
+              <span className="text-[10.5px] font-bold text-(--foreground) mt-0.5 block">
+                <AnimatedNumber value={94} suffix="%" /> <span className="text-[8.5px] text-(--foreground-subtle) font-normal">Match</span>
+              </span>
             </div>
           </div>
 
-          {/* Redirection Verification Steps */}
-          <div className="bg-amber-500/[0.01] dark:bg-amber-950/3 border border-amber-500/5 dark:border-amber-900/5 rounded-md p-2 mb-2">
-            <span className="block text-[8px] text-amber-700/70 dark:text-amber-400/60 font-mono uppercase mb-1.5">Verification Timeline</span>
-            <div className="space-y-1 text-[9px] text-amber-800 dark:text-amber-300">
-              <div className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
-                <span className="font-mono text-[8px]">22:07:45 UTC</span>
-                <span className="truncate">Redirection templates verified and loaded</span>
+          {/* Connected Operational Timeline */}
+          <div className="bg-(--surface-1)/40 border border-(--border)/50 rounded-lg p-3 my-2 text-left">
+            <span className="block text-[7.5px] text-(--foreground-subtle) font-mono uppercase tracking-wider mb-3">Verification Timeline</span>
+            
+            <div className="relative pl-4 space-y-4">
+              {/* Thin vertical connector line */}
+              <div className="absolute left-[3.5px] top-1.5 bottom-1.5 w-px bg-(--border) dark:bg-gray-800" />
+              
+              {/* Completed Step */}
+              <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                <div className="absolute -left-4 top-1 w-2 h-2 rounded-full bg-amber-500 border border-amber-500 shrink-0" />
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="font-mono text-[8px] text-(--foreground-subtle) shrink-0">22:07:45 UTC</span>
+                  <span className="text-[9.5px] text-(--foreground-muted) font-semibold truncate">Redirection templates verified</span>
+                </div>
+                <span className="text-[8px] font-mono text-green-600 dark:text-green-400 font-bold bg-green-500/10 px-1 rounded shrink-0">COMPLETED</span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
-                <span className="font-mono text-[8px]">22:08:12 UTC</span>
-                <span className="truncate">Active routing signage activated at Gate B</span>
+              
+              {/* Running Step */}
+              <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                <div className="absolute -left-4 top-1 w-2 h-2 rounded-full bg-background border border-amber-500 ring-2 ring-amber-500/15 shrink-0" />
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="font-mono text-[8px] text-(--foreground-subtle) shrink-0">22:08:12 UTC</span>
+                  <span className="text-[9.5px] text-(--foreground-muted) font-semibold truncate">Active routing signage at Gate B</span>
+                </div>
+                <span className="text-[8px] font-mono text-amber-600 dark:text-amber-400 font-bold bg-amber-500/10 px-1 rounded shrink-0 animate-pulse">RUNNING</span>
               </div>
-              <div className="flex items-center gap-1.5 text-amber-600/70 dark:text-amber-400/60">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500/40 shrink-0" />
-                <span className="font-mono text-[8px]">22:15:00 UTC</span>
-                <span className="truncate">Planned manual compliance sweep of junctions</span>
+              
+              {/* Pending Step */}
+              <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                <div className="absolute -left-4 top-1 w-2 h-2 rounded-full bg-background border border-(--border-strong) shrink-0" />
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="font-mono text-[8px] text-(--foreground-subtle) shrink-0">22:15:00 UTC</span>
+                  <span className="text-[9.5px] text-(--foreground-subtle) truncate">Planned manual compliance sweep</span>
+                </div>
+                <span className="text-[8px] font-mono text-(--foreground-subtle) bg-(--surface-2) px-1 rounded shrink-0">PENDING</span>
               </div>
             </div>
           </div>
 
           {/* Bottom Footer */}
-          <div className="pt-2 border-t border-amber-900/20 flex items-center justify-between text-[8.5px] font-mono text-amber-700/80 dark:text-amber-400/70">
+          <div className="pt-2 border-t border-(--border) flex items-center justify-between text-[8.5px] font-mono text-(--foreground-subtle)">
             <span>Activated: 22:07:45 UTC</span>
             <span>Target completion: End of Ingress</span>
           </div>
@@ -235,3 +329,4 @@ export default function CrowdMonitoringPage() {
     />
   );
 }
+
