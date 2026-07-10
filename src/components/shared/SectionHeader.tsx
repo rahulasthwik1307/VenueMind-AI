@@ -5,6 +5,8 @@ interface SectionHeaderProps {
   description?: string;
   action?: React.ReactNode;
   className?: string;
+  /** Optional override for the heading's Tailwind classes (size, weight, etc.) */
+  titleClassName?: string;
 }
 
 export function SectionHeader({
@@ -12,6 +14,7 @@ export function SectionHeader({
   description,
   action,
   className,
+  titleClassName,
 }: SectionHeaderProps) {
   return (
     <div
@@ -21,18 +24,19 @@ export function SectionHeader({
       )}
     >
       <div className="min-w-0">
-        <h2 className="text-sm font-semibold text-(--foreground) tracking-tight leading-snug">
+        <h2
+          className={cn(
+            'text-sm font-semibold text-(--foreground) tracking-tight leading-snug',
+            titleClassName
+          )}
+        >
           {title}
         </h2>
         {description && (
-          <p className="mt-0.5 text-xs text-(--foreground-muted)">
-            {description}
-          </p>
+          <p className="mt-0.5 text-xs text-(--foreground-muted)">{description}</p>
         )}
       </div>
-      {action && (
-        <div className="shrink-0">{action}</div>
-      )}
+      {action && <div className="shrink-0">{action}</div>}
     </div>
   );
 }

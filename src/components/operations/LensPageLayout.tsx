@@ -166,6 +166,7 @@ export function LensPageLayout({
               title={title}
               description={description}
               className="mb-0!"
+              titleClassName="text-base font-semibold tracking-tight"
             />
             
             {/* Status pills */}
@@ -261,21 +262,21 @@ export function LensPageLayout({
 
                       <div className="space-y-1.5">
                         <span className="block text-[7.5px] font-mono text-(--foreground-subtle) uppercase tracking-wider">Recent Activity Logs</span>
-                        <div className="text-[9.5px] space-y-1.5 text-(--foreground-muted) font-sans leading-relaxed">
-                          <div className="flex items-center gap-2">
+                        <div className="text-[9.5px] space-y-2 text-(--foreground-muted) font-sans">
+                          <div className="flex items-center gap-2 border-l-2 border-(--primary)/25 pl-2 py-0.5">
                             <Activity size={11} className="text-(--primary) shrink-0" />
-                            <span className="truncate">Gate 7 scanner flow: <span className="font-semibold text-(--foreground)">12 p/m</span> (Mitigation active)</span>
+                            <span className="truncate leading-snug">Gate 7 scanner flow: <span className="font-semibold text-(--foreground)">12 p/m</span> (Mitigation active)</span>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 border-l-2 border-blue-500/25 pl-2 py-0.5">
                             <Wifi size={11} className="text-blue-500 shrink-0" />
-                            <span className="truncate">Turnstile connectivity: <span className="font-semibold text-(--foreground)">100% online</span> (RFID check OK)</span>
+                            <span className="truncate leading-snug">Turnstile connectivity: <span className="font-semibold text-(--foreground)">100% online</span> (RFID check OK)</span>
                           </div>
                         </div>
                       </div>
 
                       <div className="flex items-center justify-between text-[8px] font-mono text-(--foreground-subtle) bg-(--surface-1)/50 px-2 py-1 rounded border border-(--border)/60">
                         <span>AI Monitoring: <span className="text-(--primary) font-extrabold">ENABLED</span></span>
-                        <span>Scan Time: {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+                        <span suppressHydrationWarning>Scan Time: {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
                       </div>
                       
                       {filteredIncidents.length <= 1 && (
@@ -348,33 +349,53 @@ export function LensPageLayout({
                             Generate real-time tactical briefs, risk predictions, and response workflows scoped to {domain} events.
                           </p>
 
-                          {/* Mini Operational Summary (fills whitespace with useful parameters) */}
+                          {/* Mini Operational Summary — staggered fade-in on appearance */}
                           <div className="w-full grid grid-cols-2 gap-2 mt-4 text-left">
-                            <div className="bg-(--surface-1) border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
-                              <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">AI Readiness</span>
+                            <m.div
+                              initial={{ opacity: 0, y: 4 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.2, delay: 0.05 }}
+                              className="bg-(--surface-1) border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors"
+                            >
+                              <span className="block text-[7px] text-(--foreground-subtle) font-mono tracking-wider uppercase">AI Readiness</span>
                               <span className="text-[11px] font-extrabold text-(--foreground) mt-0.5 block">
                                 <AnimatedNumber value={98} suffix="%" /> — Ready
                               </span>
-                            </div>
-                            <div className="bg-(--surface-1) border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
-                              <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">System Focus</span>
+                            </m.div>
+                            <m.div
+                              initial={{ opacity: 0, y: 4 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.2, delay: 0.1 }}
+                              className="bg-(--surface-1) border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors"
+                            >
+                              <span className="block text-[7px] text-(--foreground-subtle) font-mono tracking-wider uppercase">System Focus</span>
                               <span className="text-[11px] font-extrabold text-(--foreground) uppercase truncate block mt-0.5">{domain} Ops</span>
-                            </div>
-                            <div className="bg-(--surface-1) border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
-                              <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Active Alerts</span>
+                            </m.div>
+                            <m.div
+                              initial={{ opacity: 0, y: 4 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.2, delay: 0.15 }}
+                              className="bg-(--surface-1) border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors"
+                            >
+                              <span className="block text-[7px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Active Alerts</span>
                               <span className="text-[11px] font-extrabold text-amber-600 dark:text-amber-400 mt-0.5 block">1 Warning Active</span>
-                            </div>
-                            <div className="bg-(--surface-1) border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
-                              <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Telemetry Feeds</span>
+                            </m.div>
+                            <m.div
+                              initial={{ opacity: 0, y: 4 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.2, delay: 0.2 }}
+                              className="bg-(--surface-1) border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors"
+                            >
+                              <span className="block text-[7px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Telemetry Feeds</span>
                               <span className="text-[11px] font-extrabold text-(--foreground) mt-0.5 block">
                                 <AnimatedNumber value={100} suffix="%" /> Online
                               </span>
-                            </div>
+                            </m.div>
                           </div>
 
                           <button
                             onClick={handleAskAI}
-                            className="mt-4 w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md bg-(--primary) hover:bg-(--primary-hover) active:scale-[0.98] text-white text-xs font-semibold shadow-sm transition-all duration-150 cursor-pointer"
+                            className="mt-4 w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md bg-(--primary) hover:bg-(--primary-hover) hover:-translate-y-px hover:shadow-md active:scale-[0.98] text-white text-xs font-semibold shadow-sm transition-all duration-150 cursor-pointer"
                             aria-label={`Ask AI about ${domain} operations`}
                           >
                             <Brain size={12} />
