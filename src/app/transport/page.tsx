@@ -53,6 +53,19 @@ export default function TransportPage() {
   const stadiumStats = useIncidentStore((s) => s.stadiumStats);
   const transportStatus = stadiumStats.transportStatus; // 'Good' | 'Delayed' | 'Congested' | 'Critical'
 
+  // Scroll visibility shadows state for Transit Node Monitor
+  const [showTopShadow, setShowTopShadow] = useState(false);
+  const [showBottomShadow, setShowBottomShadow] = useState(true);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    const scrollPos = target.scrollTop;
+    const maxScroll = target.scrollHeight - target.clientHeight;
+    
+    setShowTopShadow(scrollPos > 4);
+    setShowBottomShadow(scrollPos < maxScroll - 4);
+  };
+
   // Map global transport status to specific telemetry properties
   const isNormal = transportStatus === 'Good';
   const isCritical = transportStatus === 'Critical';
@@ -133,7 +146,7 @@ export default function TransportPage() {
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h4 className="text-xs font-bold text-red-600 dark:text-red-400">Transit Delays Reported</h4>
+            <h4 className="text-xs font-bold text-(--foreground) uppercase tracking-wider">Transit Delays Reported</h4>
             <span className="text-[8px] font-mono font-bold uppercase bg-red-500/15 text-red-700 dark:text-red-300 border border-red-500/25 px-1.5 py-0.5 rounded">
               Active
             </span>
@@ -148,31 +161,31 @@ export default function TransportPage() {
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 my-3">
         <div className="bg-(--surface-1) border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
           <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Incident Cause</span>
-          <span className="text-[10.5px] font-bold text-(--foreground) mt-0.5 block truncate">Traffic Collision</span>
+          <span className="text-[11px] font-bold text-(--foreground) mt-0.5 block truncate">Traffic Collision</span>
         </div>
         <div className="bg-(--surface-1) border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
           <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Affected Routes</span>
-          <span className="text-[10.5px] font-bold text-(--foreground) mt-0.5 block truncate">Shuttle Route B</span>
+          <span className="text-[11px] font-bold text-(--foreground) mt-0.5 block truncate">Shuttle Route B</span>
         </div>
         <div className="bg-(--surface-1) border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
           <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Est. Delay Increase</span>
-          <span className="text-[10.5px] font-bold text-red-600 dark:text-red-400 mt-0.5 block">
+          <span className="text-[11px] font-bold text-red-600 dark:text-red-400 mt-0.5 block">
             <AnimatedNumber value={25} suffix="m" />
           </span>
         </div>
         <div className="bg-(--surface-1) border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
           <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Passenger Impact</span>
-          <span className="text-[10.5px] font-bold text-(--foreground) mt-0.5 block">
+          <span className="text-[11px] font-bold text-(--foreground) mt-0.5 block">
             <AnimatedNumber value={1500} /> <span className="text-[8px] text-(--foreground-subtle) font-normal">Pax</span>
           </span>
         </div>
         <div className="bg-(--surface-1) border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
           <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Assigned Team</span>
-          <span className="text-[10.5px] font-bold text-(--foreground) mt-0.5 block truncate">Transit Ops &amp; TIRT</span>
+          <span className="text-[11px] font-bold text-(--foreground) mt-0.5 block truncate">Transit Ops &amp; TIRT</span>
         </div>
         <div className="bg-(--surface-1) border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
           <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">AI Confidence</span>
-          <span className="text-[10.5px] font-bold text-(--foreground) mt-0.5 block">
+          <span className="text-[11px] font-bold text-(--foreground) mt-0.5 block">
             <AnimatedNumber value={92} suffix="%" /> <span className="text-[8px] text-(--foreground-subtle) font-normal">Match</span>
           </span>
         </div>
@@ -185,45 +198,51 @@ export default function TransportPage() {
         </span>
 
         <div className="relative pl-5 space-y-4">
-          <div className="absolute left-1 top-1.5 bottom-1.5 w-[1.5px] bg-(--border) dark:bg-gray-800" />
+          <div className="absolute left-1 top-1.5 bottom-1.5 w-0.5 bg-(--border-strong)/80 dark:bg-gray-700" />
 
+          {/* Completed step */}
           <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-            <div className="absolute -left-5 top-1 w-2.5 h-2.5 rounded-full bg-red-500 border-2 border-red-500 shrink-0" />
+            <div className="absolute -left-5 top-1.5 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-green-500 shrink-0" />
             <div className="flex items-center gap-1.5 min-w-0">
-              <span className="font-mono text-[8px] text-(--foreground-subtle) shrink-0">08:12 UTC</span>
+              <span className="font-mono text-[8px] text-(--foreground-subtle) font-semibold shrink-0">08:12 UTC</span>
               <span className="text-[9.5px] text-(--foreground-muted) font-semibold truncate">Collision reported on Al Khor Hwy</span>
             </div>
-            <span className="text-[7.5px] font-mono text-green-700 dark:text-green-400 font-bold bg-green-500/10 border border-green-500/25 px-1.5 py-0.5 rounded shrink-0 uppercase tracking-wider">
+            <span className="text-[7.5px] font-mono text-green-700 bg-green-50 dark:text-green-400 dark:bg-green-950/20 border border-green-200 dark:border-green-900/40 font-bold px-1.5 py-0.5 rounded shrink-0 uppercase tracking-wider">
               COMPLETED
             </span>
           </div>
 
+          {/* Completed step */}
           <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-            <div className="absolute -left-5 top-1 w-2.5 h-2.5 rounded-full bg-red-500 border-2 border-red-500 shrink-0" />
+            <div className="absolute -left-5 top-1.5 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-green-500 shrink-0" />
             <div className="flex items-center gap-1.5 min-w-0">
-              <span className="font-mono text-[8px] text-(--foreground-subtle) shrink-0">08:15 UTC</span>
+              <span className="font-mono text-[8px] text-(--foreground-subtle) font-semibold shrink-0">08:15 UTC</span>
               <span className="text-[9.5px] text-(--foreground-muted) font-semibold truncate">Route B shuttle diversion recommended</span>
             </div>
-            <span className="text-[7.5px] font-mono text-green-700 dark:text-green-400 font-bold bg-green-500/10 border border-green-500/25 px-1.5 py-0.5 rounded shrink-0 uppercase tracking-wider">
+            <span className="text-[7.5px] font-mono text-green-700 bg-green-50 dark:text-green-400 dark:bg-green-950/20 border border-green-200 dark:border-green-900/40 font-bold px-1.5 py-0.5 rounded shrink-0 uppercase tracking-wider">
               COMPLETED
             </span>
           </div>
 
+          {/* Running step */}
           <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-            <div className="absolute -left-5 top-1 w-2.5 h-2.5 rounded-full bg-background border-2 border-red-500 ring-2 ring-red-500/20 shrink-0 animate-pulse" />
+            <div className="absolute -left-[21px] top-1 w-3.5 h-3.5 rounded-full bg-background border-2 border-amber-500 ring-2 ring-amber-500/25 shrink-0 flex items-center justify-center">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+            </div>
             <div className="flex items-center gap-1.5 min-w-0">
-              <span className="font-mono text-[8px] text-(--foreground-subtle) shrink-0">08:18 UTC</span>
+              <span className="font-mono text-[8px] text-(--foreground-subtle) font-semibold shrink-0">08:18 UTC</span>
               <span className="text-[9.5px] text-(--foreground-muted) font-semibold truncate">Redirect passengers to Walkway / Shuttle A</span>
             </div>
-            <span className="text-[7.5px] font-mono text-red-700 dark:text-red-400 font-bold bg-red-500/10 border border-red-500/30 px-1.5 py-0.5 rounded shrink-0 uppercase tracking-wider animate-pulse">
+            <span className="text-[7.5px] font-mono text-amber-700 bg-amber-50 dark:text-amber-400 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 font-bold px-1.5 py-0.5 rounded shrink-0 uppercase tracking-wider animate-pulse">
               RUNNING
             </span>
           </div>
 
+          {/* Pending step */}
           <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-            <div className="absolute -left-5 top-1 w-2.5 h-2.5 rounded-full bg-background border-2 border-(--border-strong) shrink-0" />
+            <div className="absolute -left-5 top-1.5 w-2.5 h-2.5 rounded-full bg-background border-2 border-(--border-strong) shrink-0" />
             <div className="flex items-center gap-1.5 min-w-0">
-              <span className="font-mono text-[8px] text-(--foreground-subtle) shrink-0">08:35 UTC</span>
+              <span className="font-mono text-[8px] text-(--foreground-subtle) font-semibold shrink-0">08:35 UTC</span>
               <span className="text-[9.5px] text-(--foreground-subtle) truncate">Accident site cleared & lanes reopened</span>
             </div>
             <span className="text-[7.5px] font-mono text-(--foreground-subtle) bg-(--surface-2) border border-(--border)/70 px-1.5 py-0.5 rounded shrink-0 opacity-60 uppercase tracking-wider">
@@ -248,7 +267,7 @@ export default function TransportPage() {
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h4 className="text-xs font-bold text-green-600 dark:text-green-400">All Transit Operations Nominal</h4>
+            <h4 className="text-xs font-bold text-(--foreground) uppercase tracking-wider">All Transit Operations Nominal</h4>
             <span className="text-[8px] font-mono font-bold uppercase bg-green-500/15 text-green-700 dark:text-green-400 border border-green-500/25 px-1.5 py-0.5 rounded">
               Nominal
             </span>
@@ -263,33 +282,33 @@ export default function TransportPage() {
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 my-3">
         <div className="bg-(--surface-1) border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
           <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Transit Fleet</span>
-          <span className="text-[10.5px] font-bold text-green-600 dark:text-green-400 mt-0.5 block truncate">100% Active</span>
+          <span className="text-[11px] font-bold text-(--foreground) mt-0.5 block truncate">100% Active</span>
         </div>
         <div className="bg-(--surface-1) border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
           <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Bypass Routes</span>
-          <span className="text-[10.5px] font-bold text-(--foreground) mt-0.5 block truncate">Standby Mode</span>
+          <span className="text-[11px] font-bold text-(--foreground) mt-0.5 block truncate">Standby Mode</span>
         </div>
         <div className="bg-(--surface-1) border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
           <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Headway Target</span>
-          <span className="text-[10.5px] font-bold text-(--foreground) mt-0.5 flex items-center gap-0.5">
+          <span className="text-[11px] font-bold text-(--foreground) mt-0.5 flex items-center gap-0.5">
             <AnimatedNumber value={5} suffix="m avg" />
           </span>
         </div>
         <div className="bg-(--surface-1) border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
           <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Station Density</span>
-          <span className="text-[10.5px] font-bold text-(--foreground) mt-0.5 block">
+          <span className="text-[11px] font-bold text-(--foreground) mt-0.5 block">
             <AnimatedNumber value={28} suffix="%" /> <span className="text-[8px] text-(--foreground-subtle) font-normal">Cap</span>
           </span>
         </div>
         <div className="bg-(--surface-1) border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
           <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Active Dispatchers</span>
-          <span className="text-[10.5px] font-bold text-(--foreground) mt-0.5 block truncate">
+          <span className="text-[11px] font-bold text-(--foreground) mt-0.5 block truncate">
             <AnimatedNumber value={42} /> Staff
           </span>
         </div>
         <div className="bg-(--surface-1) border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
           <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">AI System Monitor</span>
-          <span className="text-[10.5px] font-bold text-(--primary) mt-0.5 block truncate">Auditing Feeds</span>
+          <span className="text-[11px] font-bold text-(--primary) mt-0.5 block truncate">Auditing Feeds</span>
         </div>
       </div>
 
@@ -300,45 +319,51 @@ export default function TransportPage() {
         </span>
 
         <div className="relative pl-5 space-y-4">
-          <div className="absolute left-1 top-1.5 bottom-1.5 w-[1.5px] bg-(--border) dark:bg-gray-800" />
+          <div className="absolute left-1 top-1.5 bottom-1.5 w-0.5 bg-(--border-strong)/80 dark:bg-gray-700" />
 
+          {/* Completed step */}
           <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-            <div className="absolute -left-5 top-1 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-green-500 shrink-0" />
+            <div className="absolute -left-5 top-1.5 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-green-500 shrink-0" />
             <div className="flex items-center gap-1.5 min-w-0">
-              <span className="font-mono text-[8px] text-(--foreground-subtle) shrink-0">06:00 UTC</span>
+              <span className="font-mono text-[8px] text-(--foreground-subtle) font-semibold shrink-0">06:00 UTC</span>
               <span className="text-[9.5px] text-(--foreground-muted) font-semibold truncate">Fleet rollout & station health audits complete</span>
             </div>
-            <span className="text-[7.5px] font-mono text-green-700 dark:text-green-400 font-bold bg-green-500/10 border border-green-500/25 px-1.5 py-0.5 rounded shrink-0 uppercase tracking-wider">
+            <span className="text-[7.5px] font-mono text-green-700 bg-green-50 dark:text-green-400 dark:bg-green-950/20 border border-green-200 dark:border-green-900/40 font-bold px-1.5 py-0.5 rounded shrink-0 uppercase tracking-wider">
               COMPLETED
             </span>
           </div>
 
+          {/* Completed step */}
           <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-            <div className="absolute -left-5 top-1 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-green-500 shrink-0" />
+            <div className="absolute -left-5 top-1.5 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-green-500 shrink-0" />
             <div className="flex items-center gap-1.5 min-w-0">
-              <span className="font-mono text-[8px] text-(--foreground-subtle) shrink-0">07:30 UTC</span>
+              <span className="font-mono text-[8px] text-(--foreground-subtle) font-semibold shrink-0">07:30 UTC</span>
               <span className="text-[9.5px] text-(--foreground-muted) font-semibold truncate">Peak match ingress telemetry synchronized</span>
             </div>
-            <span className="text-[7.5px] font-mono text-green-700 dark:text-green-400 font-bold bg-green-500/10 border border-green-500/25 px-1.5 py-0.5 rounded shrink-0 uppercase tracking-wider">
+            <span className="text-[7.5px] font-mono text-green-700 bg-green-50 dark:text-green-400 dark:bg-green-950/20 border border-green-200 dark:border-green-900/40 font-bold px-1.5 py-0.5 rounded shrink-0 uppercase tracking-wider">
               COMPLETED
             </span>
           </div>
 
+          {/* Running step */}
           <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-            <div className="absolute -left-5 top-1 w-2.5 h-2.5 rounded-full bg-background border-2 border-green-500 ring-2 ring-green-500/20 shrink-0 animate-pulse" />
+            <div className="absolute -left-[21px] top-1 w-3.5 h-3.5 rounded-full bg-background border-2 border-amber-500 ring-2 ring-amber-500/25 shrink-0 flex items-center justify-center">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+            </div>
             <div className="flex items-center gap-1.5 min-w-0">
-              <span className="font-mono text-[8px] text-(--foreground-subtle) shrink-0">08:00 UTC</span>
+              <span className="font-mono text-[8px] text-(--foreground-subtle) font-semibold shrink-0">08:00 UTC</span>
               <span className="text-[9.5px] text-(--foreground-muted) font-semibold truncate">Real-time GPS tracking & scheduling active</span>
             </div>
-            <span className="text-[7.5px] font-mono text-green-700 dark:text-green-400 font-bold bg-green-500/10 border border-green-500/30 px-1.5 py-0.5 rounded shrink-0 uppercase tracking-wider animate-pulse">
+            <span className="text-[7.5px] font-mono text-amber-700 bg-amber-50 dark:text-amber-400 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 font-bold px-1.5 py-0.5 rounded shrink-0 uppercase tracking-wider animate-pulse">
               RUNNING
             </span>
           </div>
 
+          {/* Pending step */}
           <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-            <div className="absolute -left-5 top-1 w-2.5 h-2.5 rounded-full bg-background border-2 border-(--border-strong) shrink-0" />
+            <div className="absolute -left-5 top-1.5 w-2.5 h-2.5 rounded-full bg-background border-2 border-(--border-strong) shrink-0" />
             <div className="flex items-center gap-1.5 min-w-0">
-              <span className="font-mono text-[8px] text-(--foreground-subtle) shrink-0">09:15 UTC</span>
+              <span className="font-mono text-[8px] text-(--foreground-subtle) font-semibold shrink-0">09:15 UTC</span>
               <span className="text-[9.5px] text-(--foreground-subtle) truncate">Scheduled match-end egress mobilization</span>
             </div>
             <span className="text-[7.5px] font-mono text-(--foreground-subtle) bg-(--surface-2) border border-(--border)/70 px-1.5 py-0.5 rounded shrink-0 opacity-60 uppercase tracking-wider">
@@ -429,12 +454,24 @@ export default function TransportPage() {
         </div>
       }
       mainContent={
-        <div className="border border-(--border) rounded-xl p-4 bg-(--surface-2)/20 space-y-3.5 h-full flex flex-col justify-between shadow-sm">
-          <h3 className="text-xs font-bold text-(--foreground) uppercase tracking-wider shrink-0">
+        <div className="border border-(--border) rounded-xl p-4 bg-(--surface-2)/20 h-[380px] flex flex-col justify-between shadow-sm relative">
+          <h3 className="text-xs font-bold text-(--foreground) uppercase tracking-wider shrink-0 mb-3">
             Transit Node Monitor
           </h3>
           
-          <div className="space-y-3 flex-1 overflow-y-auto min-h-0 custom-scrollbar-always pr-0.5" role="list">
+          {/* Top scroll fade shadow */}
+          <div
+            className={cn(
+              "absolute left-4 right-4 top-[45px] h-6 bg-gradient-to-b from-gray-900/5 to-transparent pointer-events-none transition-opacity duration-200 z-10 dark:from-black/15",
+              showTopShadow ? "opacity-100" : "opacity-0"
+            )}
+          />
+
+          <div
+            onScroll={handleScroll}
+            className="space-y-3 flex-1 overflow-y-auto pr-0.5 custom-scrollbar-always scroll-smooth"
+            role="list"
+          >
             {nodes.map((node, idx) => {
               const NodeIcon = node.icon;
               // Extract numeric wait time
@@ -505,6 +542,14 @@ export default function TransportPage() {
               );
             })}
           </div>
+
+          {/* Bottom scroll fade shadow */}
+          <div
+            className={cn(
+              "absolute left-4 right-4 bottom-4 h-6 bg-gradient-to-t from-gray-900/5 to-transparent pointer-events-none transition-opacity duration-200 z-10 dark:from-black/15",
+              showBottomShadow ? "opacity-100" : "opacity-0"
+            )}
+          />
         </div>
       }
       alertContent={alertContent}
