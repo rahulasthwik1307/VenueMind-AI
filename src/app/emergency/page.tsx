@@ -383,7 +383,7 @@ export default function EmergencyPage() {
                   {getStatusText(systemHealth.medical)}
                 </span>
               </div>
-              <p className="text-[10px] text-(--foreground-muted) mt-1 leading-normal sm:h-8.5 overflow-hidden">
+              <p className="text-[10px] text-(--foreground-muted) mt-1 leading-normal">
                 Total availability: {medicalStandby} standby units. Nearest station East gate reports average response time of 2.8 minutes.
               </p>
               <div className="grid grid-cols-[max-content_1fr] @[310px]:grid-cols-[max-content_1fr_max-content_1fr] gap-x-3 gap-y-1.5 mt-2.5 pt-2 border-t border-(--border) text-[9.5px] font-mono">
@@ -420,7 +420,7 @@ export default function EmergencyPage() {
                   {getStatusText(systemHealth.perimeter)}
                 </span>
               </div>
-              <p className="text-[10px] text-(--foreground-muted) mt-1 leading-normal sm:h-8.5 overflow-hidden">
+              <p className="text-[10px] text-(--foreground-muted) mt-1 leading-normal">
                 CCTV coverage: 99.8% active. 240 security staff deployed on site. Quick response squads stand by on sectors A & D.
               </p>
               <div className="grid grid-cols-[max-content_1fr] @[310px]:grid-cols-[max-content_1fr_max-content_1fr] gap-x-3 gap-y-1.5 mt-2.5 pt-2 border-t border-(--border) text-[9.5px] font-mono">
@@ -457,7 +457,7 @@ export default function EmergencyPage() {
                   {getStatusText(systemHealth.fireAlarms)}
                 </span>
               </div>
-              <p className="text-[10px] text-(--foreground-muted) mt-1 leading-normal sm:h-8.5 overflow-hidden">
+              <p className="text-[10px] text-(--foreground-muted) mt-1 leading-normal">
                 Relays tested at pre-match briefing. All 4,200 sensors reporting normal temperature thresholds. Fire control board operational.
               </p>
               <div className="grid grid-cols-[max-content_1fr] @[310px]:grid-cols-[max-content_1fr_max-content_1fr] gap-x-3 gap-y-1.5 mt-2.5 pt-2 border-t border-(--border) text-[9.5px] font-mono">
@@ -494,7 +494,7 @@ export default function EmergencyPage() {
                   {getStatusText(systemHealth.evacPaths)}
                 </span>
               </div>
-              <p className="text-[10px] text-(--foreground-muted) mt-1 leading-normal sm:h-8.5 overflow-hidden">
+              <p className="text-[10px] text-(--foreground-muted) mt-1 leading-normal">
                 Emergency gate locks monitored. Electromagnetic releases verified online. All auxiliary corridors and exit lanes clear of debris.
               </p>
               <div className="grid grid-cols-[max-content_1fr] @[310px]:grid-cols-[max-content_1fr_max-content_1fr] gap-x-3 gap-y-1.5 mt-2.5 pt-2 border-t border-(--border) text-[9.5px] font-mono">

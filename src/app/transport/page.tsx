@@ -454,7 +454,7 @@ export default function TransportPage() {
         </div>
       }
       mainContent={
-        <div className="border border-(--border) rounded-xl p-4 bg-(--surface-2)/20 h-95 flex flex-col justify-between shadow-sm relative">
+        <div className="border border-(--border) rounded-xl pt-4 px-4 pb-0 bg-(--surface-2)/20 h-95 flex flex-col justify-between shadow-sm relative">
           <h3 className="text-xs font-bold text-(--foreground) uppercase tracking-wider shrink-0 mb-3">
             Transit Node Monitor
           </h3>
@@ -469,7 +469,7 @@ export default function TransportPage() {
 
           <div
             onScroll={handleScroll}
-            className="space-y-3 flex-1 overflow-y-auto pr-0.5 custom-scrollbar-always scroll-smooth"
+            className="space-y-3 flex-1 overflow-y-auto pr-0.5 pb-4 custom-scrollbar-always scroll-smooth"
             role="list"
           >
             {nodes.map((node, idx) => {
@@ -477,6 +477,9 @@ export default function TransportPage() {
               // Extract numeric wait time
               const waitNumeric = parseInt(node.waitTime, 10);
               const hasSuffix = node.waitTime.includes('m');
+              const match = node.name.match(/(.+?)\s*\((.+?)\)/);
+              const title = match ? match[1] : node.name;
+              const location = match ? `(${match[2]})` : '';
 
               return (
                 <m.div
@@ -496,11 +499,22 @@ export default function TransportPage() {
                       <NodeIcon size={16} />
                     </div>
                     <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h4 className="text-[11.5px] font-bold text-(--foreground) truncate leading-tight">{node.name}</h4>
-                        <span className="text-[7.5px] text-(--foreground-subtle) font-mono uppercase bg-(--surface-2) px-1.5 py-0.5 rounded border border-(--border)">
-                          {node.type}
-                        </span>
+                      <div className="flex items-start gap-2 flex-wrap sm:flex-nowrap">
+                        <div className="min-w-0 flex flex-col leading-tight">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h4 className="text-[11.5px] font-bold text-(--foreground) tracking-tight">
+                              {title}
+                            </h4>
+                            <span className="text-[7.5px] text-(--foreground-subtle) font-mono uppercase bg-(--surface-2) px-1.5 py-0.5 rounded border border-(--border) shrink-0">
+                              {node.type}
+                            </span>
+                          </div>
+                          {location && (
+                            <span className="text-[9.5px] text-(--foreground-subtle) font-medium mt-0.5">
+                              {location}
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <p className="text-[10px] text-(--foreground-muted) mt-1 leading-normal">
                         {node.detail}
@@ -546,7 +560,7 @@ export default function TransportPage() {
           {/* Bottom scroll fade shadow */}
           <div
             className={cn(
-              "absolute left-4 right-4 bottom-4 h-6 bg-linear-to-t from-gray-900/5 to-transparent pointer-events-none transition-opacity duration-200 z-10 dark:from-black/15",
+              "absolute left-4 right-4 bottom-0 h-6 bg-linear-to-t from-gray-900/5 to-transparent pointer-events-none transition-opacity duration-200 z-10 dark:from-black/15",
               showBottomShadow ? "opacity-100" : "opacity-0"
             )}
           />
