@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { PanelLeftClose, PanelLeftOpen, Cpu } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { PanelLeftClose, PanelLeftOpen, Cpu, LogOut } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { NAV_GROUPS } from '@/constants/navigation';
 import { SIDEBAR_WIDTH, SIDEBAR_COLLAPSED_WIDTH } from '@/constants/layout';
+import { ROUTES } from '@/constants/routes';
 import { SidebarNavGroup } from './SidebarNavGroup';
 
 const OPERATOR = {
@@ -15,8 +17,13 @@ const OPERATOR = {
 
 export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
+  const router = useRouter();
 
   const sidebarWidth = collapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH;
+
+  const handleExit = () => {
+    router.push(ROUTES.landing);
+  };
 
   return (
     <aside
@@ -76,6 +83,7 @@ export function AppSidebar() {
         )}
       >
         {collapsed ? (
+          /* Collapsed: avatar + expand + exit, stacked vertically */
           <div className="flex flex-col items-center gap-3">
             <div
               className="w-7 h-7 rounded-full bg-(--primary) flex items-center justify-center text-white text-[10px] font-bold shadow-sm"
@@ -96,8 +104,23 @@ export function AppSidebar() {
             >
               <PanelLeftOpen size={14} strokeWidth={1.75} aria-hidden="true" />
             </button>
+            {/* Exit button — collapsed state (icon only) */}
+            <button
+              onClick={handleExit}
+              className={cn(
+                'flex items-center justify-center rounded-md p-1.5',
+                'text-(--foreground-subtle) hover:bg-slate-950/20 hover:text-(--foreground)',
+                'transition-colors duration-150 cursor-pointer',
+                'focus-visible:outline-(--focus-ring)'
+              )}
+              aria-label="Return to landing page"
+              title="Exit to landing page"
+            >
+              <LogOut size={14} strokeWidth={1.75} aria-hidden="true" />
+            </button>
           </div>
         ) : (
+          /* Expanded: identity block + collapse + exit */
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2.5 min-w-0">
               <div
@@ -115,22 +138,41 @@ export function AppSidebar() {
                 </p>
               </div>
             </div>
-            <button
-              onClick={() => setCollapsed(true)}
-              className={cn(
-                'flex items-center justify-center rounded-md p-1.5 shrink-0',
-                'text-(--foreground-subtle) hover:bg-slate-950/20 hover:text-(--foreground)',
-                'transition-colors duration-150 cursor-pointer',
-                'focus-visible:outline-(--focus-ring)'
-              )}
-              aria-label="Collapse sidebar"
-              aria-expanded={true}
-            >
-              <PanelLeftClose size={14} strokeWidth={1.75} aria-hidden="true" />
-            </button>
+            {/* Icon button group: collapse + exit */}
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                onClick={() => setCollapsed(true)}
+                className={cn(
+                  'flex items-center justify-center rounded-md p-1.5',
+                  'text-(--foreground-subtle) hover:bg-slate-950/20 hover:text-(--foreground)',
+                  'transition-colors duration-150 cursor-pointer',
+                  'focus-visible:outline-(--focus-ring)'
+                )}
+                aria-label="Collapse sidebar"
+                aria-expanded={true}
+              >
+                <PanelLeftClose size={14} strokeWidth={1.75} aria-hidden="true" />
+              </button>
+              {/* Exit button — expanded state */}
+              <button
+                onClick={handleExit}
+                className={cn(
+                  'flex items-center justify-center rounded-md p-1.5',
+                  'text-(--foreground-subtle) hover:bg-slate-950/20 hover:text-(--foreground)',
+                  'transition-colors duration-150 cursor-pointer',
+                  'focus-visible:outline-(--focus-ring)'
+                )}
+                aria-label="Return to landing page"
+                title="Exit to landing page"
+              >
+                <LogOut size={14} strokeWidth={1.75} aria-hidden="true" />
+              </button>
+            </div>
           </div>
         )}
       </div>
     </aside>
   );
 }
+
+

@@ -1,13 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { AppHeader } from './AppHeader';
 import { AppSidebar } from './AppSidebar';
 import { RightPanel } from './RightPanel';
 import { MobileSidebarOverlay } from './MobileSidebarOverlay';
 import { IncidentDrawer } from '@/components/incident/IncidentDrawer';
 import { ToastContainer } from '@/components/shared/ToastContainer';
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 import { DashboardSimulator } from '@/components/providers/DashboardSimulator';
+import { useBackNavigationGuard } from '@/hooks/useBackNavigationGuard';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -26,9 +28,34 @@ interface AppShellProps {
  * ├──────────┴──────────────────────┴───────────┤
  * │                  AppFooter                  │
  * └─────────────────────────────────────────────┘
+ *
+ * Back-navigation guard:
+ * AppShell is the correct place for the back-navigation guard because it is
+ * only rendered within the (app) route group — never on the landing page.
+ * The guard intercepts browser back-button presses that would navigate to "/"
+ * and shows a confirmation dialog instead of allowing silent exit.
  */
 export function AppShell({ children }: AppShellProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [isExitDialogOpen, setIsExitDialogOpen] = useState(false);
+
+  const handleGuardTriggered = useCallback(() => {
+    setIsExitDialogOpen(true);
+  }, []);
+
+  const { confirmExit, cancelExit } = useBackNavigationGuard({
+    onGuardTriggered: handleGuardTriggered,
+  });
+
+  const handleConfirmExit = useCallback(() => {
+    setIsExitDialogOpen(false);
+    confirmExit();
+  }, [confirmExit]);
+
+  const handleCancelExit = useCallback(() => {
+    setIsExitDialogOpen(false);
+    cancelExit();
+  }, [cancelExit]);
 
   return (
     <div
@@ -79,6 +106,23 @@ export function AppShell({ children }: AppShellProps) {
 
       {/* Background Live Telemetry & Activity Simulator */}
       <DashboardSimulator />
+
+      {/*
+       * Back-navigation confirmation dialog.
+       * Shown only when the browser back-button would navigate to "/" (the
+       * landing page). Intentional exit via the sidebar Exit button bypasses
+       * this dialog — it is only for accidental browser back-button presses.
+       */}
+      <ConfirmDialog
+        isOpen={isExitDialogOpen}
+        title="Leave the Operations Console?"
+        description="You are about to return to the landing page. Any unsaved work may be lost."
+        confirmLabel="Exit to Landing"
+        cancelLabel="Stay"
+        onConfirm={handleConfirmExit}
+        onCancel={handleCancelExit}
+      />
     </div>
   );
 }
+

@@ -1,9 +1,11 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { X, Cpu } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { X, Cpu, LogOut } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { NAV_GROUPS } from '@/constants/navigation';
+import { ROUTES } from '@/constants/routes';
 import { SidebarNavGroup } from './SidebarNavGroup';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 
@@ -14,6 +16,12 @@ interface MobileSidebarOverlayProps {
 
 export function MobileSidebarOverlay({ isOpen, onClose }: MobileSidebarOverlayProps) {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const router = useRouter();
+
+  const handleExit = () => {
+    onClose();
+    router.push(ROUTES.landing);
+  };
 
   // Close on Escape key
   useEffect(() => {
@@ -119,6 +127,22 @@ export function MobileSidebarOverlay({ isOpen, onClose }: MobileSidebarOverlayPr
               <p className="text-[10px] text-(--foreground-muted)">Ops Manager</p>
             </div>
           </div>
+          {/* Exit button — returns to landing page */}
+          <button
+            onClick={handleExit}
+            className={cn(
+              'w-full flex items-center gap-2 px-2.5 py-2 mt-1 rounded-md',
+              'text-xs font-medium text-(--foreground-subtle)',
+              'hover:bg-(--surface-2) hover:text-(--foreground)',
+              'border border-(--border)',
+              'transition-colors duration-150 cursor-pointer',
+              'focus-visible:outline-(--focus-ring)'
+            )}
+            aria-label="Return to landing page"
+          >
+            <LogOut size={13} strokeWidth={1.75} aria-hidden="true" />
+            Exit
+          </button>
         </div>
       </nav>
     </div>
