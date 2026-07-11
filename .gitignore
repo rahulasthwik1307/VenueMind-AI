@@ -52,5 +52,6 @@ next-env.d.ts
 
 # Custom Exclusions
 keepdocs/
-AGENTS.MD
-CLAUDE.MD
+AGENTS.md
+CLAUDE.md
+docs/
