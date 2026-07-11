@@ -8,6 +8,52 @@ import { aiStructuredResponseSchema, assistantRequestSchema } from '@/schemas/as
 import { logger } from '@/lib/logger';
 import type { AssistantLanguage } from '@/types/assistant';
 
+/**
+ * Normalizes specific, confirmed type mismatches in the AI response before Zod parsing.
+ * - Coerces confidence from string ("92" / "92%") to number.
+ * - Coerces isNonOperational from string ("true" / "false") to boolean.
+ */
+export function normalizeAssistantResponse(raw: unknown): unknown {
+  if (typeof raw !== 'object' || raw === null) {
+    return raw;
+  }
+
+  let coerced: Record<string, unknown> | null = null;
+
+  // 1. Coerce confidence
+  if ('confidence' in raw) {
+    const rawConf = (raw as Record<string, unknown>).confidence;
+    if (typeof rawConf === 'string') {
+      const stripped = rawConf.replace(/%/g, '').trim();
+      const parsed = Number(stripped);
+      if (!isNaN(parsed) && stripped !== '') {
+        coerced = coerced || { ...(raw as Record<string, unknown>) };
+        coerced.confidence = parsed;
+        logger.debug('[assistant/route] Coerced confidence from string to number', { original: rawConf, coerced: parsed });
+      }
+    }
+  }
+
+  // 2. Coerce isNonOperational
+  if ('isNonOperational' in raw) {
+    const rawVal = (raw as Record<string, unknown>).isNonOperational;
+    if (typeof rawVal === 'string') {
+      const normalizedStr = rawVal.trim().toLowerCase();
+      if (normalizedStr === 'true') {
+        coerced = coerced || { ...(raw as Record<string, unknown>) };
+        coerced.isNonOperational = true;
+        logger.debug('[assistant/route] Coerced isNonOperational from string to boolean', { original: rawVal, coerced: true });
+      } else if (normalizedStr === 'false') {
+        coerced = coerced || { ...(raw as Record<string, unknown>) };
+        coerced.isNonOperational = false;
+        logger.debug('[assistant/route] Coerced isNonOperational from string to boolean', { original: rawVal, coerced: false });
+      }
+    }
+  }
+
+  return coerced || raw;
+}
+
 // ─── Rate Limiter ─────────────────────────────────────────────────────────────
 
 interface RateLimitRecord {
@@ -173,9 +219,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   // ── Validate first response ───────────────────────────────────────────────
-  const firstParsed = aiStructuredResponseSchema.safeParse(rawResponse);
+  const normalizedFirst = normalizeAssistantResponse(rawResponse);
+  const firstParsed = aiStructuredResponseSchema.safeParse(normalizedFirst);
   if (firstParsed.success) {
-    logger.info('[assistant/route] Response validated successfully on first attempt');
+    const wasNormalized = normalizedFirst !== rawResponse;
+    logger.info(
+      `[assistant/route] Response validated successfully on first attempt${wasNormalized ? ' (with normalization)' : ''}`
+    );
     return NextResponse.json({ success: true, data: firstParsed.data });
   }
 
@@ -202,9 +252,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     );
   }
 
-  const retryParsed = aiStructuredResponseSchema.safeParse(retryResponse);
+  const normalizedRetry = normalizeAssistantResponse(retryResponse);
+  const retryParsed = aiStructuredResponseSchema.safeParse(normalizedRetry);
   if (retryParsed.success) {
-    logger.info('[assistant/route] Response validated successfully on retry');
+    const wasNormalized = normalizedRetry !== retryResponse;
+    logger.info(
+      `[assistant/route] Response validated successfully on retry${wasNormalized ? ' (with normalization)' : ''}`
+    );
     return NextResponse.json({ success: true, data: retryParsed.data });
   }
 
