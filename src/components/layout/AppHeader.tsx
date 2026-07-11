@@ -17,7 +17,8 @@ import {
   Activity,
   Info,
   X,
-  Languages
+  Languages,
+  LogOut
 } from 'lucide-react';
 import { m, AnimatePresence } from 'framer-motion';
 import { cn } from '@/utils/cn';
@@ -25,10 +26,13 @@ import { HEADER_HEIGHT } from '@/constants/layout';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { useIncidentStore } from '@/store/modules/incident';
 import { useUIStore } from '@/store/modules/ui';
+import { ROUTES } from '@/constants/routes';
+import { useRouter } from 'next/navigation';
 import type { AssistantLanguage } from '@/types/assistant';
 
 interface AppHeaderProps {
   onMobileMenuOpen?: () => void;
+  onSearchOpen?: () => void;
 }
 
 const OPERATOR_INITIALS = 'RA';
@@ -64,10 +68,9 @@ function useLiveDate() {
   });
 }
 
-export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
+export function AppHeader({ onMobileMenuOpen, onSearchOpen }: AppHeaderProps) {
   const { theme, setTheme } = useTheme();
-  const searchQuery = useIncidentStore((state) => state.searchQuery);
-  const setSearchQuery = useIncidentStore((state) => state.setSearchQuery);
+  const router = useRouter();
   const activities = useIncidentStore((state) => state.activities);
   const telemetry = useIncidentStore((state) => state.telemetry);
   const time = useLiveTime();
@@ -79,20 +82,9 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
     setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
-  // Search focus state & keyboard shortcut ref
-  const searchInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      // Trigger search focus on Cmd+K or Ctrl+K
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        searchInputRef.current?.focus();
-      }
-    };
-    window.addEventListener('keydown', handleGlobalKeyDown);
-    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
-  }, []);
+  const handleExit = () => {
+    router.push(ROUTES.landing);
+  };
 
   // Notification center state
   const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -217,41 +209,32 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
 
       {/* --- Center: Global Search (grid center column — always the true midpoint) --- */}
       <div className="w-full hidden sm:block -ml-8 pl-0 pr-3 lg:-ml-12 group">
-        <label htmlFor="global-search" className="sr-only">
-          Search incidents, alerts, and operations
-        </label>
-        <div className="relative flex items-center">
+        <button
+          type="button"
+          onClick={onSearchOpen}
+          className={cn(
+            'w-full pl-10 pr-12 h-9.5 text-xs text-left relative flex items-center',
+            'bg-(--surface-2) border border-(--border)',
+            'rounded-lg text-(--foreground-subtle)/70',
+            'hover:bg-(--surface-3)/45 hover:border-(--border-strong) cursor-pointer',
+            'shadow-xs transition-all duration-200 ease-in-out',
+            'focus-visible:outline-(--focus-ring)'
+          )}
+          aria-label="Open global search command palette"
+        >
           <Search
             size={14}
-            className="absolute left-3.5 text-(--foreground-subtle) pointer-events-none group-focus-within:text-(--primary) transition-colors duration-200"
+            className="absolute left-3.5 text-(--foreground-subtle)"
             aria-hidden="true"
           />
-          <input
-            ref={searchInputRef}
-            id="global-search"
-            type="search"
-            placeholder="Search incidents, alerts, or operations..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className={cn(
-              'w-full pl-10 pr-12 h-9.5 text-xs',
-              'bg-(--surface-2) border border-(--border)',
-              'rounded-lg text-(--foreground) placeholder:text-(--foreground-subtle)/70',
-              'focus:outline-none focus:bg-(--surface-1) focus:border-(--primary)',
-              'focus:ring-2 focus:ring-(--primary-muted)/40',
-              'hover:bg-(--surface-3)/45 hover:border-(--border-strong)',
-              'shadow-xs focus:shadow-sm',
-              'transition-all duration-200 ease-in-out'
-            )}
-            aria-label="Search incidents"
-          />
+          <span className="truncate">Search incidents, alerts, or operations...</span>
           <kbd
-            className="hidden lg:flex absolute right-3 items-center justify-center h-5.5 px-1.5 rounded bg-(--surface-3) border border-(--border-strong)/30 text-[9px] font-medium font-mono text-(--foreground-subtle) select-none pointer-events-none transition-all duration-200 group-focus-within:scale-90 group-focus-within:opacity-0"
+            className="hidden lg:flex absolute right-3 items-center justify-center h-5.5 px-1.5 rounded bg-(--surface-3) border border-(--border-strong)/30 text-[9px] font-medium font-mono text-(--foreground-subtle) select-none pointer-events-none"
             aria-hidden="true"
           >
             ⌘K
           </kbd>
-        </div>
+        </button>
       </div>
 
       {/* --- Right: Controls --- */}
@@ -632,6 +615,21 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
         >
           <Settings size={15} aria-hidden="true" />
         </Link>
+
+        {/* Exit Button */}
+        <button
+          onClick={handleExit}
+          className={cn(
+            'flex items-center justify-center w-9.5 h-9.5 rounded-lg border border-(--border)',
+            'bg-(--surface-1) text-(--foreground-muted) shadow-xs cursor-pointer',
+            'hover:text-(--foreground) hover:bg-(--surface-2) hover:border-(--border-strong)',
+            'transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-(--primary-muted)/40 focus-visible:outline-none'
+          )}
+          aria-label="Return to landing page"
+          title="Exit to landing page"
+        >
+          <LogOut size={15} strokeWidth={1.75} aria-hidden="true" />
+        </button>
 
         {/* Divider */}
         <div

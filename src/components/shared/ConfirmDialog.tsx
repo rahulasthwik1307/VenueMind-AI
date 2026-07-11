@@ -127,7 +127,7 @@ export function ConfirmDialog({
       {isOpen && (
         <m.div
           key="confirm-dialog-backdrop"
-          className="fixed inset-0 z-[9998] flex items-center justify-center p-4"
+          className="fixed inset-0 z-9998 flex items-center justify-center p-4"
           initial="hidden"
           animate="visible"
           exit="exit"
@@ -154,7 +154,7 @@ export function ConfirmDialog({
             aria-describedby="confirm-dialog-description"
             className={cn(
               'relative z-10 w-full max-w-sm',
-              'bg-(--surface-1) rounded-(--radius-card)',
+              'bg-(--surface-1) rounded-card',
               'border border-(--border-strong)',
               'shadow-(--shadow-lg)',
               'p-6 flex flex-col gap-4',
@@ -196,7 +196,7 @@ export function ConfirmDialog({
                 ref={cancelButtonRef}
                 onClick={onCancel}
                 className={cn(
-                  'px-3.5 py-2 rounded-(--radius-md) text-xs font-medium',
+                  'px-3.5 py-2 rounded-md text-xs font-medium',
                   'bg-(--surface-2) text-(--foreground-muted)',
                   'hover:bg-(--surface-3) hover:text-(--foreground)',
                   'border border-(--border)',
@@ -210,7 +210,7 @@ export function ConfirmDialog({
                 ref={confirmButtonRef}
                 onClick={onConfirm}
                 className={cn(
-                  'px-3.5 py-2 rounded-(--radius-md) text-xs font-medium',
+                  'px-3.5 py-2 rounded-md text-xs font-medium',
                   'bg-(--primary) text-white',
                   'hover:bg-(--primary-hover)',
                   'transition-colors duration-150 cursor-pointer',

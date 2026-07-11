@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { AppHeader } from './AppHeader';
 import { AppSidebar } from './AppSidebar';
 import { RightPanel } from './RightPanel';
@@ -8,6 +8,7 @@ import { MobileSidebarOverlay } from './MobileSidebarOverlay';
 import { IncidentDrawer } from '@/components/incident/IncidentDrawer';
 import { ToastContainer } from '@/components/shared/ToastContainer';
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
+import { CommandPalette } from './CommandPalette';
 import { DashboardSimulator } from '@/components/providers/DashboardSimulator';
 import { useBackNavigationGuard } from '@/hooks/useBackNavigationGuard';
 
@@ -38,6 +39,19 @@ interface AppShellProps {
 export function AppShell({ children }: AppShellProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [isExitDialogOpen, setIsExitDialogOpen] = useState(false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+
+  // Global Cmd+K / Ctrl+K shortcut to toggle command palette
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key?.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, []);
 
   const handleGuardTriggered = useCallback(() => {
     setIsExitDialogOpen(true);
@@ -70,7 +84,10 @@ export function AppShell({ children }: AppShellProps) {
       }
     >
       {/* Top Header */}
-      <AppHeader onMobileMenuOpen={() => setMobileNavOpen(true)} />
+      <AppHeader
+        onMobileMenuOpen={() => setMobileNavOpen(true)}
+        onSearchOpen={() => setIsCommandPaletteOpen(true)}
+      />
 
       {/* Body: Sidebar + Content + Right Panel */}
       <div className="flex flex-1 overflow-hidden">
@@ -106,6 +123,12 @@ export function AppShell({ children }: AppShellProps) {
 
       {/* Background Live Telemetry & Activity Simulator */}
       <DashboardSimulator />
+
+      {/* Global Command Palette */}
+      <CommandPalette
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+      />
 
       {/*
        * Back-navigation confirmation dialog.
