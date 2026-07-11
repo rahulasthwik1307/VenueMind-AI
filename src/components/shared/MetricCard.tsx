@@ -1,4 +1,4 @@
-import { cn } from '../../utils/cn';
+import { cn } from '@/utils/cn';
 import type { LucideIcon } from 'lucide-react';
 
 interface MetricCardProps {

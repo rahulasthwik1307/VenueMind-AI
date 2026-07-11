@@ -43,6 +43,7 @@ import type { AssistantDomain } from '@/types/assistant';
 import type { StructuredMode } from '@/components/ai/ContextSelector';
 
 type InteractionMode = 'structured' | 'freeform';
+type ResponseAreaState = 'empty' | 'analyzing' | 'error' | 'response';
 
 const MODE_TABS: { value: InteractionMode; label: string; icon: React.ReactNode }[] = [
   { value: 'structured', label: 'Structured', icon: <Layers size={12} aria-hidden="true" /> },
@@ -91,7 +92,7 @@ export default function AICommandPage() {
     setSelectedDomain(null);
     setFreeformQueryText('');
     setStructuredContextText('');
-  }, [setInteractionMode, setSelectedIncidentId, setSelectedZoneId, setSelectedDomain, setFreeformQueryText, setStructuredContextText]);
+  }, []);
 
   // Clear previous selections when switching Structured mode tabs
   const handleStructuredModeChange = useCallback((mode: StructuredMode) => {
@@ -99,7 +100,7 @@ export default function AICommandPage() {
     setSelectedIncidentId(null);
     setSelectedZoneId(null);
     setSelectedDomain(null);
-  }, [setStructuredMode, setSelectedIncidentId, setSelectedZoneId, setSelectedDomain]);
+  }, []);
 
   // Pre-fill query suggestions from the idle panel and configure structured context
   const handleSelectExampleQuery = useCallback((
@@ -128,7 +129,7 @@ export default function AICommandPage() {
       setFreeformQueryText(query);
       setStructuredContextText('');
     }
-  }, [setInteractionMode, setSelectedIncidentId, setSelectedZoneId, setSelectedDomain, setStructuredMode, setStructuredContextText, setFreeformQueryText]);
+  }, []);
 
   // ── Derived values ────────────────────────────────────────────────────────────
   const selectedIncident = incidents.find((i) => i.id === selectedIncidentId) ?? null;
@@ -203,7 +204,6 @@ export default function AICommandPage() {
   }, [clearError, handleSubmit]);
 
   // ── Determine response area content ──────────────────────────────────────────
-  type ResponseAreaState = 'empty' | 'analyzing' | 'error' | 'response';
   let responseAreaState: ResponseAreaState = 'empty';
   if (isAnalyzing) responseAreaState = 'analyzing';
   else if (error) responseAreaState = 'error';

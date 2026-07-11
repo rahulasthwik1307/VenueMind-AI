@@ -1,5 +1,5 @@
 import type { SystemStatusLevel } from '@/types/common';
-import { cn } from '../../utils/cn';
+import { cn } from '@/utils/cn';
 
 interface StatusBadgeProps {
   level: SystemStatusLevel;

@@ -2,52 +2,8 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { AnimatePresence, m } from 'framer-motion';
-import { Sparkles, Brain, CheckCircle, Activity, Wifi } from 'lucide-react';
+import { Brain, CheckCircle } from 'lucide-react';
 import { cn } from '@/utils/cn';
-
-// Lightweight count-up number component for operational telemetry metrics
-function AnimatedNumber({
-  value,
-  duration = 750,
-  suffix = '',
-  formatter,
-}: {
-  value: number;
-  duration?: number;
-  suffix?: string;
-  formatter?: (val: number) => string;
-}) {
-  const [current, setCurrent] = useState(0);
-
-  useEffect(() => {
-    const end = value;
-    if (end === 0) {
-      return;
-    }
-
-    const startTime = performance.now();
-    let animationFrameId: number;
-
-    const updateNumber = (now: number) => {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const easedProgress = progress * (2 - progress); // easeOutQuad
-      const currentVal = Math.round(easedProgress * end);
-
-      setCurrent(currentVal);
-
-      if (progress < 1) {
-        animationFrameId = requestAnimationFrame(updateNumber);
-      }
-    };
-
-    animationFrameId = requestAnimationFrame(updateNumber);
-    return () => cancelAnimationFrame(animationFrameId);
-  }, [value, duration]);
-
-  const formatted = formatter ? formatter(current) : current.toLocaleString();
-  return <span className="tabular-nums font-bold">{formatted}{suffix}</span>;
-}
 
 import { PageContainer } from '@/components/layout/PageContainer';
 import { SectionHeader } from '@/components/shared/SectionHeader';
@@ -60,6 +16,9 @@ import { IncidentRow } from './CriticalIncidents';
 import { AnalyzingState } from '@/components/ai/AnalyzingState';
 import { CommandCenterError } from '@/components/ai/CommandCenterError';
 import { AIResponseCard } from '@/components/ai/AIResponseCard';
+import { DomainTelemetryStatus } from './DomainTelemetryStatus';
+import { CopilotIdlePanel } from './CopilotIdlePanel';
+
 import type { SystemStatusLevel } from '@/types/common';
 import type { AssistantDomain } from '@/types/assistant';
 
@@ -74,6 +33,8 @@ interface LensPageLayoutProps {
   alertContent: React.ReactNode;
   incidentFilter: (incident: import('@/types/incident').Incident) => boolean;
 }
+
+type ResponseAreaState = 'idle' | 'analyzing' | 'error' | 'response';
 
 export function LensPageLayout({
   domain,
@@ -145,7 +106,6 @@ export function LensPageLayout({
   );
 
   // Determine Response Area State
-  type ResponseAreaState = 'idle' | 'analyzing' | 'error' | 'response';
   let responseAreaState: ResponseAreaState = 'idle';
   
   if (activeQueryDomain === domain) {
@@ -238,119 +198,10 @@ export function LensPageLayout({
                     </div>
 
                     {/* Telemetry Status Summary (fills dead space when incident queue is short) */}
-                    <div className="mt-4 pt-3 border-t border-(--border) space-y-2.5 shrink-0 text-left">
-                      <div className="flex items-center justify-between text-[7.5px] font-mono text-(--foreground-subtle) uppercase tracking-wider">
-                        <span>Operational Telemetry</span>
-                        <span className="text-(--color-success) flex items-center gap-1 font-bold">
-                          <span className="w-1 h-1 rounded-full bg-(--color-success) live-indicator" />
-                          Feeds Active
-                        </span>
-                      </div>
-                      
-                      {domain === 'transport' ? (
-                        <>
-                          {/* Transport-Specific Telemetry */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="bg-(--surface-1)/75 border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
-                              <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Monitored Hubs</span>
-                              <span className="text-[11px] font-extrabold text-(--foreground) mt-0.5 block">4 Active Nodes</span>
-                            </div>
-                            <div className="bg-(--surface-1)/75 border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
-                              <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Dispatch Status</span>
-                              <span className="text-[11px] font-extrabold text-(--foreground) mt-0.5 flex items-center gap-0.5">
-                                <AnimatedNumber value={96} suffix="%" /> <span className="text-[8.5px] text-(--foreground-subtle) font-normal">On-Time</span>
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Transport-Specific Activity Logs */}
-                          <div className="space-y-1.5">
-                            <span className="block text-[7.5px] font-mono text-(--foreground-subtle) uppercase tracking-wider">Recent Activity Logs</span>
-                            <div className="text-[9.5px] space-y-2 text-(--foreground-muted) font-sans">
-                              <div className="flex items-center gap-2 border-l-2 border-(--primary)/25 pl-2 py-0.5">
-                                <Activity size={11} className="text-(--primary) shrink-0" />
-                                <span className="truncate leading-snug">Shuttle Route B: <span className="font-semibold text-(--foreground)">Diversion active</span> (Collision reroute)</span>
-                              </div>
-                              <div className="flex items-center gap-2 border-l-2 border-blue-500/25 pl-2 py-0.5">
-                                <Wifi size={11} className="text-blue-500 shrink-0" />
-                                <span className="truncate leading-snug">Metro Platform 2: <span className="font-semibold text-(--foreground)">Flow normalized</span> (Egress target met)</span>
-                              </div>
-                            </div>
-                          </div>
-                        </>
-                      ) : domain === 'emergency' ? (
-                        <>
-                          {/* Emergency-Specific Telemetry */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="bg-(--surface-1)/75 border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
-                              <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Response Readiness</span>
-                              <span className="text-[11px] font-extrabold text-(--foreground) mt-0.5 flex items-center gap-0.5">
-                                <AnimatedNumber value={98} suffix="%" /> <span className="text-[8.5px] text-(--foreground-subtle) font-normal">Ready</span>
-                              </span>
-                            </div>
-                            <div className="bg-(--surface-1)/75 border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
-                              <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Active Responders</span>
-                              <span className="text-[11px] font-extrabold text-(--foreground) mt-0.5 block">240 Staff</span>
-                            </div>
-                          </div>
-
-                          <div className="space-y-1.5">
-                            <span className="block text-[7.5px] font-mono text-(--foreground-subtle) uppercase tracking-wider">Recent Activity Logs</span>
-                            <div className="text-[9.5px] space-y-2 text-(--foreground-muted) font-sans">
-                              <div className="flex items-center gap-2 border-l-2 border-(--primary)/25 pl-2 py-0.5">
-                                <Activity size={11} className="text-(--primary) shrink-0" />
-                                <span className="truncate leading-snug">Gate 3 Security Perimeter: <span className="font-semibold text-(--foreground)">Lock confirmed</span> (Auxiliary relay active)</span>
-                              </div>
-                              <div className="flex items-center gap-2 border-l-2 border-blue-500/25 pl-2 py-0.5">
-                                <Wifi size={11} className="text-blue-500 shrink-0" />
-                                <span className="truncate leading-snug">Medical Unit 4 Dispatch: <span className="font-semibold text-(--foreground)">Response time 2.1m</span> (Nominal)</span>
-                              </div>
-                            </div>
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          {/* Crowd-Specific Telemetry */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="bg-(--surface-1)/75 border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
-                              <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Monitored Sectors</span>
-                              <span className="text-[11px] font-extrabold text-(--foreground) mt-0.5 block">6 Active Stands</span>
-                            </div>
-                            <div className="bg-(--surface-1)/75 border border-(--border)/60 rounded-md p-2 shadow-2xs hover:border-(--border-strong) transition-colors">
-                              <span className="block text-[7.5px] text-(--foreground-subtle) font-mono tracking-wider uppercase">Scanner Speed</span>
-                              <span className="text-[11px] font-extrabold text-(--foreground) mt-0.5 flex items-center gap-0.5">
-                                <AnimatedNumber value={94} suffix="%" /> <span className="text-[8.5px] text-(--foreground-subtle) font-normal">Efficiency</span>
-                              </span>
-                            </div>
-                          </div>
-
-                          <div className="space-y-1.5">
-                            <span className="block text-[7.5px] font-mono text-(--foreground-subtle) uppercase tracking-wider">Recent Activity Logs</span>
-                            <div className="text-[9.5px] space-y-2 text-(--foreground-muted) font-sans">
-                              <div className="flex items-center gap-2 border-l-2 border-(--primary)/25 pl-2 py-0.5">
-                                <Activity size={11} className="text-(--primary) shrink-0" />
-                                <span className="truncate leading-snug">Gate 7 scanner flow: <span className="font-semibold text-(--foreground)">12 p/m</span> (Mitigation active)</span>
-                              </div>
-                              <div className="flex items-center gap-2 border-l-2 border-blue-500/25 pl-2 py-0.5">
-                                <Wifi size={11} className="text-blue-500 shrink-0" />
-                                <span className="truncate leading-snug">Turnstile connectivity: <span className="font-semibold text-(--foreground)">100% online</span> (RFID check OK)</span>
-                              </div>
-                            </div>
-                          </div>
-                        </>
-                      )}
-
-                      <div className="flex items-center justify-between text-[8px] font-mono text-(--foreground-subtle) bg-(--surface-1)/50 px-2 py-1 rounded border border-(--border)/60">
-                        <span>AI Monitoring: <span className="text-(--primary) font-extrabold">ENABLED</span></span>
-                        <span suppressHydrationWarning>Scan Time: {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
-                      </div>
-                      
-                      {filteredIncidents.length <= 1 && domain !== 'transport' && (
-                        <div className="text-[8.5px] text-center font-mono text-(--foreground-subtle) bg-green-500/3 border border-green-500/10 rounded py-1">
-                          No additional incidents detected.
-                        </div>
-                      )}
-                    </div>
+                    <DomainTelemetryStatus
+                      domain={domain}
+                      filteredIncidents={filteredIncidents}
+                    />
                   </div>
                 </div>
               </div>
@@ -400,107 +251,10 @@ export function LensPageLayout({
                   )}>
                     <AnimatePresence mode="wait">
                       {responseAreaState === 'idle' && (
-                        <m.div
-                          key="idle"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          className="flex flex-col items-center text-center pt-2 px-1 pb-0 h-full justify-between"
-                        >
-                          {/* Section 1: Header */}
-                          <div className="flex flex-col items-center">
-                            <div className="w-9 h-9 rounded-full bg-(--primary-muted) flex items-center justify-center mb-1">
-                              <Sparkles size={15} className="text-(--primary) live-indicator" />
-                            </div>
-                            <p className="text-xs font-semibold text-(--foreground)">Operational Assistant</p>
-                            <p className="text-[10px] text-(--foreground-subtle) mt-0.5 max-w-xs leading-relaxed">
-                              Generate real-time tactical briefs, risk predictions, and response workflows scoped to {domain} events.
-                            </p>
-                          </div>
-
-                          {/* Section 2: Core Metrics */}
-                          <div className="w-full border-t border-(--border)/60 pt-3 mt-3">
-                            <div className="flex flex-col space-y-1.5 w-full">
-                              <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
-                                <span className="text-(--foreground-muted) font-medium">AI Readiness</span>
-                                <span className="font-bold text-(--foreground)">
-                                  <AnimatedNumber value={98} suffix="%" /> — Ready
-                                </span>
-                              </div>
-                              <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
-                                <span className="text-(--foreground-muted) font-medium">System Focus</span>
-                                <span className="font-bold text-(--foreground) uppercase">{domain} Ops</span>
-                              </div>
-                              <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
-                                <span className="text-(--foreground-muted) font-medium">Active Alerts</span>
-                                <span className="font-bold text-amber-600 dark:text-amber-400">1 Warning Active</span>
-                              </div>
-                              <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
-                                <span className="text-(--foreground-muted) font-medium">Telemetry</span>
-                                <span className="font-bold text-(--foreground)">
-                                  <AnimatedNumber value={100} suffix="%" /> Online
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Section 3: AI Diagnostics */}
-                          <div className="w-full border-t border-(--border)/60 pt-3 mt-3">
-                            <div className="flex flex-col space-y-1.5 w-full">
-                              <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
-                                <span className="text-(--foreground-muted) font-medium">AI Status</span>
-                                <span className="font-bold text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/40 px-1.5 py-0.5 rounded text-[8px] uppercase tracking-wider w-max">
-                                  Nominal
-                                </span>
-                              </div>
-                              <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
-                                <span className="text-(--foreground-muted) font-medium">Last Analysis</span>
-                                <span className="font-bold text-(--foreground)">Just now</span>
-                              </div>
-                              <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
-                                <span className="text-(--foreground-muted) font-medium">Confidence</span>
-                                <span className="font-bold text-(--foreground)">99.2%</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Section 4: Operational Intelligence */}
-                          <div className="w-full border-t border-(--border)/60 pt-3 mt-3">
-                            <div className="flex flex-col space-y-1.5 w-full">
-                              <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
-                                <span className="text-(--foreground-muted) font-medium">Threat Assessment</span>
-                                <span className="font-bold text-green-500">Updated</span>
-                              </div>
-                              <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
-                                <span className="text-(--foreground-muted) font-medium">Decision Model</span>
-                                <span className="font-bold text-(--foreground)">Active</span>
-                              </div>
-                              <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
-                                <span className="text-(--foreground-muted) font-medium">Recommendation Queue</span>
-                                <span className="font-bold text-(--foreground)">Ready</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Section 5: Action Area */}
-                          <div className="w-full border-t border-(--border)/60 pt-3 mt-auto">
-                            <div className="flex items-center justify-center gap-1.5 text-[8.5px] font-mono text-(--foreground-muted) mb-2.5 uppercase tracking-wider">
-                              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                              <span>Monitoring Cycle: Live</span>
-                            </div>
-                            <button
-                              onClick={handleAskAI}
-                              className={cn(
-                                "w-full h-11 flex items-center justify-center gap-2 rounded-md shrink-0",
-                                "bg-(--primary) text-white font-semibold text-xs shadow-sm hover:bg-(--primary-hover) active:scale-[0.99] transition-all duration-150 cursor-pointer group"
-                              )}
-                              aria-label={`Ask AI about ${domain} operations`}
-                            >
-                              <Brain size={13} className="group-hover:rotate-12 transition-transform duration-200" />
-                              <span>Ask AI about {domain === 'accessibility' ? 'Accessibility' : domain.charAt(0).toUpperCase() + domain.slice(1)}</span>
-                            </button>
-                          </div>
-                        </m.div>
+                        <CopilotIdlePanel
+                          domain={domain}
+                          onAskAI={handleAskAI}
+                        />
                       )}
 
                       {responseAreaState === 'analyzing' && (

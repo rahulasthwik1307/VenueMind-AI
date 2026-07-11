@@ -5,7 +5,7 @@ import { LensPageLayout } from '@/components/operations/LensPageLayout';
 import { ShieldAlert, HeartPulse, Shield, Eye, Flame, AlertCircle, CheckCircle, Brain } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import type { SystemStatusLevel } from '@/types/common';
-import { getTimeAgo } from '@/components/operations/CriticalIncidents';
+import { getTimeAgo } from '@/utils/incidentUtils';
 
 export default function EmergencyPage() {
   const { stadiumStats, incidents } = useIncidentStore();

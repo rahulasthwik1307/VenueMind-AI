@@ -1,5 +1,5 @@
 import { SkeletonLine } from './SkeletonLine';
-import { cn } from '../../utils/cn';
+import { cn } from '@/utils/cn';
 
 interface SkeletonCardProps {
   lines?: number;

@@ -1,29 +1,17 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import {
-  X,
-  ChevronLeft,
-  ChevronRight,
-  Brain,
-  Shield,
-  Activity,
-  Bus,
-  HeartHandshake,
-  Video,
-  AlertTriangle,
-  Building,
-  CheckCircle,
-  AlertOctagon,
-  FileText,
-} from 'lucide-react';
+import { CheckCircle, FileText } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { useIncident } from '@/hooks/useIncident';
-import { DecisionCard } from '@/components/cards/DecisionCard';
 import { IncidentTimeline } from '@/components/incident/IncidentTimeline';
 import { m, AnimatePresence } from 'framer-motion';
 import { useUIStore } from '@/store/modules/ui';
 import { SharedNotes } from '@/components/shared/SharedNotes';
+import { IncidentDrawerHeader } from './IncidentDrawerHeader';
+import { RelatedSystemsBadges } from './RelatedSystemsBadges';
+import { IncidentDrawerAIIntelligence } from './IncidentDrawerAIIntelligence';
+import { APP_CONFIG } from '@/constants/config';
 
 export function IncidentDrawer() {
   const {
@@ -57,7 +45,7 @@ export function IncidentDrawer() {
     if (activeIncidentId) {
       const timer = setTimeout(() => {
         closeButtonRef.current?.focus();
-      }, 100);
+      }, APP_CONFIG.DRAWER_FOCUS_DELAY_MS);
       return () => clearTimeout(timer);
     }
   }, [activeIncidentId]);
@@ -181,65 +169,19 @@ export function IncidentDrawer() {
           )}
         >
           {/* Drawer Header */}
-          <div className="shrink-0 flex items-center justify-between px-5 py-4 border-b border-(--border)">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold text-(--foreground-subtle)">
-                {incident.id.toUpperCase()}
-              </span>
-              <span className={cn('text-[10px] font-bold uppercase px-2 py-0.5 rounded border shrink-0', severityColor[incident.severity])}>
-                {incident.severity}
-              </span>
-              <span className={cn('text-[10px] font-bold uppercase px-2 py-0.5 rounded border shrink-0', statusColor[incident.status])}>
-                {incident.status}
-              </span>
-            </div>
-
-            {/* Navigation and Close Controls */}
-            <div className="flex items-center gap-4 shrink-0">
-              {/* Navigation with Positional Context */}
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-mono font-bold text-(--foreground-subtle) tracking-wider uppercase shrink-0">
-                  {currentIndex + 1} of {filteredIncidents.length}
-                </span>
-                <div className="flex items-center border border-(--border) rounded-md overflow-hidden shrink-0 bg-(--surface-2)">
-                  <button
-                    onClick={handlePrev}
-                    disabled={!hasPrev}
-                    className={cn(
-                      'p-1.5 hover:bg-(--surface-3) transition-colors text-(--foreground-muted) disabled:opacity-40 disabled:hover:bg-transparent',
-                      'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-(--primary)'
-                    )}
-                    aria-label="Previous Incident"
-                  >
-                    <ChevronLeft size={16} />
-                  </button>
-                  <div className="w-px h-4 bg-(--border)" />
-                  <button
-                    onClick={handleNext}
-                    disabled={!hasNext}
-                    className={cn(
-                      'p-1.5 hover:bg-(--surface-3) transition-colors text-(--foreground-muted) disabled:opacity-40 disabled:hover:bg-transparent',
-                      'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-(--primary)'
-                    )}
-                    aria-label="Next Incident"
-                  >
-                    <ChevronRight size={16} />
-                  </button>
-                </div>
-              </div>
-
-              <div className="w-px h-4 bg-(--border)" aria-hidden="true" />
-
-              <button
-                ref={closeButtonRef}
-                onClick={() => setActiveIncidentId(null)}
-                className="p-1.5 rounded-md hover:bg-(--surface-3) transition-colors text-(--foreground-muted) hover:text-(--foreground) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary)"
-                aria-label="Close incident details"
-              >
-                <X size={18} />
-              </button>
-            </div>
-          </div>
+          <IncidentDrawerHeader
+            incident={incident}
+            currentIndex={currentIndex}
+            totalCount={filteredIncidents.length}
+            hasPrev={hasPrev}
+            hasNext={hasNext}
+            onPrev={handlePrev}
+            onNext={handleNext}
+            onClose={() => setActiveIncidentId(null)}
+            closeButtonRef={closeButtonRef}
+            severityColor={severityColor}
+            statusColor={statusColor}
+          />
 
           {/* Drawer Scrollable Content */}
           <div className="flex-1 overflow-y-auto p-5 space-y-6">
@@ -257,126 +199,17 @@ export function IncidentDrawer() {
             </div>
 
             {/* Related Systems Section */}
-            <div className="border border-(--border) rounded-md p-4 bg-(--surface-2)">
-              <h4 className="font-semibold mb-3 uppercase tracking-wider text-[10px] text-(--foreground-muted)">
-                Related Operational Systems
-              </h4>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  { label: 'CCTV Feed', value: systemStatus.cctv, icon: Video, color: 'text-blue-600', bg: 'bg-blue-50 border-blue-100 dark:bg-blue-950/20 dark:border-blue-900' },
-                  { label: 'Security Unit', value: systemStatus.security, icon: Shield, color: 'text-orange-600', bg: 'bg-orange-50 border-orange-100 dark:bg-orange-950/20 dark:border-orange-900' },
-                  { label: 'Medical Dispatch', value: systemStatus.medical, icon: Activity, color: 'text-red-600', bg: 'bg-red-50 border-red-100 dark:bg-red-950/20 dark:border-red-900' },
-                  { label: 'Transport Hub', value: systemStatus.transport, icon: Bus, color: 'text-indigo-600', bg: 'bg-indigo-50 border-indigo-100 dark:bg-indigo-950/20 dark:border-indigo-900' },
-                  { label: 'Volunteer Comm', value: systemStatus.volunteer, icon: HeartHandshake, color: 'text-yellow-600', bg: 'bg-yellow-50 border-yellow-100 dark:bg-yellow-950/20 dark:border-yellow-900' },
-                ].map((sys) => {
-                  const SysIcon = sys.icon;
-                  const isActive = sys.value !== 'Standby';
-                  return (
-                    <div
-                      key={sys.label}
-                      className={cn(
-                        'flex items-center gap-1.5 px-2.5 py-1.5 rounded border text-[10px] font-semibold transition-all duration-150',
-                        isActive ? sys.bg : 'bg-gray-50 border-gray-200 text-gray-400 dark:bg-gray-900/10 dark:border-gray-800'
-                      )}
-                    >
-                      <SysIcon size={11} className={isActive ? sys.color : 'text-gray-300'} />
-                      <span>{sys.label}:</span>
-                      <span className={cn('font-bold', isActive ? 'text-(--foreground)' : 'text-gray-400')}>
-                        {sys.value}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+            <RelatedSystemsBadges
+              systemStatus={systemStatus}
+            />
 
-            {/* AI Situation Summary Section */}
-            {analysis && (
-              <div className="border border-(--primary) border-opacity-30 rounded-md p-4 bg-green-50/20 dark:bg-green-950/5 relative overflow-hidden">
-                {/* Visual Accent */}
-                <div className="absolute top-0 right-0 p-2 opacity-10 pointer-events-none">
-                  <Brain size={80} className="text-(--primary)" />
-                </div>
-
-                <div className="flex items-center gap-1.5 mb-3">
-                  <Brain size={14} className="text-(--primary)" />
-                  <h4 className="text-xs font-bold text-(--primary) uppercase tracking-wider">
-                    AI Situation Intelligence
-                  </h4>
-                  {incident.aiConfidence && (
-                    <span className="ml-auto text-[9px] font-bold bg-(--primary-light) dark:bg-green-900/40 text-(--primary) dark:text-green-300 px-1.5 py-0.5 rounded font-mono">
-                      {incident.aiConfidence}% System Confidence
-                    </span>
-                  )}
-                </div>
-
-                <div className="space-y-3.5 text-[11px] leading-relaxed text-(--foreground-muted)">
-                  <div>
-                    <span className="font-semibold text-(--foreground) block">Situation Overview</span>
-                    <p className="mt-0.5">{analysis.aiSituationSummary.explanation}</p>
-                  </div>
-                  <div>
-                    <span className="font-semibold text-red-600 dark:text-red-400 flex items-center gap-1">
-                      <AlertTriangle size={11} /> Expected Operations Risks
-                    </span>
-                    <p className="mt-0.5">{analysis.aiSituationSummary.expectedRisks}</p>
-                  </div>
-                  <div>
-                    <span className="font-semibold text-(--primary) block">Recommended Tactical Response</span>
-                    <p className="mt-0.5 text-(--foreground) font-medium">{analysis.aiSituationSummary.recommendedResponse}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* AI Decision Cards (Recommendations) */}
-            {analysis && analysis.recommendations && analysis.recommendations.filter(r => !r.dismissed).length > 0 && (
-              <div className="space-y-3">
-                <h4 className="text-xs font-semibold text-(--foreground) flex items-center gap-1 border-b border-(--border) pb-2">
-                  <AlertOctagon size={12} className="text-(--primary)" /> AI Tactical Recommendations
-                </h4>
-                <div className="space-y-3">
-                  {analysis.recommendations.filter(r => !r.dismissed).map((rec) => (
-                    <DecisionCard
-                      key={rec.id}
-                      recommendation={rec}
-                      onExecute={() => dispatchAction(incident.id, rec.id)}
-                      onDismiss={() => dismissRecommendation(incident.id, rec.id)}
-                      isIncidentResolved={incident.status === 'resolved'}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Impact & Nearby Facilities */}
-            {analysis && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Estimated Impact */}
-                <div className="border border-(--border) rounded-md p-4 bg-(--surface-2)">
-                  <h4 className="text-xs font-semibold text-(--foreground) mb-2">Estimated Operational Impact</h4>
-                  <p className="text-[11px] text-(--foreground-muted) leading-relaxed">
-                    {analysis.estimatedImpact}
-                  </p>
-                </div>
-
-                {/* Nearby Facilities */}
-                <div className="border border-(--border) rounded-md p-4 bg-(--surface-2)">
-                  <h4 className="text-xs font-semibold text-(--foreground) mb-2">Nearest Response Facilities</h4>
-                  <ul className="space-y-2" aria-label="Nearby facilities">
-                    {analysis.nearbyFacilities.map((fac) => (
-                      <li key={fac.name} className="flex items-center justify-between text-[11px]">
-                        <span className="flex items-center gap-1.5 text-(--foreground-muted)">
-                          <Building size={11} className="text-(--foreground-subtle)" />
-                          {fac.name}
-                        </span>
-                        <span className="font-semibold font-mono text-(--foreground)">{fac.distance}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            )}
+            {/* AI Situation Intelligence */}
+            <IncidentDrawerAIIntelligence
+              incident={incident}
+              analysis={analysis}
+              onExecute={(recId) => dispatchAction(incident.id, recId)}
+              onDismiss={(recId) => dismissRecommendation(incident.id, recId)}
+            />
 
             {/* Operator Notes Section */}
             <div className="border border-(--border) rounded-md p-4 bg-(--surface-2)">
