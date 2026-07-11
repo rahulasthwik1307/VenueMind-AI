@@ -204,11 +204,12 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
         </div>
 
         {/* Desktop — Primary operational branding (sidebar already shows VenueMind AI) */}
-        <div className="hidden md:flex flex-col justify-center select-none">
-          <span className="text-[13px] font-bold text-(--foreground) leading-none tracking-tight">
+        <div className="hidden md:flex items-center select-none whitespace-nowrap shrink-0">
+          <span className="text-[16px] font-bold text-(--foreground) tracking-tight">
             Stadium Operations
           </span>
-          <span className="text-[10px] font-semibold text-(--foreground-subtle) tracking-wide leading-none mt-0.75">
+          <div className="w-px h-5 bg-(--border-strong) mx-1.5 lg:mx-2.5 opacity-60" aria-hidden="true" />
+          <span className="text-[13px] font-medium text-(--foreground-subtle) tracking-wide">
             FIFA World Cup 2026
           </span>
         </div>
@@ -262,14 +263,14 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
           const currentPax = maxCapacity * (occupancyPercent / 100);
           
           // SVG Gauge parameters
-          const radius = 13;
+          const radius = 15;
           const circumference = 2 * Math.PI * radius;
           const strokeDashoffset = circumference * (1 - occupancyPercent / 100);
 
           return (
             <m.div
               className={cn(
-                'flex items-center gap-3 px-3 py-2 rounded-lg border border-(--border)',
+                'flex items-center gap-[22px] px-3 py-1.5 rounded-lg border border-(--border)',
                 'bg-(--surface-1) shadow-xs select-none',
                 'min-h-10.5 md:min-w-41',
                 'cursor-default'
@@ -281,22 +282,22 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
               transition={{ duration: 0.18, ease: 'easeOut' }}
             >
               {/* Animated progress ring — larger and crisper */}
-              <div className="relative w-8 h-8 flex items-center justify-center shrink-0">
-                <svg className="w-full h-full -rotate-90 select-none" viewBox="0 0 32 32">
+              <div className="relative w-9 h-9 flex items-center justify-center shrink-0">
+                <svg className="w-full h-full -rotate-90 select-none" viewBox="0 0 36 36">
                   <circle
-                    cx="16"
-                    cy="16"
+                    cx="18"
+                    cy="18"
                     r={radius}
                     className="stroke-(--border-strong)"
-                    strokeWidth="2.5"
+                    strokeWidth="3.2"
                     fill="transparent"
                   />
                   <m.circle
-                    cx="16"
-                    cy="16"
+                    cx="18"
+                    cy="18"
                     r={radius}
                     className="stroke-(--primary)"
-                    strokeWidth="2.5"
+                    strokeWidth="3.2"
                     fill="transparent"
                     strokeLinecap="round"
                     initial={{ strokeDashoffset: circumference }}
@@ -305,7 +306,7 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
                     strokeDasharray={circumference}
                   />
                 </svg>
-                <span className="absolute text-[9px] font-black font-mono text-(--foreground) leading-none">
+                <span className="absolute text-[8.5px] font-black font-mono text-(--foreground) leading-none select-none tracking-tighter">
                   {occupancyPercent}%
                 </span>
               </div>
@@ -313,7 +314,7 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
               {/* Text block — hidden on mobile, shown md+ */}
               <div className="hidden md:flex flex-col justify-center min-w-0">
                 <div className="flex items-center gap-1.5 mb-0.5">
-                  <span className="text-[9px] font-bold text-(--foreground-muted) uppercase tracking-widest leading-none">
+                  <span className="text-[9px] font-bold text-(--foreground) opacity-80 uppercase tracking-widest leading-none">
                     Capacity
                   </span>
                   <span className="relative flex h-1.5 w-1.5 shrink-0">
@@ -321,9 +322,9 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
                     <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
                   </span>
                 </div>
-                <span className="text-[11px] font-bold font-mono text-(--foreground) leading-none tracking-tight tabular-nums">
+                <span className="text-[11px] font-extrabold font-mono text-(--foreground) leading-none tracking-tight tabular-nums">
                   {currentPax.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                  <span className="text-[9px] font-medium text-(--foreground-muted) ml-0.5">pax</span>
+                  <span className="text-[9px] font-semibold text-(--foreground-muted) ml-0.5">pax</span>
                 </span>
               </div>
             </m.div>
