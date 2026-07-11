@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import type { StructuredMode, AssistantDomain } from '@/types/assistant';
+import type { StructuredMode } from '@/components/ai/ContextSelector';
+import type { AssistantDomain } from '@/types/assistant';
 
 function evaluateContextSelected(
   mode: StructuredMode,
