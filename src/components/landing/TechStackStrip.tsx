@@ -19,7 +19,8 @@ const STACK = [
 export function TechStackStrip() {
   return (
     <section
-      className="border-y border-[--border] bg-[--surface-1]"
+      id="technology"
+      className="border-y border-[--border] bg-[--surface-1] scroll-mt-20"
       aria-label="Technology stack"
     >
       <div className="max-w-7xl mx-auto px-6 md:px-10 py-8">

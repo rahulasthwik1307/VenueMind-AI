@@ -1,109 +1,339 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
-import { Cpu } from 'lucide-react';
+import { Cpu, Menu, X } from 'lucide-react';
+import { m, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { cn } from '@/utils/cn';
 import { ROUTES } from '@/constants/routes';
 
-/** Minimal SVG GitHub mark */
-function GitHubIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z" />
-    </svg>
-  );
-}
+const NAV_ITEMS = [
+  { id: 'capabilities', label: 'Capabilities' },
+  { id: 'technology', label: 'Technology' },
+  { id: 'approach', label: 'Approach' },
+] as const;
 
-/** Minimal SVG LinkedIn mark */
-function LinkedInIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-    </svg>
-  );
-}
-
-/**
- * LandingHeader — sticky top navigation for the landing page.
- *
- * Starts transparent (hero bleeds through), transitions to a solid surface
- * once the user scrolls past 40px. Height is deliberately set to match the
- * app's --header-height (60px) so the design language feels continuous.
- *
- * NOT the AppShell header — this is self-contained with no Zustand access
- * and no simulation dependency.
- */
 export function LandingHeader() {
   const [scrolled, setScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>('');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const reduced = useReducedMotion();
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
+  // Scroll listener for background transition & CTA reveal
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 80);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    // Check initial scroll state
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  return (
-    <header
-      className={cn(
-        'fixed top-0 left-0 right-0 z-40 h-15',
-        'flex items-center justify-between px-6 md:px-10',
-        'transition-all duration-300',
-        scrolled
-          ? 'bg-white/95 dark:bg-[#111]/95 backdrop-blur-md border-b border-black/6 shadow-sm'
-          : 'bg-transparent'
-      )}
-      role="banner"
-      aria-label="VenueMind AI site header"
-    >
-      {/* Brand mark */}
-      <Link
-        href={ROUTES.landing}
-        className="flex items-center gap-2.5 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--primary] focus-visible:ring-offset-2 rounded-sm"
-        aria-label="VenueMind AI — home"
-      >
-        <div
-          className="w-7 h-7 rounded-md bg-[--primary] flex items-center justify-center shrink-0 group-hover:brightness-110 transition-all duration-200"
-          aria-hidden="true"
-        >
-          <Cpu size={14} strokeWidth={1.75} className="text-white" />
-        </div>
-        <span className="text-sm font-bold text-[--foreground] tracking-tight leading-none">
-          VenueMind <span className="text-[--primary]">AI</span>
-        </span>
-      </Link>
+  // IntersectionObserver to highlight current active section
+  useEffect(() => {
+    const observerOptions = {
+      root: null,
+      rootMargin: '-30% 0px -60% 0px', // Trigger when section occupies the upper-middle of viewport
+      threshold: 0.1,
+    };
 
-      {/* Right: social links */}
-      <nav aria-label="External links" className="flex items-center gap-1.5">
-        <a
-          href="https://github.com/rahulasthwik1307"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Rahul Asthwik on GitHub (opens in new tab)"
-          className={cn(
-            'flex items-center justify-center w-9 h-9 rounded-md min-w-11 min-h-11',
-            'text-[--foreground-muted] hover:text-[--foreground] hover:bg-black/5',
-            'transition-colors duration-150',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--primary] focus-visible:ring-offset-2'
-          )}
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setActiveSection(entry.target.id);
+        }
+      });
+    }, observerOptions);
+
+    NAV_ITEMS.forEach((item) => {
+      const el = document.getElementById(item.id);
+      if (el) observer.observe(el);
+    });
+
+    // Clear active section when hero is visible
+    const heroEl = document.getElementById('hero');
+    if (heroEl) {
+      const heroObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection('');
+          }
+        });
+      }, { root: null, rootMargin: '-10% 0px -90% 0px' });
+      
+      heroObserver.observe(heroEl);
+      return () => {
+        observer.disconnect();
+        heroObserver.disconnect();
+      };
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Body scroll locking when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
+  // Smooth scroll handler
+  const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault();
+    setMobileMenuOpen(false);
+    
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({
+        behavior: reduced ? 'auto' : 'smooth',
+        block: 'start',
+      });
+    }
+  };
+
+  const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (window.location.pathname === '/') {
+      e.preventDefault();
+      setMobileMenuOpen(false);
+      const element = document.getElementById('hero');
+      if (element) {
+        element.scrollIntoView({
+          behavior: reduced ? 'auto' : 'smooth',
+          block: 'start',
+        });
+      } else {
+        window.scrollTo({
+          top: 0,
+          behavior: reduced ? 'auto' : 'smooth',
+        });
+      }
+    }
+  };
+
+  // Mobile menu stagger animation configurations
+  const menuContainerVariants = {
+    hidden: {},
+    show: {
+      transition: {
+        staggerChildren: reduced ? 0 : 0.05,
+        delayChildren: 0.08,
+      },
+    },
+  };
+
+  const menuItemVariants = {
+    hidden: reduced ? { opacity: 1 } : { opacity: 0, y: 10 },
+    show: {
+      opacity: 1,
+      y: 0,
+      transition: { type: 'spring' as const, stiffness: 350, damping: 25 },
+    },
+  };
+
+  return (
+    <>
+      <header
+        className={cn(
+          'fixed top-0 left-0 right-0 z-40 h-16',
+          'flex items-center justify-between px-6 md:px-10',
+          'transition-all duration-300 ease-in-out',
+          scrolled
+            ? 'bg-[--background]/95 border-b border-[--border] shadow-sm backdrop-blur-md'
+            : 'bg-[--background]/80 border-b border-[--border] shadow-xs backdrop-blur-md'
+        )}
+        role="banner"
+        aria-label="VenueMind AI site header"
+      >
+        {/* Brand logo/wordmark (Left Group) */}
+        <Link
+          href={ROUTES.landing}
+          onClick={handleLogoClick}
+          className="flex items-center gap-2.5 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--primary] focus-visible:ring-offset-2 rounded-sm shrink-0"
+          aria-label="VenueMind AI — home"
         >
-          <GitHubIcon />
-        </a>
-        <a
-          href="https://www.linkedin.com/in/rahul-asthwik-sunki/"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Rahul Asthwik on LinkedIn (opens in new tab)"
-          className={cn(
-            'flex items-center justify-center w-9 h-9 rounded-md min-w-11 min-h-11',
-            'text-[--foreground-muted] hover:text-[--foreground] hover:bg-black/5',
-            'transition-colors duration-150',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--primary] focus-visible:ring-offset-2'
-          )}
-        >
-          <LinkedInIcon />
-        </a>
-      </nav>
-    </header>
+          <div
+            className="w-7 h-7 rounded-md bg-[--primary] flex items-center justify-center shrink-0 group-hover:brightness-110 transition-all duration-200"
+            aria-hidden="true"
+          >
+            <Cpu size={14} strokeWidth={1.75} className="text-white" />
+          </div>
+          <span className="text-sm font-bold text-[--foreground] tracking-tight leading-none">
+            VenueMind <span className="text-[--primary]">AI</span>
+          </span>
+        </Link>
+
+        {/* Right Group: Navigation links & CTA button */}
+        <div className="flex items-center gap-6 md:gap-8">
+          {/* Desktop Nav Links */}
+          <nav aria-label="Main navigation" className="hidden md:flex items-center gap-8">
+            {NAV_ITEMS.map((item) => {
+              const isActive = activeSection === item.id;
+              return (
+                <a
+                  key={item.id}
+                  href={`#${item.id}`}
+                  onClick={(e) => handleScrollTo(e, item.id)}
+                  className={cn(
+                    'relative py-1 text-[13px] font-medium tracking-tight select-none transition-colors duration-200',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--primary] rounded-sm',
+                    isActive
+                      ? 'text-[--foreground]'
+                      : 'text-[--foreground-muted] hover:text-[--foreground]'
+                  )}
+                >
+                  {item.label}
+                  {isActive && !reduced && (
+                    <m.span
+                      layoutId="active-nav-line"
+                      className="absolute bottom-[-6px] left-1.5 right-1.5 h-[1.5px] bg-[--primary] rounded-full"
+                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                  {isActive && reduced && (
+                    <span className="absolute bottom-[-6px] left-1.5 right-1.5 h-[1.5px] bg-[--primary] rounded-full" />
+                  )}
+                </a>
+              );
+            })}
+          </nav>
+
+          {/* Desktop CTA (Visible immediately, with border, ring outline, brand shadow and hover lift) */}
+          <div className="hidden md:block">
+            <Link
+              href={ROUTES.dashboard}
+              className={cn(
+                'inline-flex items-center justify-center px-4.5 py-2 text-xs font-bold rounded-lg',
+                'bg-[--primary] text-white select-none ring-1 ring-white/10 border border-[--primary-hover]',
+                'hover:brightness-110 hover:-translate-y-[1px] active:scale-[0.98]',
+                'transition-all duration-200 ease-out',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--primary] focus-visible:ring-offset-2 focus-visible:ring-offset-white',
+                'shadow-[0_4px_12px_rgba(15,81,50,0.18)] dark:shadow-[0_4px_12px_rgba(16,185,129,0.18)] hover:shadow-[0_6px_16px_rgba(15,81,50,0.28)] dark:hover:shadow-[0_6px_16px_rgba(16,185,129,0.28)]'
+              )}
+            >
+              Enter Command Center
+            </Link>
+          </div>
+
+          {/* Mobile CTA (Visible immediately, next to hamburger) */}
+          <div className="md:hidden">
+            <Link
+              href={ROUTES.dashboard}
+              className={cn(
+                'inline-flex items-center justify-center px-3 py-1.5 text-[10px] font-semibold rounded-md',
+                'bg-[--primary] text-white ring-1 ring-white/10 border border-[--primary-hover]',
+                'hover:brightness-110 active:scale-[0.98] transition-all duration-150',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--primary]',
+                'shadow-[0_2px_6px_rgba(15,81,50,0.12)] dark:shadow-[0_2px_6px_rgba(16,185,129,0.12)]'
+              )}
+            >
+              Enter Command Center
+            </Link>
+          </div>
+
+          {/* Hamburger Menu Toggle (Mobile with rotate transitions) */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className={cn(
+              'md:hidden flex items-center justify-center w-10 h-10 rounded-md border border-transparent',
+              'text-[--foreground-muted] hover:bg-black/5 dark:hover:bg-white/5 active:scale-95 transition-all duration-150',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--primary]'
+            )}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-nav-panel"
+            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+          >
+            <div className="relative w-5 h-5 flex items-center justify-center">
+              <m.div
+                animate={{ rotate: mobileMenuOpen ? 90 : 0, opacity: mobileMenuOpen ? 0 : 1 }}
+                transition={{ duration: 0.2 }}
+                className="absolute"
+              >
+                <Menu size={20} />
+              </m.div>
+              <m.div
+                initial={{ rotate: -90, opacity: 0 }}
+                animate={{ rotate: mobileMenuOpen ? 0 : -90, opacity: mobileMenuOpen ? 1 : 0 }}
+                transition={{ duration: 0.2 }}
+                className="absolute"
+              >
+                <X size={20} />
+              </m.div>
+            </div>
+          </button>
+        </div>
+      </header>
+
+      {/* Slide-down Mobile Navigation Panel */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <m.div
+            id="mobile-nav-panel"
+            ref={mobileMenuRef}
+            initial={reduced ? { opacity: 1 } : { opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={reduced ? { opacity: 0 } : { opacity: 0, height: 0 }}
+            transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
+            className="fixed top-16 left-0 right-0 z-30 bg-[--background]/98 border-b border-[--border] shadow-lg md:hidden overflow-hidden backdrop-blur-md"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile navigation panel"
+          >
+            <m.nav
+              variants={menuContainerVariants}
+              initial="hidden"
+              animate="show"
+              className="px-6 py-6 flex flex-col gap-4"
+            >
+              {NAV_ITEMS.map((item) => {
+                const isActive = activeSection === item.id;
+                return (
+                  <m.a
+                    key={item.id}
+                    variants={menuItemVariants}
+                    href={`#${item.id}`}
+                    onClick={(e) => handleScrollTo(e, item.id)}
+                    className={cn(
+                      'text-xs font-bold uppercase tracking-widest py-3 border-b border-[--border]/40 flex items-center justify-between',
+                      'transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--primary] rounded-xs',
+                      isActive ? 'text-[--primary]' : 'text-[--foreground-muted] hover:text-[--foreground]'
+                    )}
+                  >
+                    <span>{item.label}</span>
+                    <span
+                      className={cn(
+                        'w-1.5 h-1.5 rounded-full transition-all duration-200',
+                        isActive ? 'bg-[--primary] scale-100' : 'bg-transparent scale-0'
+                      )}
+                    />
+                  </m.a>
+                );
+              })}
+              
+              <m.div variants={menuItemVariants} className="mt-2">
+                <Link
+                  href={ROUTES.dashboard}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={cn(
+                    'w-full flex items-center justify-center py-3.5 px-4 rounded-lg',
+                    'bg-[--primary] text-white text-xs font-semibold shadow-sm ring-1 ring-white/10 border border-[--primary-hover]',
+                    'hover:brightness-110 active:scale-[0.98] transition-all duration-150'
+                  )}
+                >
+                  Enter Command Center
+                </Link>
+              </m.div>
+            </m.nav>
+          </m.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

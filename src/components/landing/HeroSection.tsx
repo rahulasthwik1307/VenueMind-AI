@@ -175,6 +175,7 @@ export function HeroSection() {
 
   return (
     <section
+      id="hero"
       className="relative min-h-[85dvh] flex items-center pt-24 md:pt-28 pb-12 overflow-hidden bg-linear-to-b from-white to-[--background] dark:from-neutral-950 dark:to-[--background]"
       aria-labelledby="hero-heading"
     >

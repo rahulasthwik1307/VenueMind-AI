@@ -193,7 +193,8 @@ function FeatureTileCard({ tile, index }: { tile: FeatureTile; index: number }) 
 export function BentoFeatureGrid() {
   return (
     <section
-      className="w-full max-w-7xl mx-auto px-6 md:px-10 py-20 md:py-28"
+      id="capabilities"
+      className="w-full max-w-7xl mx-auto px-6 md:px-10 py-20 md:py-28 scroll-mt-20"
       aria-labelledby="features-heading"
     >
       {/* Section header */}

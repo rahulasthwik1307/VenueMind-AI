@@ -10,7 +10,8 @@
 export function PersonaFocusSection() {
   return (
     <section
-      className="w-full max-w-7xl mx-auto px-6 md:px-10 py-16 md:py-20 border-t border-black/5 dark:border-white/5"
+      id="approach"
+      className="w-full max-w-7xl mx-auto px-6 md:px-10 py-16 md:py-20 border-t border-black/5 dark:border-white/5 scroll-mt-20"
       aria-labelledby="persona-heading"
     >
       <div className="grid grid-cols-1 md:grid-cols-[120px_1fr] gap-6 md:gap-10 items-start">
