@@ -81,9 +81,9 @@ const FEATURES: FeatureTile[] = [
 
 const ACCENT_STYLES: Record<FeatureTile['accent'], { bg: string; icon: string; border: string }> = {
   emerald: {
-    bg: 'bg-[--primary]/[0.06]',
-    icon: 'text-[--primary] bg-[--primary]/10',
-    border: 'border-[--primary]/20',
+    bg: 'bg-primary/6',
+    icon: 'text-primary bg-primary/10',
+    border: 'border-primary/20',
   },
   blue: {
     bg: 'bg-[#4682b4]/[0.06]',
@@ -142,7 +142,7 @@ function FeatureTileCard({ tile, index }: { tile: FeatureTile; index: number }) 
       <div
         className={cn(
           'group relative h-full rounded-[--radius-card] border p-6',
-          'bg-[--surface-1] transition-all duration-200 cursor-default',
+          'bg-surface-1 transition-all duration-200 cursor-default',
           'hover:scale-[1.015] hover:shadow-(--shadow-lg)',
           accent.border
         )}
@@ -159,10 +159,10 @@ function FeatureTileCard({ tile, index }: { tile: FeatureTile; index: number }) 
         </div>
 
         {/* Content */}
-        <h3 className="text-sm font-bold text-[--foreground] leading-snug mb-2">
+        <h3 className="text-sm font-bold text-foreground leading-snug mb-2">
           {tile.title}
         </h3>
-        <p className="text-[13px] text-[--foreground-muted] leading-relaxed">
+        <p className="text-[13px] text-muted leading-relaxed">
           {tile.description}
         </p>
 
@@ -199,16 +199,16 @@ export function BentoFeatureGrid() {
     >
       {/* Section header */}
       <div className="mb-12">
-        <span className="inline-block text-[10px] font-bold uppercase tracking-[0.2em] text-[--primary] mb-3">
+        <span className="inline-block text-[10px] font-bold uppercase tracking-[0.2em] text-primary mb-3">
           Capabilities
         </span>
         <h2
           id="features-heading"
-          className="text-3xl md:text-[2.25rem] font-bold text-[--foreground] leading-tight tracking-tight"
+          className="text-3xl md:text-[2.25rem] font-bold text-foreground leading-tight tracking-tight"
         >
           Built for match-day operations.
         </h2>
-        <p className="mt-3 text-sm text-[--foreground-muted] max-w-110 leading-relaxed">
+        <p className="mt-3 text-sm text-muted max-w-110 leading-relaxed">
           Every feature is scoped to the specific demands of stadium operators during a live World Cup event — not generic event management.
         </p>
       </div>

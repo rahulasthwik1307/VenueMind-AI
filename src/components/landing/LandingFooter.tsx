@@ -30,7 +30,7 @@ const CURRENT_YEAR = new Date().getFullYear();
 export function LandingFooter() {
   return (
     <footer
-      className="w-full border-t border-[--border] bg-[--surface-1]"
+      className="w-full border-t border-border bg-surface-1"
       role="contentinfo"
       aria-label="Site footer"
     >
@@ -41,31 +41,31 @@ export function LandingFooter() {
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2.5">
               <div
-                className="w-7 h-7 rounded-md bg-[--primary] flex items-center justify-center shrink-0"
+                className="w-7 h-7 rounded-md bg-primary flex items-center justify-center shrink-0"
                 aria-hidden="true"
               >
                 <Cpu size={14} strokeWidth={1.75} className="text-white" />
               </div>
-              <span className="text-sm font-bold text-[--foreground] tracking-tight">
-                VenueMind <span className="text-[--primary]">AI</span>
+              <span className="text-sm font-bold text-foreground tracking-tight">
+                VenueMind <span className="text-primary">AI</span>
               </span>
             </div>
-            <p className="text-[11px] text-[--foreground-subtle] leading-relaxed max-w-65">
+            <p className="text-[11px] text-subtle leading-relaxed max-w-65">
               AI-powered stadium operations platform for FIFA World Cup 2026.
               Real-time command center for venue management staff.
             </p>
-            <p className="text-[10px] text-[--foreground-subtle] font-mono">
+            <p className="text-[10px] text-subtle font-mono">
               Next.js · TypeScript · Groq AI · Framer Motion
             </p>
           </div>
 
           {/* Right: Creator + social links */}
           <div className="flex flex-col gap-3 md:items-end">
-            <p className="text-[11px] text-[--foreground-muted]">
+            <p className="text-[11px] text-muted">
               Designed &amp; developed by{' '}
-              <span className="font-semibold text-[--foreground]">Rahul Asthwik</span>
-              <span className="text-[--foreground-subtle] mx-1.5">·</span>
-              <span className="text-[--foreground-subtle]">{CURRENT_YEAR}</span>
+              <span className="font-semibold text-foreground">Rahul Asthwik</span>
+              <span className="text-subtle mx-1.5">·</span>
+              <span className="text-subtle">{CURRENT_YEAR}</span>
             </p>
 
             <div className="flex items-center gap-2" role="list" aria-label="Social links">
@@ -75,7 +75,7 @@ export function LandingFooter() {
                 rel="noopener noreferrer"
                 aria-label="Rahul Asthwik on GitHub (opens in new tab)"
                 role="listitem"
-                className="flex items-center gap-1.5 px-3 py-2 rounded-md border border-[--border] text-[--foreground-muted] hover:text-[--foreground] hover:border-[--border-strong] hover:bg-[--surface-2] transition-all duration-150 text-[11px] font-medium min-h-9 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--primary] focus-visible:ring-offset-2"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-md border border-border text-muted hover:text-foreground hover:border-border-strong hover:bg-surface-2 transition-all duration-150 text-[11px] font-medium min-h-9 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               >
                 <GitHubIcon />
                 GitHub
@@ -86,7 +86,7 @@ export function LandingFooter() {
                 rel="noopener noreferrer"
                 aria-label="Rahul Asthwik on LinkedIn (opens in new tab)"
                 role="listitem"
-                className="flex items-center gap-1.5 px-3 py-2 rounded-md border border-[--border] text-[--foreground-muted] hover:text-[--foreground] hover:border-[--border-strong] hover:bg-[--surface-2] transition-all duration-150 text-[11px] font-medium min-h-9 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--primary] focus-visible:ring-offset-2"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-md border border-border text-muted hover:text-foreground hover:border-border-strong hover:bg-surface-2 transition-all duration-150 text-[11px] font-medium min-h-9 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               >
                 <LinkedInIcon />
                 LinkedIn
@@ -97,7 +97,7 @@ export function LandingFooter() {
                 rel="noopener noreferrer"
                 aria-label="VenueMind AI repository on GitHub (opens in new tab)"
                 role="listitem"
-                className="flex items-center gap-1.5 px-3 py-2 rounded-md border border-[--border] text-[--foreground-muted] hover:text-[--foreground] hover:border-[--border-strong] hover:bg-[--surface-2] transition-all duration-150 text-[11px] font-medium min-h-9 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--primary] focus-visible:ring-offset-2"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-md border border-border text-muted hover:text-foreground hover:border-border-strong hover:bg-surface-2 transition-all duration-150 text-[11px] font-medium min-h-9 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               >
                 Repository
               </a>

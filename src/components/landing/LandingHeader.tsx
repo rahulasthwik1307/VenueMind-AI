@@ -121,8 +121,8 @@ export function LandingHeader() {
         'flex items-center justify-between px-6 md:px-10',
         'transition-all duration-300 ease-in-out',
         scrolled
-          ? 'bg-[--background]/95 border-b border-[--border] shadow-sm backdrop-blur-md'
-          : 'bg-[--background]/80 border-b border-[--border] shadow-xs backdrop-blur-md'
+          ? 'bg-background/95 border-b border-border shadow-sm backdrop-blur-md'
+          : 'bg-background/80 border-b border-border shadow-xs backdrop-blur-md'
       )}
       role="banner"
       aria-label="VenueMind AI site header"
@@ -131,57 +131,58 @@ export function LandingHeader() {
       <Link
         href={ROUTES.landing}
         onClick={handleLogoClick}
-        className="flex items-center gap-3 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--primary] focus-visible:ring-offset-2 rounded-sm shrink-0 animate-fade-in"
+        className="flex items-center gap-3 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm shrink-0 animate-fade-in"
         aria-label="VenueMind AI — home"
       >
         <div
           className={cn(
-            "w-8.5 h-8.5 rounded-lg bg-[--primary] flex items-center justify-center shrink-0",
+            "w-8.5 h-8.5 rounded-lg bg-primary flex items-center justify-center shrink-0",
             "group-hover:brightness-110 active:scale-95 transition-all duration-200",
-            "border border-[--primary-hover]/20 dark:border-[--primary]/30",
+            "border border-primary-hover/20 dark:border-primary/30",
             "shadow-sm dark:shadow-[0_0_12px_rgba(16,185,129,0.25)]"
           )}
           aria-hidden="true"
         >
           <Cpu size={18} strokeWidth={2.25} className="text-white dark:text-[#0b0f19] transition-transform duration-200 group-hover:scale-105" />
         </div>
-        <span className="text-base font-extrabold text-[--foreground] tracking-tight leading-none">
-          VenueMind <span className="text-[--primary]">AI</span>
+        <span className="text-base font-extrabold text-foreground tracking-tight leading-none">
+          VenueMind <span className="text-primary">AI</span>
         </span>
       </Link>
 
-      {/* Right Group: Integrated Tubelight Navbar (with inner high-contrast CTA button) */}
-      <NavBar
-        items={navItems}
-        activeTab={activeTab}
-        onTabChange={(name: string) => {
-          const item = NAV_ITEMS.find((n) => n.label === name);
-          if (item) {
-            const el = document.getElementById(item.id);
-            if (el) {
-              el.scrollIntoView({
-                behavior: reduced ? 'auto' : 'smooth',
-                block: 'start',
-              });
+      {/* Right Group: Navigation Links and CTA */}
+      <div className="flex items-center gap-4">
+        <NavBar
+          items={navItems}
+          activeTab={activeTab}
+          onTabChange={(name: string) => {
+            const item = NAV_ITEMS.find((n) => n.label === name);
+            if (item) {
+              const el = document.getElementById(item.id);
+              if (el) {
+                el.scrollIntoView({
+                  behavior: reduced ? 'auto' : 'smooth',
+                  block: 'start',
+                });
+              }
             }
-          }
-        }}
-        className="relative top-auto left-auto transform-none mb-0 pt-0 sm:pt-0 z-10"
-        cta={
-          <Link
-            href={ROUTES.dashboard}
-            className={cn(
-              'inline-flex items-center justify-center rounded-full bg-[--primary] text-white dark:text-[#0b0f19] font-black select-none',
-              'px-3 sm:px-4.5 py-1.5 text-[10px] sm:text-xs border border-[--primary-hover] ring-1 ring-white/10',
-              'hover:brightness-115 hover:-translate-y-px active:scale-[0.98] transition-all duration-200',
-              'shadow-[0_4px_12px_rgba(15,81,50,0.25)] dark:shadow-[0_4px_12px_rgba(16,185,129,0.35)]'
-            )}
-          >
-            <span className="hidden sm:inline">Enter Command Center</span>
-            <span className="sm:hidden">Command Center</span>
-          </Link>
-        }
-      />
+          }}
+          className="relative top-auto left-auto transform-none mb-0 pt-0 sm:pt-0 z-10"
+        />
+        
+        <Link
+          href={ROUTES.dashboard}
+          className={cn(
+            'inline-flex items-center justify-center rounded-full bg-primary text-white dark:text-[#0b0f19] font-black select-none',
+            'px-3 sm:px-4.5 py-1.5 text-[10px] sm:text-xs border border-primary-hover ring-1 ring-white/10',
+            'hover:brightness-115 hover:-translate-y-px active:scale-[0.98] transition-all duration-200',
+            'shadow-[0_4px_12px_rgba(15,81,50,0.25)] dark:shadow-[0_4px_12px_rgba(16,185,129,0.35)]'
+          )}
+        >
+          <span className="hidden sm:inline">Enter Command Center</span>
+          <span className="sm:hidden">Command Center</span>
+        </Link>
+      </div>
     </header>
   );
 }

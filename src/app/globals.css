@@ -145,12 +145,30 @@
 /* --- Tailwind Theme Bridge --- */
 @theme {
   --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-light: var(--primary-light);
+  --color-primary-muted: var(--primary-muted);
+  
   --color-secondary: var(--secondary);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-secondary-light: var(--secondary-light);
+  --color-secondary-muted: var(--secondary-muted);
+  
   --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-light: var(--accent-light);
+  --color-accent-muted: var(--accent-muted);
+  
   --color-background: var(--background);
+  --color-surface-0: var(--surface-0);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  
   --color-card: var(--surface-1);
   --color-foreground: var(--foreground);
   --color-muted: var(--foreground-muted);
+  --color-subtle: var(--foreground-subtle);
   --color-border: var(--border);
 
   --radius-sm: var(--radius-sm);

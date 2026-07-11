@@ -81,16 +81,16 @@ function ProductPreview() {
       aria-label="VenueMind AI dashboard preview"
     >
       {/* Faux app header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-black/6 bg-[--surface-1]">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-black/6 bg-surface-1">
         <div className="flex items-center gap-2">
-          <div className="w-5 h-5 rounded-[4px] bg-[--primary] flex items-center justify-center">
+          <div className="w-5 h-5 rounded-[4px] bg-primary flex items-center justify-center">
             <span className="text-white text-[8px] font-bold">VM</span>
           </div>
-          <span className="text-[11px] font-semibold text-[--foreground]">Command Center</span>
+          <span className="text-[11px] font-semibold text-foreground">Command Center</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-          <span className="text-[9px] font-mono text-[--foreground-muted]">LIVE</span>
+          <span className="text-[9px] font-mono text-muted">LIVE</span>
         </div>
       </div>
 
@@ -99,12 +99,12 @@ function ProductPreview() {
         {[
           { label: 'Crowd Density', value: '74%', color: 'text-amber-600', Icon: Users },
           { label: 'Active Incidents', value: '3', color: 'text-red-600', Icon: ShieldAlert },
-          { label: 'AI Confidence', value: '96%', color: 'text-[--primary]', Icon: Zap },
+          { label: 'AI Confidence', value: '96%', color: 'text-primary', Icon: Zap },
         ].map(({ label, value, color, Icon }) => (
-          <div key={label} className="bg-[--surface-1] px-3 py-2.5">
+          <div key={label} className="bg-surface-1 px-3 py-2.5">
             <div className="flex items-center gap-1 mb-1">
               <Icon size={9} className={cn('shrink-0', color)} />
-              <span className="text-[8px] text-[--foreground-subtle] uppercase tracking-wide truncate">{label}</span>
+              <span className="text-[8px] text-subtle uppercase tracking-wide truncate">{label}</span>
             </div>
             <span className={cn('text-base font-bold leading-none', color)}>{value}</span>
           </div>
@@ -122,7 +122,7 @@ function ProductPreview() {
             key={title}
             className={cn(
               'flex items-center gap-3 px-3 py-2.5 rounded-lg border',
-              'bg-[--surface-2] border-black/5'
+              'bg-surface-2 border-black/5'
             )}
           >
             <span
@@ -133,31 +133,31 @@ function ProductPreview() {
               )}
             />
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-semibold text-[--foreground] truncate">{title}</p>
-              <p className="text-[8px] text-[--foreground-subtle] mt-0.5">{zone}</p>
+              <p className="text-[10px] font-semibold text-foreground truncate">{title}</p>
+              <p className="text-[8px] text-subtle mt-0.5">{zone}</p>
             </div>
             <div className="flex items-center gap-1.5 shrink-0">
-              <Activity size={9} className="text-[--foreground-subtle]" />
-              <span className="text-[8px] font-mono text-[--foreground-subtle]">{time}</span>
+              <Activity size={9} className="text-subtle" />
+              <span className="text-[8px] font-mono text-subtle">{time}</span>
             </div>
           </div>
         ))}
       </div>
 
       {/* AI recommendation strip */}
-      <div className="mx-3 mb-3 px-3 py-2.5 rounded-lg bg-[--primary]/6 border border-[--primary]/20">
+      <div className="mx-3 mb-3 px-3 py-2.5 rounded-lg bg-primary/6 border border-primary/20">
         <div className="flex items-center gap-1.5 mb-1">
-          <Zap size={9} className="text-[--primary] shrink-0" />
-          <span className="text-[8px] font-bold text-[--primary] uppercase tracking-wider">AI Recommendation</span>
+          <Zap size={9} className="text-primary shrink-0" />
+          <span className="text-[8px] font-bold text-primary uppercase tracking-wider">AI Recommendation</span>
         </div>
-        <p className="text-[9px] text-[--foreground-muted] leading-relaxed">
+        <p className="text-[9px] text-muted leading-relaxed">
           Deploy Gate 7 crowd stewards. Activate overflow routing via Sector B.
           Estimated 4 min to safe density threshold.
         </p>
       </div>
 
       {/* Shimmer overlay at bottom — fades into background to suggest more content */}
-      <div className="absolute bottom-0 left-0 right-0 h-8 bg-linear-to-t from-[--surface-1] to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-8 bg-linear-to-t from-surface-1 to-transparent pointer-events-none" />
     </m.div>
   );
 }
@@ -176,7 +176,7 @@ export function HeroSection() {
   return (
     <section
       id="hero"
-      className="relative min-h-[85dvh] flex items-center pt-24 md:pt-28 pb-12 overflow-hidden bg-linear-to-b from-white to-[--background] dark:from-neutral-950 dark:to-[--background]"
+      className="relative min-h-[85dvh] flex items-center pt-24 md:pt-28 pb-12 overflow-hidden bg-linear-to-b from-white to-background dark:from-neutral-950 dark:to-background"
       aria-labelledby="hero-heading"
     >
       <AmbientBackground reduced={reduced} />
@@ -192,8 +192,8 @@ export function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
             >
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[--primary]/25 bg-[--primary]/6 text-[10px] font-bold text-[--primary] uppercase tracking-[0.15em]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[--primary] animate-pulse" aria-hidden="true" />
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/25 bg-primary/6 text-[10px] font-bold text-primary uppercase tracking-[0.15em]">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" aria-hidden="true" />
                 FIFA World Cup 2026 Stadium Operations
               </span>
             </m.div>
@@ -201,18 +201,18 @@ export function HeroSection() {
             {/* H1 */}
             <m.h1
               id="hero-heading"
-              className="mt-4 text-[2.75rem] md:text-[3.5rem] font-extrabold leading-[1.08] tracking-tight text-[--foreground]"
+              className="mt-4 text-[2.75rem] md:text-[3.5rem] font-extrabold leading-[1.08] tracking-tight text-foreground"
               initial={reduced ? {} : { opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.08, ease: [0.32, 0.72, 0, 1] }}
             >
               Venue operations,{' '}
-              <span className="text-[--primary]">intelligently commanded.</span>
+              <span className="text-primary">intelligently commanded.</span>
             </m.h1>
 
             {/* Subtext */}
             <m.p
-              className="mt-4 text-base md:text-[1.0625rem] text-[--foreground-muted] leading-relaxed max-w-115"
+              className="mt-4 text-base md:text-[1.0625rem] text-muted leading-relaxed max-w-115"
               initial={reduced ? {} : { opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.16, ease: [0.32, 0.72, 0, 1] }}
@@ -233,7 +233,7 @@ export function HeroSection() {
                 href={ROUTES.dashboard}
                 className={cn(
                   'group inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl',
-                  'bg-[--primary] text-white text-sm font-bold',
+                  'bg-primary text-white text-sm font-bold',
                   'hover:brightness-110 hover:-translate-y-0.5 active:scale-[0.98]',
                   'transition-all duration-250 ease-out',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--primary] focus-visible:ring-offset-2 focus-visible:ring-offset-white',
@@ -255,11 +255,11 @@ export function HeroSection() {
                 rel="noopener noreferrer"
                 className={cn(
                   'inline-flex items-center gap-2 px-6 py-3.5 rounded-xl',
-                  'border border-black/10 dark:border-white/10 text-[--foreground-muted] hover:text-[--foreground] text-sm font-semibold',
+                  'border border-black/10 dark:border-white/10 text-muted hover:text-foreground text-sm font-semibold',
                   'bg-white/40 dark:bg-white/5 backdrop-blur-xs',
                   'hover:border-black/20 dark:hover:border-white/20 hover:bg-black/5 dark:hover:bg-white/10 hover:-translate-y-0.5 active:scale-[0.98]',
                   'transition-all duration-250 ease-out',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--primary] focus-visible:ring-offset-2 focus-visible:ring-offset-white'
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white'
                 )}
                 aria-label="View VenueMind AI on GitHub (opens in new tab)"
               >
@@ -270,12 +270,12 @@ export function HeroSection() {
 
             {/* Small trust signal */}
             <m.p
-              className="mt-5 text-[11px] text-[--foreground-subtle] flex items-center gap-1.5"
+              className="mt-5 text-[11px] text-subtle flex items-center gap-1.5"
               initial={reduced ? {} : { opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.36 }}
             >
-              <span className="w-1 h-1 rounded-full bg-[--primary]" aria-hidden="true" />
+              <span className="w-1 h-1 rounded-full bg-primary" aria-hidden="true" />
               Built with Next.js 15 · TypeScript · Groq (Llama 3.3 70B) · Framer Motion
             </m.p>
           </div>
@@ -295,7 +295,7 @@ export function HeroSection() {
 
       {/* Bottom fade into next section */}
       <div
-        className="absolute bottom-0 left-0 right-0 h-16 bg-linear-to-t from-[--background] to-transparent pointer-events-none"
+        className="absolute bottom-0 left-0 right-0 h-16 bg-linear-to-t from-background to-transparent pointer-events-none"
         aria-hidden="true"
       />
     </section>
