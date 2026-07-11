@@ -9,8 +9,8 @@ import { ROUTES } from '@/constants/routes';
 import { NavBar } from '@/components/ui/tubelight-navbar';
 
 const NAV_ITEMS = [
-  { id: 'capabilities', label: 'Capabilities', icon: Layers },
   { id: 'technology', label: 'Technology', icon: TechIcon },
+  { id: 'capabilities', label: 'Capabilities', icon: Layers },
   { id: 'approach', label: 'Approach', icon: Compass },
 ] as const;
 
@@ -33,40 +33,28 @@ export function LandingHeader() {
   useEffect(() => {
     const observerOptions = {
       root: null,
-      rootMargin: '-30% 0px -60% 0px', // Trigger when section occupies the upper-middle of viewport
-      threshold: 0.1,
+      rootMargin: '-25% 0px -45% 0px', // 30% band in the upper-middle of the viewport
+      threshold: 0,
     };
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          setActiveSection(entry.target.id);
+          const id = entry.target.id;
+          if (id === 'hero') {
+            setActiveSection('');
+          } else {
+            setActiveSection(id);
+          }
         }
       });
     }, observerOptions);
 
-    NAV_ITEMS.forEach((item) => {
-      const el = document.getElementById(item.id);
+    const sections = ['hero', 'capabilities', 'technology', 'approach'];
+    sections.forEach((id) => {
+      const el = document.getElementById(id);
       if (el) observer.observe(el);
     });
-
-    // Clear active section when hero is visible
-    const heroEl = document.getElementById('hero');
-    if (heroEl) {
-      const heroObserver = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveSection('');
-          }
-        });
-      }, { root: null, rootMargin: '-10% 0px -90% 0px' });
-      
-      heroObserver.observe(heroEl);
-      return () => {
-        observer.disconnect();
-        heroObserver.disconnect();
-      };
-    }
 
     return () => observer.disconnect();
   }, []);
