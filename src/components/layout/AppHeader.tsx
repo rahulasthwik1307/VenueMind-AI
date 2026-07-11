@@ -216,7 +216,7 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
       </div>
 
       {/* --- Center: Global Search (grid center column — always the true midpoint) --- */}
-      <div className="w-full hidden sm:block px-3 group">
+      <div className="w-full hidden sm:block -ml-8 pl-0 pr-3 lg:-ml-12 group">
         <label htmlFor="global-search" className="sr-only">
           Search incidents, alerts, and operations
         </label>
@@ -270,7 +270,7 @@ export function AppHeader({ onMobileMenuOpen }: AppHeaderProps) {
           return (
             <m.div
               className={cn(
-                'flex items-center gap-[22px] px-3 py-1.5 rounded-lg border border-(--border)',
+                'flex items-center gap-5.5 px-3 py-1.5 rounded-lg border border-(--border)',
                 'bg-(--surface-1) shadow-xs select-none',
                 'min-h-10.5 md:min-w-41',
                 'cursor-default'
