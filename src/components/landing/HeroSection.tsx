@@ -57,12 +57,23 @@ function AmbientBackground({ reduced }: { reduced: boolean }) {
 }
 
 /** Stylized product UI preview — faithful mini-recreation using real design tokens */
+/** Stylized product UI preview — faithful mini-recreation using real design tokens */
 function ProductPreview() {
+  const reduced = useReducedMotion() ?? false;
   return (
-    <div
+    <m.div
+      animate={reduced ? {} : {
+        y: [0, -6, 0],
+      }}
+      transition={{
+        duration: 6,
+        repeat: Infinity,
+        ease: 'easeInOut',
+      }}
       className={cn(
-        'relative rounded-[--radius-card] border border-black/8',
-        'bg-[--surface-1] shadow-[0_8px_40px_rgba(0,0,0,0.10)]',
+        'relative rounded-[--radius-card] border border-black/10 dark:border-white/10 ring-1 ring-black/5 dark:ring-white/5',
+        'bg-[--surface-1] shadow-[0_20px_50px_rgba(0,0,0,0.12)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.4)]',
+        'transition-all duration-300 hover:scale-[1.015] hover:shadow-[0_25px_60px_rgba(0,0,0,0.16)] dark:hover:shadow-[0_25px_60px_rgba(0,0,0,0.55)]',
         'overflow-hidden w-full max-w-130'
       )}
       aria-hidden="true"
@@ -147,7 +158,7 @@ function ProductPreview() {
 
       {/* Shimmer overlay at bottom — fades into background to suggest more content */}
       <div className="absolute bottom-0 left-0 right-0 h-8 bg-linear-to-t from-[--surface-1] to-transparent pointer-events-none" />
-    </div>
+    </m.div>
   );
 }
 
@@ -164,13 +175,13 @@ export function HeroSection() {
 
   return (
     <section
-      className="relative min-h-dvh flex items-center pt-15 overflow-hidden"
+      className="relative min-h-[85dvh] flex items-center pt-24 md:pt-28 pb-12 overflow-hidden bg-linear-to-b from-white to-[--background] dark:from-neutral-950 dark:to-[--background]"
       aria-labelledby="hero-heading"
     >
       <AmbientBackground reduced={reduced} />
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-10 py-16 md:py-24">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-12 lg:gap-16 items-center">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-10 py-10 md:py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-10 lg:gap-14 items-center">
 
           {/* Left — Headline + CTAs */}
           <div className="max-w-140">
@@ -180,7 +191,7 @@ export function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
             >
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[--primary]/25 bg-[--primary]/6 text-[10px] font-semibold text-[--primary] uppercase tracking-[0.15em]">
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[--primary]/25 bg-[--primary]/6 text-[10px] font-bold text-[--primary] uppercase tracking-[0.15em]">
                 <span className="w-1.5 h-1.5 rounded-full bg-[--primary] animate-pulse" aria-hidden="true" />
                 FIFA World Cup 2026 Stadium Operations
               </span>
@@ -189,7 +200,7 @@ export function HeroSection() {
             {/* H1 */}
             <m.h1
               id="hero-heading"
-              className="mt-5 text-[2.75rem] md:text-[3.5rem] font-bold leading-[1.08] tracking-tight text-[--foreground]"
+              className="mt-4 text-[2.75rem] md:text-[3.5rem] font-extrabold leading-[1.08] tracking-tight text-[--foreground]"
               initial={reduced ? {} : { opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.08, ease: [0.32, 0.72, 0, 1] }}
@@ -200,7 +211,7 @@ export function HeroSection() {
 
             {/* Subtext */}
             <m.p
-              className="mt-5 text-base md:text-[1.0625rem] text-[--foreground-muted] leading-relaxed max-w-115"
+              className="mt-4 text-base md:text-[1.0625rem] text-[--foreground-muted] leading-relaxed max-w-115"
               initial={reduced ? {} : { opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.16, ease: [0.32, 0.72, 0, 1] }}
@@ -211,7 +222,7 @@ export function HeroSection() {
 
             {/* CTAs */}
             <m.div
-              className="mt-8 flex flex-wrap items-center gap-3"
+              className="mt-6 flex flex-wrap items-center gap-3"
               initial={reduced ? {} : { opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.24, ease: [0.32, 0.72, 0, 1] }}
@@ -220,12 +231,12 @@ export function HeroSection() {
               <Link
                 href={ROUTES.dashboard}
                 className={cn(
-                  'group inline-flex items-center gap-2.5 px-5 py-3 rounded-lg',
-                  'bg-[--primary] text-white text-sm font-semibold',
-                  'hover:brightness-110 active:scale-[0.98]',
-                  'transition-all duration-200',
+                  'group inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl',
+                  'bg-[--primary] text-white text-sm font-bold',
+                  'hover:brightness-110 hover:-translate-y-0.5 active:scale-[0.98]',
+                  'transition-all duration-250 ease-out',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--primary] focus-visible:ring-offset-2 focus-visible:ring-offset-white',
-                  'shadow-[0_1px_3px_rgba(0,0,0,0.2),0_4px_16px_rgba(15,81,50,0.22)]'
+                  'shadow-[0_4px_16px_rgba(15,81,50,0.22)] dark:shadow-[0_4px_16px_rgba(16,185,129,0.22)] hover:shadow-[0_6px_20px_rgba(15,81,50,0.32)] dark:hover:shadow-[0_6px_20px_rgba(16,185,129,0.32)]'
                 )}
               >
                 Enter Command Center
@@ -242,10 +253,11 @@ export function HeroSection() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className={cn(
-                  'inline-flex items-center gap-2 px-5 py-3 rounded-lg',
-                  'border border-black/10 text-[--foreground-muted] text-sm font-medium',
-                  'hover:border-black/18 hover:text-[--foreground] hover:bg-black/3',
-                  'transition-all duration-200 active:scale-[0.98]',
+                  'inline-flex items-center gap-2 px-6 py-3.5 rounded-xl',
+                  'border border-black/10 dark:border-white/10 text-[--foreground-muted] hover:text-[--foreground] text-sm font-semibold',
+                  'bg-white/40 dark:bg-white/5 backdrop-blur-xs',
+                  'hover:border-black/20 dark:hover:border-white/20 hover:bg-black/5 dark:hover:bg-white/10 hover:-translate-y-0.5 active:scale-[0.98]',
+                  'transition-all duration-250 ease-out',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--primary] focus-visible:ring-offset-2 focus-visible:ring-offset-white'
                 )}
                 aria-label="View VenueMind AI on GitHub (opens in new tab)"
@@ -257,7 +269,7 @@ export function HeroSection() {
 
             {/* Small trust signal */}
             <m.p
-              className="mt-6 text-[11px] text-[--foreground-subtle] flex items-center gap-1.5"
+              className="mt-5 text-[11px] text-[--foreground-subtle] flex items-center gap-1.5"
               initial={reduced ? {} : { opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.36 }}
@@ -282,7 +294,7 @@ export function HeroSection() {
 
       {/* Bottom fade into next section */}
       <div
-        className="absolute bottom-0 left-0 right-0 h-24 bg-linear-to-t from-[--background] to-transparent pointer-events-none"
+        className="absolute bottom-0 left-0 right-0 h-16 bg-linear-to-t from-[--background] to-transparent pointer-events-none"
         aria-hidden="true"
       />
     </section>
