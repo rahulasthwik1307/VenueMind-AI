@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
+import { AnimatePresence, m } from 'framer-motion';
 import { X, Cpu, LogOut } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { NAV_GROUPS } from '@/constants/navigation';
@@ -17,10 +18,23 @@ interface MobileSidebarOverlayProps {
 export function MobileSidebarOverlay({ isOpen, onClose }: MobileSidebarOverlayProps) {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleExit = () => {
     onClose();
     router.push(ROUTES.landing);
+  };
+
+  const handleNavItemClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (pathname === href) {
+      onClose();
+      return;
+    }
+    e.preventDefault();
+    onClose();
+    setTimeout(() => {
+      router.push(href);
+    }, 250);
   };
 
   // Close on Escape key
@@ -48,31 +62,47 @@ export function MobileSidebarOverlay({ isOpen, onClose }: MobileSidebarOverlayPr
     }
   }, [isOpen]);
 
-  if (!isOpen) return null;
-
   return (
-    <div
-      className="md:hidden fixed inset-0 z-50 flex"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Navigation menu"
-    >
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={onClose}
-        aria-hidden="true"
-      />
+    <AnimatePresence>
+      {isOpen && (
+        <div
+          className="md:hidden fixed inset-0 z-50 flex"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Navigation menu"
+        >
+          {/* Backdrop */}
+          <m.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={onClose}
+            aria-hidden="true"
+          />
 
-      {/* Drawer */}
-      <nav
-        className={cn(
-          'relative z-10 flex flex-col w-72 h-full',
-          'bg-(--sidebar-bg) shadow-(--shadow-lg)',
-          'animate-fade-in'
-        )}
-        aria-label="Mobile navigation"
-      >
+          {/* Drawer */}
+          <m.nav
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            variants={{
+              hidden: { x: '-100%', transition: { duration: 0.25, ease: 'easeIn' } },
+              visible: { 
+                x: 0, 
+                transition: { 
+                  type: 'spring', damping: 28, stiffness: 250,
+                  staggerChildren: 0.05, delayChildren: 0.05
+                } 
+              }
+            }}
+            className={cn(
+              'relative z-10 flex flex-col w-72 h-full',
+              'bg-(--sidebar-bg) shadow-(--shadow-lg)'
+            )}
+            aria-label="Mobile navigation"
+          >
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-(--sidebar-border) h-(--header-height)">
           <div className="flex items-center gap-2">
@@ -100,12 +130,12 @@ export function MobileSidebarOverlay({ isOpen, onClose }: MobileSidebarOverlayPr
           </button>
         </div>
 
-        {/* Navigation */}
-        <div className="flex-1 overflow-y-auto py-3 px-2 space-y-5">
-          {NAV_GROUPS.map((group) => (
-            <SidebarNavGroup key={group.id} group={group} collapsed={false} />
-          ))}
-        </div>
+          {/* Navigation */}
+          <div className="flex-1 overflow-y-auto py-3 px-2 space-y-5">
+            {NAV_GROUPS.map((group) => (
+              <SidebarNavGroup key={group.id} group={group} collapsed={false} onItemClick={handleNavItemClick} />
+            ))}
+          </div>
 
         {/* Footer */}
         <div className="shrink-0 p-4 border-t border-(--sidebar-border) space-y-2">
@@ -127,24 +157,26 @@ export function MobileSidebarOverlay({ isOpen, onClose }: MobileSidebarOverlayPr
               <p className="text-[10px] text-(--foreground-muted)">Ops Manager</p>
             </div>
           </div>
-          {/* Exit button — returns to landing page */}
-          <button
-            onClick={handleExit}
-            className={cn(
-              'w-full flex items-center gap-2 px-2.5 py-2 mt-1 rounded-md',
-              'text-xs font-medium text-(--foreground-subtle)',
-              'hover:bg-(--surface-2) hover:text-(--foreground)',
-              'border border-(--border)',
-              'transition-colors duration-150 cursor-pointer',
-              'focus-visible:outline-(--focus-ring)'
-            )}
-            aria-label="Return to landing page"
-          >
-            <LogOut size={13} strokeWidth={1.75} aria-hidden="true" />
-            Exit
-          </button>
-        </div>
-      </nav>
-    </div>
+            {/* Exit button — returns to landing page */}
+            <button
+              onClick={handleExit}
+              className={cn(
+                'w-full flex items-center gap-2 px-2.5 py-2 mt-1 rounded-md',
+                'text-xs font-medium text-(--foreground-subtle)',
+                'hover:bg-(--surface-2) hover:text-(--foreground)',
+                'border border-(--border)',
+                'transition-colors duration-150 cursor-pointer',
+                'focus-visible:outline-(--focus-ring)'
+              )}
+              aria-label="Return to landing page"
+            >
+              <LogOut size={13} strokeWidth={1.75} aria-hidden="true" />
+              Exit
+            </button>
+          </div>
+        </m.nav>
+      </div>
+      )}
+    </AnimatePresence>
   );
 }

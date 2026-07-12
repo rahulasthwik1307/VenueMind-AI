@@ -4,9 +4,10 @@ import { SidebarNavItem } from './SidebarNavItem';
 interface SidebarNavGroupProps {
   group: NavGroup;
   collapsed: boolean;
+  onItemClick?: (e: React.MouseEvent<HTMLAnchorElement>, href: string) => void;
 }
 
-export function SidebarNavGroup({ group, collapsed }: SidebarNavGroupProps) {
+export function SidebarNavGroup({ group, collapsed, onItemClick }: SidebarNavGroupProps) {
   return (
     <div className="space-y-0.5">
       {!collapsed && (
@@ -19,7 +20,7 @@ export function SidebarNavGroup({ group, collapsed }: SidebarNavGroupProps) {
       )}
       <ul role="list" aria-label={group.label} className="space-y-0.5">
         {group.items.map((item) => (
-          <SidebarNavItem key={item.id} item={item} collapsed={collapsed} />
+          <SidebarNavItem key={item.id} item={item} collapsed={collapsed} onItemClick={onItemClick} />
         ))}
       </ul>
     </div>

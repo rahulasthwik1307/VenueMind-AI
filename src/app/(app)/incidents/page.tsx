@@ -255,11 +255,11 @@ export default function IncidentsPage() {
               aria-hidden="true"
             />
             <m.div
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="relative w-full bg-(--surface-1) rounded-t-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden border-t border-(--border)"
+              initial={{ y: '100%', opacity: 0.5, scale: 0.98 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: '100%', opacity: 0.5, scale: 0.98 }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
+              className="relative w-auto mx-3 mb-4 bg-(--surface-1) rounded-2xl shadow-2xl flex flex-col max-h-[85vh] overflow-hidden border border-(--border)"
               role="dialog"
               aria-modal="true"
               aria-label="Expanded AI Queue Prioritization"

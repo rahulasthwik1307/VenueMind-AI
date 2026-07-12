@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { m } from 'framer-motion';
 import { cn } from '@/utils/cn';
 import { computeIsActive } from '@/utils/navIsActive';
 import type { NavItem } from '@/constants/navigation';
@@ -9,9 +10,10 @@ import type { NavItem } from '@/constants/navigation';
 interface SidebarNavItemProps {
   item: NavItem;
   collapsed: boolean;
+  onItemClick?: (e: React.MouseEvent<HTMLAnchorElement>, href: string) => void;
 }
 
-export function SidebarNavItem({ item, collapsed }: SidebarNavItemProps) {
+export function SidebarNavItem({ item, collapsed, onItemClick }: SidebarNavItemProps) {
   const pathname = usePathname();
 
   const isActive = computeIsActive(item.href, pathname);
@@ -68,9 +70,14 @@ export function SidebarNavItem({ item, collapsed }: SidebarNavItemProps) {
     'aria-current': isActive ? ('page' as const) : undefined,
   };
 
+  const itemVariants = {
+    hidden: { opacity: 0, x: -10 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.2 } },
+  };
+
   if (item.placeholder) {
     return (
-      <li>
+      <m.li variants={itemVariants}>
         <button
           {...commonProps}
           type="button"
@@ -81,15 +88,15 @@ export function SidebarNavItem({ item, collapsed }: SidebarNavItemProps) {
         >
           {inner}
         </button>
-      </li>
+      </m.li>
     );
   }
 
   return (
-    <li>
-      <Link href={item.href} {...commonProps}>
+    <m.li variants={itemVariants}>
+      <Link href={item.href} {...commonProps} onClick={(e) => onItemClick?.(e, item.href)}>
         {inner}
       </Link>
-    </li>
+    </m.li>
   );
 }
