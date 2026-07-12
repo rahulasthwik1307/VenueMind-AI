@@ -32,7 +32,7 @@ export function PersonaFocusSection() {
             Scoped deliberately to one persona: the venue operator.
           </h2>
 
-          <p className="text-sm md:text-[0.9375rem] text-muted leading-relaxed">
+          <p className="text-sm md:text-[0.9375rem] text-muted leading-relaxed text-justify">
             VenueMind AI is not a general-purpose event management platform. It is built
             exclusively for the operations staff managing a stadium during a live FIFA World Cup
             2026 match — the crowd control coordinator, the safety officer, the transport
@@ -40,14 +40,14 @@ export function PersonaFocusSection() {
             through this single lens.
           </p>
 
-          <p className="text-sm md:text-[0.9375rem] text-muted leading-relaxed">
+          <p className="text-sm md:text-[0.9375rem] text-muted leading-relaxed text-justify">
             This constraint was deliberate. Broad platforms fail the moment the stadium gates
             open and 80,000 people arrive simultaneously. Specificity is what makes the AI
             recommendations actionable, the incident queue scannable in 2 seconds, and the
             command center navigable under pressure.
           </p>
 
-          <p className="text-sm md:text-[0.9375rem] text-muted leading-relaxed">
+          <p className="text-sm md:text-[0.9375rem] text-muted leading-relaxed text-justify">
             The simulation engine runs a full match cycle — pre-match ingress, first half,
             halftime, second half, post-match egress — so the system can be evaluated against
             realistic operational conditions without needing a live event.

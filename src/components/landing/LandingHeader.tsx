@@ -131,7 +131,7 @@ export function LandingHeader() {
           )}
           aria-hidden="true"
         >
-          <Cpu size={16} strokeWidth={2.25} className="text-white dark:text-[#0b0f19] transition-transform duration-200 group-hover:scale-105 sm:w-[18px] sm:h-[18px]" />
+          <Cpu size={16} strokeWidth={2.25} className="text-white dark:text-[#0b0f19] transition-transform duration-200 group-hover:scale-105 sm:w-4.5 sm:h-4.5" />
         </div>
         <span className="text-sm sm:text-base font-extrabold text-foreground tracking-tight leading-none">
           VenueMind <span className="text-primary">AI</span>
