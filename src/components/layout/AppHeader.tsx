@@ -253,10 +253,10 @@ export function AppHeader({ onMobileMenuOpen, onSearchOpen }: AppHeaderProps) {
           return (
             <m.div
               className={cn(
-                'flex items-center gap-5.5 px-3 py-1.5 rounded-lg border border-(--border)',
-                'bg-(--surface-1) shadow-xs select-none',
-                'min-h-10.5 md:min-w-41',
-                'cursor-default'
+                'flex items-center justify-center rounded-lg border border-(--border)',
+                'bg-(--surface-1) shadow-xs select-none cursor-default',
+                'w-9.5 h-9.5 p-0',
+                'md:w-auto md:min-h-10.5 md:min-w-41 md:px-3 md:py-1.5 md:gap-5.5 md:justify-start'
               )}
               title={`Global Stadium Occupancy: ${occupancyPercent}% capacity`}
               role="img"
