@@ -158,7 +158,7 @@ export function AppHeader({ onMobileMenuOpen, onSearchOpen }: AppHeaderProps) {
   return (
     <header
       className={cn(
-        'shrink-0 grid grid-cols-[1fr_minmax(0,480px)_1fr] items-center',
+        'shrink-0 flex justify-between sm:grid sm:grid-cols-[1fr_minmax(0,480px)_1fr] items-center',
         'bg-(--surface-1) border-b border-(--border)',
         'px-4 md:px-5',
         'z-20 sticky top-0'
@@ -438,7 +438,7 @@ export function AppHeader({ onMobileMenuOpen, onSearchOpen }: AppHeaderProps) {
           title={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
           aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
         >
-          {theme === 'light' ? <Moon size={15} /> : <Sun size={15} />}
+          {theme === 'light' ? <Moon size={16} strokeWidth={2.25} /> : <Sun size={16} strokeWidth={2.25} />}
         </button>
 
         {/* Notifications */}
@@ -491,7 +491,7 @@ export function AppHeader({ onMobileMenuOpen, onSearchOpen }: AppHeaderProps) {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 8, scale: 0.97 }}
                   transition={{ duration: 0.15, ease: 'easeOut' }}
-                  className="absolute right-0 mt-2 w-80 bg-(--surface-1) border border-(--border) rounded-lg shadow-xl z-50 flex flex-col max-h-105 overflow-hidden"
+                  className="fixed left-3 right-3 top-16 sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-80 bg-(--surface-1) border border-(--border) rounded-lg shadow-xl z-50 flex flex-col max-h-[85vh] sm:max-h-105 overflow-hidden"
                   role="dialog"
                   aria-label="Notification center"
                 >
@@ -638,7 +638,7 @@ export function AppHeader({ onMobileMenuOpen, onSearchOpen }: AppHeaderProps) {
         />
 
         {/* Operator Avatar */}
-        <div className="relative group shrink-0 select-none mr-1">
+        <div className="hidden sm:block relative group shrink-0 select-none mr-1">
           <div
             className={cn(
               'w-8.5 h-8.5 rounded-full bg-linear-to-br from-(--primary) to-emerald-600',

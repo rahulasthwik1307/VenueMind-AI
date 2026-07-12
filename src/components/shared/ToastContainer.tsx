@@ -13,7 +13,7 @@ export function ToastContainer() {
 
   return (
     <div 
-      className="fixed top-16 right-5 z-9999 flex flex-col gap-2 max-w-sm w-full pointer-events-none"
+      className="fixed top-16 left-4 right-4 sm:left-auto sm:right-5 z-9999 flex flex-col gap-2 sm:max-w-sm w-auto sm:w-full pointer-events-none"
       role="region"
       aria-label="Notifications"
     >
