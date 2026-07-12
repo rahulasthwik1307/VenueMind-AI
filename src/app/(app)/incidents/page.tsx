@@ -144,8 +144,8 @@ export default function IncidentsPage() {
   }, []);
 
   return (
-    <PageContainer>
-      <div className="@container/page flex flex-col gap-(--card-gap) animate-fade-in h-[calc(100dvh-116px)] md:h-auto md:block md:space-y-(--card-gap) md:gap-0 pb-0 md:pb-10 overflow-hidden md:overflow-visible">
+    <PageContainer className="pb-4! pt-4! md:pb-8! md:pt-4!">
+      <div className="@container/page flex flex-col gap-4 md:gap-(--card-gap) animate-fade-in md:h-auto md:block md:space-y-(--card-gap) pb-0">
         <style>{`
           @container page (min-width: 768px) and (max-width: 1439px) {
             #live-incidents-grid {
@@ -179,7 +179,7 @@ export default function IncidentsPage() {
         )}
 
         {/* Mobile Header Area (Filters, Bulk Actions, AI Card) */}
-        <div className="flex flex-col gap-(--card-gap) shrink-0 md:block md:space-y-(--card-gap) md:gap-0">
+        <div className="flex flex-col gap-4 md:gap-(--card-gap) shrink-0 md:block md:space-y-(--card-gap)">
           {/* Search + Filter Bar */}
           <IncidentFilterBar
             searchQuery={searchQuery}
@@ -210,9 +210,9 @@ export default function IncidentsPage() {
         </div>
 
         {/* Main content grid */}
-        <div id="live-incidents-grid" className="grid grid-cols-1 min-[1440px]:grid-cols-[1fr_360px] gap-(--card-gap) min-w-0 w-full flex-1 min-h-0 md:flex-none">
+        <div id="live-incidents-grid" className="grid grid-cols-1 min-[1440px]:grid-cols-[1fr_360px] gap-4 md:gap-(--card-gap) min-w-0 w-full flex-1 min-h-0 md:flex-none">
           {/* Left: Incident Table */}
-          <div className="min-w-0 flex-1 min-h-0 flex flex-col md:h-auto md:block">
+          <div className="min-w-0 flex-1 min-h-0 flex flex-col md:h-auto md:block h-200">
             {isLoading ? (
               <LoadingState label="Loading incident queue…" />
             ) : (
