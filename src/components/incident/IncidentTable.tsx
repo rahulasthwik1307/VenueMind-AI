@@ -53,15 +53,23 @@ export function IncidentTable({
   const [showLeftShadow, setShowLeftShadow] = useState(false);
   const [showRightShadow, setShowRightShadow] = useState(false);
   const [showBottomShadow, setShowBottomShadow] = useState(false);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const horizontalScrollRef = useRef<HTMLDivElement>(null);
+  const verticalScrollRef = useRef<HTMLDivElement>(null);
 
   const checkScroll = useCallback(() => {
-    const el = scrollContainerRef.current;
-    if (!el) return;
-    const { scrollLeft, scrollWidth, clientWidth, scrollTop, scrollHeight, clientHeight } = el;
-    setShowLeftShadow(scrollLeft > 2);
-    setShowRightShadow(scrollLeft < scrollWidth - clientWidth - 2);
-    setShowBottomShadow(scrollTop < scrollHeight - clientHeight - 2 && scrollHeight > clientHeight);
+    const horizEl = horizontalScrollRef.current;
+    const vertEl = verticalScrollRef.current;
+
+    if (horizEl) {
+      const { scrollLeft, scrollWidth, clientWidth } = horizEl;
+      setShowLeftShadow(scrollLeft > 2);
+      setShowRightShadow(scrollLeft < scrollWidth - clientWidth - 2);
+    }
+
+    if (vertEl) {
+      const { scrollTop, scrollHeight, clientHeight } = vertEl;
+      setShowBottomShadow(scrollTop < scrollHeight - clientHeight - 2 && scrollHeight > clientHeight);
+    }
   }, []);
 
   useEffect(() => {
@@ -142,7 +150,7 @@ export function IncidentTable({
 
   if (processed.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center bg-(--surface-1) border border-(--border) rounded-xl">
+      <div className="flex flex-col items-center justify-center h-full md:h-auto py-16 text-center bg-(--surface-1) border border-(--border) rounded-xl">
         <HelpCircle size={28} className="text-(--foreground-subtle) opacity-50 mb-3" />
         <p className="text-sm font-semibold text-(--foreground)">No incidents match your filters</p>
         <p className="text-xs text-(--foreground-muted) mt-1">
@@ -158,7 +166,10 @@ export function IncidentTable({
       role="grid"
       aria-label="Incident management table"
       aria-rowcount={processed.length}
-      className="@container bg-(--surface-1) border border-(--border) rounded-xl overflow-hidden min-w-0 w-full flex flex-col"
+      className={cn(
+        "@container bg-(--surface-1) border border-(--border) rounded-xl overflow-hidden min-w-0 w-full flex flex-col",
+        "h-full md:h-auto"
+      )}
       style={cardHeight ? { height: `${cardHeight}px` } : undefined}
     >
       <div className="relative min-w-0 w-full flex-1 min-h-0 flex flex-col">
@@ -177,92 +188,100 @@ export function IncidentTable({
           )}
         />
 
+        {/* Outer Horizontal Scroll Container */}
         <div
-          ref={scrollContainerRef}
+          ref={horizontalScrollRef}
           onScroll={checkScroll}
-          className="overflow-x-auto overflow-y-auto min-w-0 w-full custom-scrollbar-always scrollbar-thin flex-1 min-h-0"
+          className="overflow-x-auto overflow-y-hidden min-w-0 w-full flex-1 flex flex-col min-h-0"
         >
-        <div className="min-w-0 @[600px]:min-w-195 w-full">
-          {/* Header Row */}
-          <div
-            role="row"
-            className="grid items-center gap-3 px-4 py-2.5 bg-(--surface-2) border-b border-(--border) [--table-cols:68px_1fr_76px_96px] @[600px]:[--table-cols:20px_68px_minmax(140px,2.5fr)_minmax(85px,1fr)_76px_minmax(110px,1.8fr)_64px_96px] sticky top-0 z-20"
-            style={{ gridTemplateColumns: 'var(--table-cols)' }}
-          >
-            {/* Select All */}
-            <div role="columnheader" className="hidden @[600px]:block">
-              <input
-                type="checkbox"
-                checked={allSelected}
-                ref={(el) => {
-                  if (el) el.indeterminate = someSelected;
-                }}
-                onChange={handleSelectAll}
-                aria-label="Select all incidents"
-                className="w-3.5 h-3.5 rounded accent-(--primary) cursor-pointer"
-              />
-            </div>
-            <div role="columnheader" className="text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle)">
-              Severity
-            </div>
-            <div role="columnheader" className="text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle)">
-              Incident
-            </div>
-            <div role="columnheader" className="hidden @[600px]:block text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle)">
-              Category
-            </div>
+          <div className="min-w-0 @[600px]:min-w-195 w-full flex flex-col flex-1 min-h-0">
+            {/* Header Row (Outside vertical scroll, stays static) */}
             <div
-              role="columnheader"
-              aria-sort={sortKey === 'status' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
+              role="row"
+              className="grid items-center gap-3 px-4 py-2.5 bg-(--surface-2) border-b border-(--border) [--table-cols:68px_1fr_76px_96px] @[600px]:[--table-cols:20px_68px_minmax(140px,2.5fr)_minmax(85px,1fr)_76px_minmax(110px,1.8fr)_64px_96px] shrink-0"
+              style={{ gridTemplateColumns: 'var(--table-cols)' }}
             >
-              <SortableHeader
-                label="Status"
-                colKey="status"
-                sortKey={sortKey}
-                sortDir={sortDir}
-                onSort={handleSortColumn}
-              />
-            </div>
-            <div role="columnheader" className="hidden @[600px]:block text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle)">
-              Zone
-            </div>
-            <div
-              role="columnheader"
-              className="hidden @[600px]:block"
-              aria-sort={sortKey === 'time' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
-            >
-              <SortableHeader
-                label="Time"
-                colKey="time"
-                sortKey={sortKey}
-                sortDir={sortDir}
-                onSort={handleSortColumn}
-              />
-            </div>
-            <div role="columnheader" className="text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle) text-right w-24">
-              Actions
-            </div>
-          </div>
-
-          {/* Data Rows */}
-          <div>
-            <AnimatePresence initial={false}>
-              {processed.map((incident, rowIndex) => (
-                <IncidentTableRow
-                  key={incident.id}
-                  incident={incident}
-                  rowIndex={rowIndex}
-                  isSelected={selectedIds.includes(incident.id)}
-                  isExpanded={expandedIds.has(incident.id)}
-                  onToggleSelect={handleToggleSelect}
-                  onToggleExpand={handleToggleExpand}
-                  onOpenDetails={onOpenDetails}
-                  onKeyDown={handleRowKeyDown}
+              {/* Select All */}
+              <div role="columnheader" className="hidden @[600px]:block">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  ref={(el) => {
+                    if (el) el.indeterminate = someSelected;
+                  }}
+                  onChange={handleSelectAll}
+                  aria-label="Select all incidents"
+                  className="w-3.5 h-3.5 rounded accent-(--primary) cursor-pointer"
                 />
-              ))}
-            </AnimatePresence>
+              </div>
+              <div role="columnheader" className="text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle)">
+                Severity
+              </div>
+              <div role="columnheader" className="text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle)">
+                Incident
+              </div>
+              <div role="columnheader" className="hidden @[600px]:block text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle)">
+                Category
+              </div>
+              <div
+                role="columnheader"
+                aria-sort={sortKey === 'status' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
+              >
+                <SortableHeader
+                  label="Status"
+                  colKey="status"
+                  sortKey={sortKey}
+                  sortDir={sortDir}
+                  onSort={handleSortColumn}
+                />
+              </div>
+              <div role="columnheader" className="hidden @[600px]:block text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle)">
+                Zone
+              </div>
+              <div
+                role="columnheader"
+                className="hidden @[600px]:block"
+                aria-sort={sortKey === 'time' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
+              >
+                <SortableHeader
+                  label="Time"
+                  colKey="time"
+                  sortKey={sortKey}
+                  sortDir={sortDir}
+                  onSort={handleSortColumn}
+                />
+              </div>
+              <div role="columnheader" className="text-[9px] font-bold uppercase tracking-wider text-(--foreground-subtle) text-right w-24">
+                Actions
+              </div>
+            </div>
+
+            {/* Inner Vertical Scroll Container (Only wraps rows) */}
+            <div
+              ref={verticalScrollRef}
+              onScroll={checkScroll}
+              className="overflow-y-auto overflow-x-hidden min-w-0 w-full custom-scrollbar-always scrollbar-thin flex-1 min-h-0"
+            >
+              {/* Data Rows */}
+              <div>
+                <AnimatePresence initial={false}>
+                  {processed.map((incident, rowIndex) => (
+                    <IncidentTableRow
+                      key={incident.id}
+                      incident={incident}
+                      rowIndex={rowIndex}
+                      isSelected={selectedIds.includes(incident.id)}
+                      isExpanded={expandedIds.has(incident.id)}
+                      onToggleSelect={handleToggleSelect}
+                      onToggleExpand={handleToggleExpand}
+                      onOpenDetails={onOpenDetails}
+                      onKeyDown={handleRowKeyDown}
+                    />
+                  ))}
+                </AnimatePresence>
+              </div>
+            </div>
           </div>
-        </div>
         </div>
         {/* Bottom scroll shadow hint */}
         <div

@@ -159,7 +159,7 @@ export function IncidentQueueAI() {
       aria-label="AI Queue Prioritization Panel"
     >
       {/* Header */}
-      <div className="flex items-center justify-between gap-3 px-4.5 py-3 bg-(--surface-2) border-b border-(--border) shrink-0">
+      <div className="flex items-center justify-between gap-3 px-3 py-2 md:px-4.5 md:py-3 bg-(--surface-2) border-b border-(--border) shrink-0">
         <div className="flex items-center gap-2">
           <Brain size={13} className="text-(--primary)" />
           <h3 className="text-xs font-bold text-(--foreground) uppercase tracking-wider">
@@ -183,7 +183,7 @@ export function IncidentQueueAI() {
       </div>
 
       {/* Body */}
-      <div className="p-4 pb-3 flex-1 flex flex-col min-h-0">
+      <div className="p-3 pb-2 md:p-4 md:pb-3 flex-1 flex flex-col min-h-0">
         <AnimatePresence mode="wait">
           {responseState === 'idle' && (
             <m.div
@@ -191,11 +191,11 @@ export function IncidentQueueAI() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex flex-col items-center text-center w-full gap-6 flex-1"
+              className="flex flex-col items-center text-center w-full gap-3 md:gap-6 flex-1"
             >
               {/* Section 1: Header */}
-              <div className="flex flex-col items-center pt-6">
-                <div className="w-8 h-8 rounded-full bg-(--primary-muted) flex items-center justify-center mb-1">
+              <div className="flex flex-col items-center pt-2 md:pt-6">
+                <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-(--primary-muted) flex items-center justify-center mb-1">
                   <Sparkles size={14} className="text-(--primary) live-indicator" />
                 </div>
                 <p className="text-xs font-semibold text-(--foreground)">Prioritize Open Queue</p>
@@ -205,25 +205,25 @@ export function IncidentQueueAI() {
               </div>
 
               {/* Section 2: Operational Metrics */}
-              <div className="w-full border-t border-(--border)/60 pt-3 mt-1">
-                <div className="flex flex-col space-y-1.5 w-full">
-                  <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
+              <div className="w-full border-t border-(--border)/60 pt-2 mt-0 md:pt-3 md:mt-1">
+                <div className="flex flex-col space-y-0.5 md:space-y-1.5 w-full">
+                  <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-0.5 md:py-1">
                     <span className="text-(--foreground-muted) font-medium">Queue Size</span>
                     <span className="font-bold text-(--foreground)">{totalOpenCount} Open</span>
                   </div>
-                  <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
+                  <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-0.5 md:py-1">
                     <span className="text-(--foreground-muted) font-medium">Critical Incidents</span>
                     <span className={cn("font-bold", criticalOpenCount > 0 ? "text-red-600 dark:text-red-400" : "text-(--foreground)")}>
                       {criticalOpenCount} Critical
                     </span>
                   </div>
-                  <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
+                  <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-0.5 md:py-1">
                     <span className="text-(--foreground-muted) font-medium">AI Confidence</span>
                     <span className="font-bold text-(--foreground)">
                       <AnimatedNumber value={avgAiConfidence} suffix="%" />
                     </span>
                   </div>
-                  <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
+                  <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-0.5 md:py-1">
                     <span className="text-(--foreground-muted) font-medium">Recommendation Status</span>
                     <span className="font-bold text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/40 px-1.5 py-0.5 rounded text-[8px] uppercase tracking-wider w-max">
                       Ready
@@ -233,21 +233,21 @@ export function IncidentQueueAI() {
               </div>
 
               {/* Section 3: Operational Intelligence */}
-              <div className="w-full border-t border-(--border)/60 pt-3 mt-1">
-                <div className="flex flex-col space-y-1.5 w-full">
-                  <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
+              <div className="w-full border-t border-(--border)/60 pt-2 mt-0 md:pt-3 md:mt-1">
+                <div className="flex flex-col space-y-0.5 md:space-y-1.5 w-full">
+                  <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-0.5 md:py-1">
                     <span className="text-(--foreground-muted) font-medium">Risk Assessment</span>
                     <span className="font-bold text-green-500">Updated</span>
                   </div>
-                  <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
+                  <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-0.5 md:py-1">
                     <span className="text-(--foreground-muted) font-medium">Priority Engine</span>
                     <span className="font-bold text-(--foreground)">Active</span>
                   </div>
-                  <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
+                  <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-0.5 md:py-1">
                     <span className="text-(--foreground-muted) font-medium">Last Analysis</span>
                     <span className="font-bold text-(--foreground)">Pending</span>
                   </div>
-                  <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-1">
+                  <div className="flex items-center justify-between w-full text-[9.5px] font-mono leading-none py-0.5 md:py-1">
                     <span className="text-(--foreground-muted) font-medium">Decision Status</span>
                     <span className="font-bold text-(--foreground)">Ready</span>
                   </div>
@@ -255,8 +255,8 @@ export function IncidentQueueAI() {
               </div>
 
               {/* Section 4: Action Area */}
-              <div className="w-full border-t border-(--border)/60 pt-3 mt-1">
-                <div className="flex items-center justify-center gap-1.5 text-[8.5px] font-mono text-(--foreground-muted) mb-2 uppercase tracking-wider">
+              <div className="w-full border-t border-(--border)/60 pt-2 mt-0 md:pt-3 md:mt-1">
+                <div className="flex items-center justify-center gap-1.5 text-[8.5px] font-mono text-(--foreground-muted) mb-1.5 md:mb-2 uppercase tracking-wider">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                   <span>Monitoring Cycle: Live</span>
                 </div>
@@ -337,7 +337,7 @@ export function IncidentQueueAI() {
       </div>
 
       {/* Footer */}
-      <div className="px-4 py-2.5 bg-(--surface-2)/40 border-t border-(--border) flex justify-between items-center text-[9px] font-mono text-(--foreground-subtle) shrink-0 select-none">
+      <div className="px-3 py-1.5 md:px-4 md:py-2.5 bg-(--surface-2)/40 border-t border-(--border) flex justify-between items-center text-[9px] font-mono text-(--foreground-subtle) shrink-0 select-none">
         <span>AI CO-PROCESSOR — ACTIVE</span>
         <span>STATUS: LIVE</span>
       </div>
