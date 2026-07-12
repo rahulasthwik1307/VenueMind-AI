@@ -160,19 +160,19 @@ export function AppHeader({ onMobileMenuOpen, onSearchOpen }: AppHeaderProps) {
       className={cn(
         'shrink-0 flex justify-between sm:grid sm:grid-cols-[1fr_minmax(0,480px)_1fr] items-center',
         'bg-(--surface-1) border-b border-(--border)',
-        'px-4 md:px-5',
+        'px-2 sm:px-4 md:px-5',
         'z-20 sticky top-0'
       )}
       style={{ height: HEADER_HEIGHT }}
       role="banner"
     >
       {/* --- Left: Mobile menu + Logo (mobile only) --- */}
-      <div className="flex items-center gap-3 shrink-0">
+      <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
         {/* Mobile hamburger */}
         <button
           onClick={onMobileMenuOpen}
           className={cn(
-            'md:hidden flex items-center justify-center w-9.5 h-9.5 rounded-lg border border-(--border)',
+            'md:hidden flex items-center justify-center w-8 h-8 sm:w-9.5 sm:h-9.5 rounded-lg border border-(--border)',
             'bg-(--surface-1) text-(--foreground-muted) hover:text-(--foreground) hover:bg-(--surface-2)',
             'transition-all duration-200 focus-visible:ring-2 focus-visible:ring-(--primary-muted)/40 focus-visible:outline-none'
           )}
@@ -238,7 +238,7 @@ export function AppHeader({ onMobileMenuOpen, onSearchOpen }: AppHeaderProps) {
       </div>
 
       {/* --- Right: Controls --- */}
-      <div className="flex items-center justify-end gap-1.5 md:gap-2">
+      <div className="flex items-center justify-end gap-1 sm:gap-1.5 md:gap-2">
         {/* Premium Global Capacity Widget */}
         {(() => {
           const occupancyPercent = telemetry?.stadiumCapacity.value ?? 62;
@@ -255,7 +255,7 @@ export function AppHeader({ onMobileMenuOpen, onSearchOpen }: AppHeaderProps) {
               className={cn(
                 'flex items-center justify-center rounded-lg border border-(--border)',
                 'bg-(--surface-1) shadow-xs select-none cursor-default',
-                'w-9.5 h-9.5 p-0',
+                'w-8 h-8 sm:w-9.5 sm:h-9.5 p-0',
                 'md:w-auto md:min-h-10.5 md:min-w-41 md:px-3 md:py-1.5 md:gap-5.5 md:justify-start'
               )}
               title={`Global Stadium Occupancy: ${occupancyPercent}% capacity`}
@@ -265,7 +265,7 @@ export function AppHeader({ onMobileMenuOpen, onSearchOpen }: AppHeaderProps) {
               transition={{ duration: 0.18, ease: 'easeOut' }}
             >
               {/* Animated progress ring — larger and crisper */}
-              <div className="relative w-9 h-9 flex items-center justify-center shrink-0">
+              <div className="relative w-7 h-7 sm:w-9 sm:h-9 flex items-center justify-center shrink-0">
                 <svg className="w-full h-full -rotate-90 select-none" viewBox="0 0 36 36">
                   <circle
                     cx="18"
@@ -289,7 +289,7 @@ export function AppHeader({ onMobileMenuOpen, onSearchOpen }: AppHeaderProps) {
                     strokeDasharray={circumference}
                   />
                 </svg>
-                <span className="absolute text-[8.5px] font-black font-mono text-(--foreground) leading-none select-none tracking-tighter">
+                <span className="absolute text-[7px] sm:text-[8.5px] font-black font-mono text-(--foreground) leading-none select-none tracking-tighter">
                   {occupancyPercent}%
                 </span>
               </div>
@@ -355,7 +355,7 @@ export function AppHeader({ onMobileMenuOpen, onSearchOpen }: AppHeaderProps) {
           <button
             onClick={() => setIsLangOpen(!isLangOpen)}
             className={cn(
-              'flex items-center justify-center gap-1.5 h-9.5 px-2.5 rounded-lg border border-(--border)',
+              'flex items-center justify-center gap-1.5 h-8 sm:h-9.5 px-2 sm:px-2.5 rounded-lg border border-(--border)',
               'bg-(--surface-1) text-(--foreground-muted) shadow-xs',
               'hover:text-(--foreground) hover:bg-(--surface-2) hover:border-(--border-strong)',
               'transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-(--primary-muted)/40 focus-visible:outline-none',
@@ -430,7 +430,7 @@ export function AppHeader({ onMobileMenuOpen, onSearchOpen }: AppHeaderProps) {
         <button
           onClick={toggleTheme}
           className={cn(
-            'flex items-center justify-center w-9.5 h-9.5 rounded-lg border border-(--border)',
+            'flex items-center justify-center w-8 h-8 sm:w-9.5 sm:h-9.5 rounded-lg border border-(--border)',
             'bg-(--surface-1) text-(--foreground-muted) shadow-xs',
             'hover:text-(--foreground) hover:bg-(--surface-2) hover:border-(--border-strong)',
             'transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-(--primary-muted)/40 focus-visible:outline-none'
@@ -446,7 +446,7 @@ export function AppHeader({ onMobileMenuOpen, onSearchOpen }: AppHeaderProps) {
           <button
             onClick={() => setIsNotifOpen(!isNotifOpen)}
             className={cn(
-              'relative flex items-center justify-center w-9.5 h-9.5 rounded-lg border border-(--border)',
+              'relative flex items-center justify-center w-8 h-8 sm:w-9.5 sm:h-9.5 rounded-lg border border-(--border)',
               'bg-(--surface-1) text-(--foreground-muted) shadow-xs',
               'hover:text-(--foreground) hover:bg-(--surface-2) hover:border-(--border-strong)',
               'transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-(--primary-muted)/40 focus-visible:outline-none',
@@ -620,7 +620,7 @@ export function AppHeader({ onMobileMenuOpen, onSearchOpen }: AppHeaderProps) {
         <button
           onClick={handleExit}
           className={cn(
-            'flex items-center justify-center w-9.5 h-9.5 rounded-lg border border-(--border)',
+            'flex items-center justify-center w-8 h-8 sm:w-9.5 sm:h-9.5 rounded-lg border border-(--border)',
             'bg-(--surface-1) text-(--foreground-muted) shadow-xs cursor-pointer',
             'hover:text-(--foreground) hover:bg-(--surface-2) hover:border-(--border-strong)',
             'transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-(--primary-muted)/40 focus-visible:outline-none'
