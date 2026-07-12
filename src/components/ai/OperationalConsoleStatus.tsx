@@ -1,6 +1,7 @@
 'use client';
 
-import { Cpu, Clock, Sliders, CheckCircle } from 'lucide-react';
+import { useState } from 'react';
+import { Cpu, Clock, Sliders, CheckCircle, ChevronDown } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
 interface OperationalConsoleStatusProps {
@@ -12,15 +13,24 @@ export function OperationalConsoleStatus({
   interactionMode,
   isAnalyzing,
 }: OperationalConsoleStatusProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   return (
     <div
-      className="rounded-xl border border-(--border) bg-(--surface-2)/30 px-3 py-2.5 flex flex-col gap-2 select-none shrink-0 shadow-xs max-h-26.25 overflow-hidden"
+      className="rounded-xl border border-(--border) bg-(--surface-2)/30 px-3 py-2.5 flex flex-col gap-1 select-none shrink-0 shadow-xs overflow-hidden"
       aria-label="AI system status widget"
     >
       {/* Top Status Header */}
-      <div className="flex items-center justify-between">
-        <span className="text-[9px] font-bold uppercase tracking-wider text-(--foreground-muted) font-mono">
+      <button 
+        className="flex items-center justify-between w-full text-left md:pointer-events-none md:cursor-default"
+        onClick={() => setIsExpanded(prev => !prev)}
+        type="button"
+        aria-expanded={isExpanded}
+        aria-label="Toggle AI system status details"
+      >
+        <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-(--foreground-muted) font-mono">
           AI System Status
+          <ChevronDown size={10} className={cn("md:hidden transition-transform duration-200", isExpanded ? "rotate-180" : "rotate-0")} />
         </span>
         <span
           className={cn(
@@ -38,11 +48,19 @@ export function OperationalConsoleStatus({
           />
           {isAnalyzing ? 'TRIAGING' : 'READY'}
         </span>
-      </div>
+      </button>
 
-      {/* Metrics Columns */}
-      <div className="grid grid-cols-4 gap-2 pt-1 border-t border-black/5 dark:border-white/5">
-        {/* Metric 1: Model */}
+      {/* Metrics Columns - Collapsible on Mobile, always open on Desktop */}
+      <div
+        className={cn(
+          "grid transition-all duration-300 ease-in-out overflow-hidden",
+          isExpanded 
+            ? "grid-rows-[1fr] opacity-100 pt-1.5 border-t mt-1 border-black/5 dark:border-white/5" 
+            : "grid-rows-[0fr] opacity-0 pt-0 mt-0 border-t-0 border-transparent md:grid-rows-[1fr] md:opacity-100 md:pt-1 md:mt-1 md:border-t md:border-black/5 md:dark:border-white/5"
+        )}
+      >
+        <div className="row-span-1 min-h-0 grid grid-cols-4 gap-2">
+          {/* Metric 1: Model */}
         <div className="flex flex-col items-center justify-center py-1 px-1 rounded-md border border-(--border) bg-(--surface-1) shadow-3xs transition-colors hover:border-(--border-strong)">
           <div className="flex items-center gap-1 mb-0.5">
             <Cpu size={10} className="text-(--primary) opacity-90" />
@@ -84,6 +102,7 @@ export function OperationalConsoleStatus({
           <span className="text-[8.5px] font-extrabold text-(--foreground) font-mono uppercase tracking-tight">
             99.4%
           </span>
+        </div>
         </div>
       </div>
     </div>

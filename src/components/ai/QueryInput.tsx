@@ -11,7 +11,7 @@
  * - aria-label on submit button
  */
 
-import { KeyboardEvent } from 'react';
+import { KeyboardEvent, useEffect, useRef } from 'react';
 import { Send } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
@@ -26,8 +26,6 @@ interface QueryInputProps {
   inputId?: string;
   /** Custom submit enabling logic override */
   canSubmit?: boolean;
-  /** Custom visible rows count */
-  rows?: number;
 }
 
 const MAX_VISIBLE_LENGTH = 500;
@@ -41,11 +39,20 @@ export function QueryInput({
   label = 'Operational Query',
   inputId = 'ai-query-input',
   canSubmit: canSubmitProp,
-  rows = 3,
 }: QueryInputProps) {
   const charCount = value.length;
   const isOverLimit = charCount > MAX_VISIBLE_LENGTH;
   const canSubmit = (canSubmitProp !== undefined ? canSubmitProp : value.trim().length > 0) && !isAnalyzing && !isOverLimit;
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    // Auto-expand textarea
+    textarea.style.height = 'auto';
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`; // cap max height
+  }, [value]);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     // Enter (without Shift) submits; Shift+Enter inserts newline
@@ -77,17 +84,18 @@ export function QueryInput({
       </div>
 
       <textarea
+        ref={textareaRef}
         id={inputId}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        rows={rows}
         disabled={isAnalyzing}
         aria-label={label}
         aria-describedby={`${inputId}-hint`}
         className={cn(
           'w-full resize-none text-sm px-3 py-2.5 rounded-md overflow-y-auto',
+          'min-h-13 md:min-h-18', // Smaller initial height on mobile (approx 2 rows vs 3 rows)
           'bg-(--surface-1) border border-(--border)',
           'text-(--foreground) placeholder:text-(--foreground-subtle)',
           'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-(--primary)',

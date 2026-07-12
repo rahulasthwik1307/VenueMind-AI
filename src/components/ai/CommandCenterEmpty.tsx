@@ -38,7 +38,7 @@ export function CommandCenterEmpty({
 }: CommandCenterEmptyProps) {
   return (
     <div
-      className="flex flex-col items-center justify-start py-2 px-4 text-center gap-4 w-full max-w-2xl mx-auto min-w-0"
+      className="flex flex-col items-center justify-start py-2 px-4 text-center gap-3 md:gap-4 w-full max-w-2xl mx-auto min-w-0"
       role="region"
       aria-label="AI Command Center — Idle dashboard"
     >
@@ -57,7 +57,7 @@ export function CommandCenterEmpty({
       </div>
 
       {/* Mode Cards (Interactive Buttons — Reduced Size & Muted Accent Tints) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full max-w-lg text-left">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-2.5 w-full max-w-lg text-left">
         {[
           {
             value: 'structured' as const,
@@ -148,7 +148,7 @@ export function CommandCenterEmpty({
         <h3 className="text-[9.5px] font-bold font-mono text-(--foreground-subtle) uppercase tracking-wider text-center mb-2">
           AI Capabilities
         </h3>
-        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-left max-w-md mx-auto" role="list">
+        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-2.5 text-left max-w-md mx-auto" role="list">
           {[
             {
               title: 'Incident Analysis',
@@ -202,7 +202,7 @@ export function CommandCenterEmpty({
             No actions dispatched this session. Recommended responses sent to the Ops Timeline will appear here.
           </p>
         ) : (
-          <ul className="space-y-1.5 max-w-md mx-auto w-full min-w-0" role="list">
+          <ul className="space-y-1 md:space-y-1.5 max-w-md mx-auto w-full min-w-0" role="list">
             {recentActivities.map((act) => (
               <li
                 key={act.id}
