@@ -18,6 +18,7 @@ import { HelpCircle } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { SortableHeader } from './SortableHeader';
 import { IncidentTableRow } from './IncidentTableRow';
+import { IncidentMobileCard } from './IncidentMobileCard';
 import { sortIncidents, filterIncidents } from '@/utils/incidentTableUtils';
 import { APP_CONFIG } from '@/constants/config';
 import type { Incident } from '@/types/incident';
@@ -198,7 +199,7 @@ export function IncidentTable({
             {/* Header Row (Outside vertical scroll, stays static) */}
             <div
               role="row"
-              className="grid items-center gap-3 px-4 py-2.5 bg-(--surface-2) border-b border-(--border) [--table-cols:68px_1fr_76px_96px] @[600px]:[--table-cols:20px_68px_minmax(140px,2.5fr)_minmax(85px,1fr)_76px_minmax(110px,1.8fr)_64px_96px] shrink-0"
+              className="hidden md:grid items-center gap-3 px-4 py-2.5 bg-(--surface-2) border-b border-(--border) [--table-cols:68px_1fr_76px_96px] @[600px]:[--table-cols:20px_68px_minmax(140px,2.5fr)_minmax(85px,1fr)_76px_minmax(110px,1.8fr)_64px_96px] shrink-0"
               style={{ gridTemplateColumns: 'var(--table-cols)' }}
             >
               {/* Select All */}
@@ -262,8 +263,8 @@ export function IncidentTable({
               onScroll={checkScroll}
               className="overflow-y-auto overflow-x-hidden min-w-0 w-full custom-scrollbar-always scrollbar-thin flex-1 min-h-0"
             >
-              {/* Data Rows */}
-              <div>
+              {/* Desktop Data Rows */}
+              <div className="hidden md:block">
                 <AnimatePresence initial={false}>
                   {processed.map((incident, rowIndex) => (
                     <IncidentTableRow
@@ -276,6 +277,23 @@ export function IncidentTable({
                       onToggleExpand={handleToggleExpand}
                       onOpenDetails={onOpenDetails}
                       onKeyDown={handleRowKeyDown}
+                    />
+                  ))}
+                </AnimatePresence>
+              </div>
+
+              {/* Mobile Data Cards */}
+              <div className="md:hidden flex flex-col gap-3 p-3">
+                <AnimatePresence initial={false}>
+                  {processed.map((incident) => (
+                    <IncidentMobileCard
+                      key={`mobile-${incident.id}`}
+                      incident={incident}
+                      isSelected={selectedIds.includes(incident.id)}
+                      isExpanded={expandedIds.has(incident.id)}
+                      onToggleSelect={handleToggleSelect}
+                      onToggleExpand={handleToggleExpand}
+                      onOpenDetails={onOpenDetails}
                     />
                   ))}
                 </AnimatePresence>
