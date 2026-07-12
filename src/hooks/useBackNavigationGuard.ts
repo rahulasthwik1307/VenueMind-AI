@@ -4,71 +4,128 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { ROUTES } from '@/constants/routes';
 
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
 interface UseBackNavigationGuardOptions {
   /**
-   * Called when the browser back-button would navigate the user out of the
-   * app to the landing page ("/"). Use this to show a confirmation dialog.
+   * Called whenever the browser back-button is pressed while the user is
+   * inside the (app) route group. Use this to show a confirmation dialog.
+   *
+   * Every back-press fires this callback — the guard entry is re-pushed
+   * synchronously before the callback is called, so the URL and page content
+   * never change regardless of whether the user confirms or cancels.
    */
   onGuardTriggered: () => void;
 }
 
 interface UseBackNavigationGuardReturn {
   /**
-   * Call this when the user confirms they want to leave.
-   * Navigates to the landing page using the Next.js router.
+   * Call when the user confirms they want to leave the app.
+   * Navigates cleanly to the landing page via Next.js router.push.
    */
   confirmExit: () => void;
   /**
-   * Call this when the user cancels.
-   * Re-arms the sentinel so the next back-press triggers the guard again.
+   * Call when the user cancels and wants to stay.
+   * The guard is already re-armed — no additional action is required.
    */
   cancelExit: () => void;
 }
 
+// ---------------------------------------------------------------------------
+// Guard state token — used to identify entries we own in the history stack.
+// ---------------------------------------------------------------------------
+
 /**
- * useBackNavigationGuard
+ * The state object we push for every guard entry.
+ * We use this to identify guard entries vs. real navigation entries.
+ * (Not strictly required for correctness in this implementation, but useful
+ * for debugging and future extensions.)
+ */
+const GUARD_STATE = { isVenueMindGuard: true } as const;
+
+// ---------------------------------------------------------------------------
+// Hook
+// ---------------------------------------------------------------------------
+
+/**
+ * useBackNavigationGuard — v5 (complete rebuild)
  *
- * Intercepts browser back-button navigation that would take the user from any
- * (app) route back to the landing page ("/"), showing a confirmation callback
- * instead of silently exiting.
+ * Intercepts ALL browser back-button presses while the user is inside the
+ * (app) route group, showing a confirmation dialog instead of allowing
+ * silent navigation.
  *
- * Normal in-app back navigation (e.g. /ai-command → /incidents → /dashboard)
- * is NOT blocked — it works naturally through the browser's built-in history.
+ * ─────────────────────────────────────────────────────────────────────────
+ * WHY ALL PREVIOUS VERSIONS (v1–v4) FAILED
+ * ─────────────────────────────────────────────────────────────────────────
  *
- * --- HOW IT WORKS (v4 — single sentinel at bottom) ---
+ * v1–v4 all shared the same fundamental design:
+ *   - Push ONE "sentinel" entry on mount (or mount+navigation in some versions).
+ *   - In the `popstate` handler, check `window.location.pathname === "/"`.
+ *   - Only act if the user has reached "/".
  *
- * CORE CONCEPT: One "sentinel" history entry is pushed once, sitting between
- * "/" and the first app route. When the user presses back enough times to
- * exhaust all real app entries, the sentinel is the next thing popped.
- * We detect this via `popstate` and show a confirmation before the user
- * actually reaches "/".
+ * This is broken because:
  *
- * PREVIOUS BUG (v3): pushSentinel() was called on EVERY forward navigation
- * AND on every backward popstate event (including in-app navigation). This
- * flooded the history stack with sentinels, causing back-presses to consume
- * sentinels instead of navigating between real app routes. Users had to press
- * back many times before any actual navigation occurred.
+ * 1. WRONG MENTAL MODEL — Next.js App Router manages history itself.
+ *    It may call `history.pushState` or `history.replaceState` for internal
+ *    purposes (scroll restoration, prefetching, hydration). The sentinel
+ *    placed once on mount is NOT reliably at a fixed position relative to
+ *    real app route entries. After a few navigations the stack looks nothing
+ *    like the assumed [/, sentinel, /dashboard, /incidents, /ai-cmd] model.
  *
- * THIS FIX (v4):
- *   - Sentinel is pushed ONCE on mount.
- *   - popstate handler only acts when window.location.pathname === "/".
- *   - In-app popstate events (pathname is an app route) are completely ignored,
- *     letting the browser navigate naturally between app pages.
- *   - When the sentinel is consumed (user reaches "/"), the handler:
- *       a) Re-pushes the sentinel synchronously (restores guard for "Stay").
- *       b) Calls onGuardTriggered() to show the dialog.
- *   - cancelExit: nothing needed (sentinel re-pushed in step a).
- *   - confirmExit: sets a flag, calls router.push("/") for a clean exit.
+ * 2. SILENT FAILURES — Because the guard only acts when `pathname === "/"`,
+ *    every in-app back-press (e.g. /ai-cmd → /incidents) silently succeeds
+ *    without showing any dialog. These are the "first back press does nothing"
+ *    events reported in testing. The user has to exhaust ALL real app history
+ *    entries before the sentinel is reached.
  *
- * NAVIGATION SEQUENCE (correct behavior):
- *   App opens     →  stack: [/, sentinel, /dashboard]
- *   Go to /inc    →  stack: [/, sentinel, /dashboard, /incidents]
- *   Go to /ai     →  stack: [/, sentinel, /dashboard, /incidents, /ai-command]
- *   Press back    →  stack: [/, sentinel, /dashboard, /incidents] → renders /incidents ✓
- *   Press back    →  stack: [/, sentinel, /dashboard] → renders /dashboard ✓
- *   Press back    →  sentinel popped → pathname="/" → dialog shown ✓
- *   Cancel        →  sentinel re-pushed → stack: [/, sentinel, /dashboard] ✓
- *   Confirm exit  →  navigates to "/" cleanly ✓
+ * 3. EXTERNAL BYPASS — After consuming all real app history entries AND the
+ *    sentinel, the browser falls into pre-app history (the user's previous
+ *    tabs: Google, other sites). There is no guard left to intercept this.
+ *
+ * 4. "STAY" DEGRADATION — The sentinel is re-pushed in the popstate handler,
+ *    but its position in the stack relative to real entries is unpredictable
+ *    after multiple navigations and re-pushes. The `isDialogOpenRef` race
+ *    condition further prevents the guard from re-triggering correctly.
+ *
+ * ─────────────────────────────────────────────────────────────────────────
+ * THE CORRECT PATTERN — PERSISTENT GUARD ENTRY (v5)
+ * ─────────────────────────────────────────────────────────────────────────
+ *
+ * KEY INSIGHT: Instead of a single sentinel at the bottom, maintain a guard
+ * entry that is ALWAYS the topmost entry in the history stack — pushed fresh
+ * on every page load and re-pushed immediately on every popstate event.
+ *
+ * This guarantees:
+ *   - Every single back-press pops the guard entry first → popstate fires.
+ *   - We neutralize the navigation synchronously (re-push) before any UI
+ *     change occurs.
+ *   - The dialog is shown. The user's page never changes.
+ *   - The guard re-arms itself automatically on every back-press and on every
+ *     forward navigation (pathname change).
+ *   - There is no scenario where a back-press can silently succeed.
+ *
+ * HISTORY STACK STRUCTURE (maintained invariant):
+ *
+ *   [..., /prev-page, /prev-page-guard, /curr-page, /curr-page-guard]
+ *                                                     ^^^^ always on top
+ *
+ * NAVIGATION SEQUENCE:
+ *
+ *   Mount on /dashboard    → push guard → [..., /dashboard, /dashboard-guard]
+ *   Navigate to /incidents → Next.js pushes /incidents → Effect 1 fires →
+ *                            push guard → [..., /dash, /dash-g, /inc, /inc-g]
+ *   Press back             → pops /inc-g → popstate → re-push /inc-g → dialog
+ *   Click "Stay"           → guard already armed → back-press → dialog again ✓
+ *   Click "Leave"          → isConfirmedLeave=true → router.push('/') ✓
+ *
+ * NOTE ON IN-APP BACK NAVIGATION:
+ *   The browser back button is fully intercepted for ALL back-presses while
+ *   within the (app) route group. This is intentional: the sidebar is the
+ *   correct navigation mechanism in an enterprise operations console; the
+ *   back button is reserved for exiting (with confirmation). Forward
+ *   navigation via sidebar Links is unaffected.
  */
 export function useBackNavigationGuard({
   onGuardTriggered,
@@ -76,101 +133,111 @@ export function useBackNavigationGuard({
   const router = useRouter();
   const pathname = usePathname();
 
-  // Prevent double-triggering if the user presses back rapidly while the
-  // confirmation dialog is already visible.
+  // ── Refs ──────────────────────────────────────────────────────────────────
+
+  /**
+   * Prevents stacking multiple dialogs if back is pressed rapidly while the
+   * dialog is already visible.
+   */
   const isDialogOpenRef = useRef(false);
 
-  // Set to true immediately before confirmExit() calls router.push('/').
-  // Prevents any residual effects from fighting the confirmed navigation.
+  /**
+   * Set to true immediately before `router.push(ROUTES.landing)` in
+   * `confirmExit`. This tells both Effect 1 (pathname change → don't re-push
+   * guard for the landing page) and the popstate handler (don't intercept
+   * the navigation we just initiated) to stand down.
+   *
+   * The AppShell unmounts when the landing page renders (it lives in the
+   * (marketing) route group, not (app)), so this ref resets automatically
+   * with the component.
+   */
   const isConfirmedLeaveRef = useRef(false);
 
-  // Stable reference to onGuardTriggered to avoid re-running the effect
-  // when the callback identity changes due to parent re-renders.
+  /**
+   * Always-current reference to `onGuardTriggered`. Avoids stale closure
+   * captures in the popstate handler (which is registered only once on mount).
+   */
   const onGuardTriggeredRef = useRef(onGuardTriggered);
   useEffect(() => {
     onGuardTriggeredRef.current = onGuardTriggered;
   }, [onGuardTriggered]);
 
-  const pushSentinel = useCallback(() => {
-    // Push a same-URL history entry. This adds one slot above the current
-    // position so the next back-press pops the sentinel rather than
-    // immediately navigating to the previous real URL.
-    window.history.pushState(null, '');
-  }, []);
-
-  // --- Effect 1: Push sentinel ONCE on mount ---
+  // ── Effect 1: Push guard entry on every pathname change ───────────────────
   //
-  // This places the sentinel between "/" and the first real app route.
-  // We intentionally do NOT re-push this on every pathname change.
-  // Normal Next.js Link navigation pushes real app routes on top of the
-  // sentinel via its own history.pushState — the sentinel stays in place
-  // below all app routes and is consumed only when the user exhausts the
-  // entire in-app history.
+  // Fires on initial mount AND on every Next.js route transition within the
+  // (app) group. After each transition, pushes a guard entry on top of the
+  // new real entry so there is always a guard entry as the topmost slot.
+  //
+  // This is the re-arming mechanism for forward navigation.
   useEffect(() => {
-    // Only push the sentinel once when the AppShell first mounts.
-    // The pathname exclusion avoids a pointless sentinel push on "/",
-    // but AppShell is only mounted inside the (app) group so this is
-    // belt-and-suspenders only.
-    if (pathname === ROUTES.landing) {
-      return;
-    }
-    pushSentinel();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // intentionally empty — mount only
+    // Do not push a guard entry if we are navigating away (Leave confirmed).
+    // The AppShell is about to unmount anyway.
+    if (isConfirmedLeaveRef.current) return;
 
-  // --- Effect 2: Intercept back-button presses via popstate ---
+    // Push a guard entry that mirrors the current URL. Using the full href
+    // (not just pathname) preserves any hash/search params.
+    window.history.pushState(GUARD_STATE, '', window.location.href);
+  }, [pathname]);
+
+  // ── Effect 2: Permanent popstate listener ────────────────────────────────
   //
-  // Fires on every browser back/forward event.
-  // KEY CHANGE from v3: we ONLY act when the destination is "/".
-  // For all in-app navigation (any pathname that is not "/"), we do nothing
-  // and let the browser handle it naturally.
+  // Registered ONCE on mount. Never removed until the component unmounts
+  // (AppShell leaves the DOM when the user exits the app group entirely).
+  //
+  // Empty dependency array is intentional: the handler reads all runtime
+  // values via refs (always current), so no stale closure risk. Using an
+  // empty array also avoids a brief unprotected window that would occur if
+  // the listener were removed-and-re-added on every pathname change.
   useEffect(() => {
     const handlePopState = () => {
-      const currentPathname = window.location.pathname;
+      // A confirmed leave is in progress (router.push('/') was called).
+      // Do not interfere — let Next.js complete the transition.
+      if (isConfirmedLeaveRef.current) return;
 
-      // In-app navigation (e.g. /ai-command → /incidents): do nothing.
-      // Let the browser's natural history traversal complete unobstructed.
-      if (currentPathname !== ROUTES.landing) {
-        return;
-      }
+      // ── CRITICAL STEP ────────────────────────────────────────────────────
+      // Immediately re-push a guard entry. This synchronously neutralizes the
+      // back-navigation that just occurred:
+      //   - The browser popped the guard entry (current URL → previous URL).
+      //   - Since guard entry URL === real page URL, `window.location.href`
+      //     after the pop is the same URL the guard was protecting.
+      //   - Re-pushing restores the guard as the topmost entry.
+      //   - The user's visible page does NOT change.
+      // This must happen before the dialog callback so that "Stay" requires
+      // zero additional re-arming — the guard is already set for the next press.
+      window.history.pushState(GUARD_STATE, '', window.location.href);
 
-      // The user has pressed back far enough to reach "/".
-      // This means the sentinel was consumed (it sat between "/" and the app).
-      // Re-push the sentinel BEFORE calling onGuardTriggered so that:
-      //   a) If the user clicks "Stay", the next back-press re-triggers the guard.
-      //   b) The history stack is restored synchronously.
-      if (!isConfirmedLeaveRef.current) {
-        pushSentinel();
+      // Do not show a second dialog if one is already open.
+      if (isDialogOpenRef.current) return;
 
-        if (isDialogOpenRef.current) {
-          // Dialog already open — do not double-trigger.
-          return;
-        }
-
-        isDialogOpenRef.current = true;
-        onGuardTriggeredRef.current();
-      }
+      isDialogOpenRef.current = true;
+      onGuardTriggeredRef.current();
     };
 
     window.addEventListener('popstate', handlePopState);
     return () => {
       window.removeEventListener('popstate', handlePopState);
     };
-  }, [pushSentinel]);
+  }, []); // intentionally empty — see comment above
+
+  // ── Confirm exit ─────────────────────────────────────────────────────────
 
   const confirmExit = useCallback(() => {
     isDialogOpenRef.current = false;
+    // Signal both Effect 1 and the popstate handler to stand down before
+    // initiating the navigation, so neither interferes with the clean exit.
     isConfirmedLeaveRef.current = true;
-    // Navigate to "/" as a forward push so we get a clean, predictable
-    // transition rather than relying on back-button mechanics.
+    // Navigate to the landing page using Next.js router for a clean,
+    // client-side transition — never a hard reload, never to an external URL.
     router.push(ROUTES.landing);
   }, [router]);
 
+  // ── Cancel exit ──────────────────────────────────────────────────────────
+
   const cancelExit = useCallback(() => {
+    // Reset dialog flag — guard is already fully re-armed (the pushState call
+    // in handlePopState happened synchronously before onGuardTriggered was
+    // called, so the next back-press will fire popstate immediately).
     isDialogOpenRef.current = false;
-    // The sentinel was already re-pushed synchronously in handlePopState
-    // before onGuardTriggered() was called, so history is already restored.
-    // No additional action needed.
   }, []);
 
   return { confirmExit, cancelExit };

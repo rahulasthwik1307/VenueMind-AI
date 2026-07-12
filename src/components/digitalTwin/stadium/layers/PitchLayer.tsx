@@ -192,7 +192,8 @@ export function PitchLayer() {
         dominantBaseline="middle"
         fontSize={8.5}
         fontWeight={750}
-        fill="rgba(255,255,255,0.85)"
+        fill="var(--foreground-muted)"
+        opacity={0.5}
         fontFamily="var(--font-mono, monospace)"
         letterSpacing={2.5}
       >
