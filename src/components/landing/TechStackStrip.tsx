@@ -28,10 +28,9 @@ export function TechStackStrip() {
           Built with
         </p>
 
-        {/* Scrollable badge row */}
+        {/* Wrapping badge row */}
         <div
-          className="flex items-stretch gap-3 overflow-x-auto pb-1 -mx-1 px-1"
-          style={{ scrollbarWidth: 'none' }}
+          className="flex flex-wrap items-stretch gap-3 pb-1"
           role="list"
           aria-label="Technology stack badges"
         >

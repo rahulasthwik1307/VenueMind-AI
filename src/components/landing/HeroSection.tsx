@@ -223,7 +223,7 @@ export function HeroSection() {
 
             {/* CTAs */}
             <m.div
-              className="mt-6 flex flex-wrap items-center gap-3"
+              className="mt-6 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3"
               initial={reduced ? {} : { opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.24, ease: [0.32, 0.72, 0, 1] }}
@@ -232,8 +232,8 @@ export function HeroSection() {
               <Link
                 href={ROUTES.dashboard}
                 className={cn(
-                  'group inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl',
-                  'bg-primary text-white text-sm font-bold',
+                  'group inline-flex items-center justify-center gap-2 sm:gap-2.5 px-5 sm:px-6 py-3.5 rounded-xl w-full sm:w-auto',
+                  'bg-primary text-white text-[13px] sm:text-sm font-bold',
                   'hover:brightness-110 hover:-translate-y-0.5 active:scale-[0.98]',
                   'transition-all duration-250 ease-out',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--primary] focus-visible:ring-offset-2 focus-visible:ring-offset-white',
@@ -254,8 +254,8 @@ export function HeroSection() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className={cn(
-                  'inline-flex items-center gap-2 px-6 py-3.5 rounded-xl',
-                  'border border-black/10 dark:border-white/10 text-muted hover:text-foreground text-sm font-semibold',
+                  'inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-3.5 rounded-xl w-full sm:w-auto',
+                  'border border-black/10 dark:border-white/10 text-muted hover:text-foreground text-[13px] sm:text-sm font-semibold',
                   'bg-white/40 dark:bg-white/5 backdrop-blur-xs',
                   'hover:border-black/20 dark:hover:border-white/20 hover:bg-black/5 dark:hover:bg-white/10 hover:-translate-y-0.5 active:scale-[0.98]',
                   'transition-all duration-250 ease-out',

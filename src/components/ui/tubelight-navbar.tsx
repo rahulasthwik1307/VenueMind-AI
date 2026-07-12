@@ -56,7 +56,7 @@ export function NavBar({ items, className, activeTab: controlledActiveTab, onTab
                   }
                 }}
                 className={cn(
-                  "relative cursor-pointer text-xs font-semibold px-4 sm:px-6 py-1.5 sm:py-2 rounded-full transition-colors",
+                  "relative cursor-pointer text-xs font-semibold px-3 sm:px-6 py-1.5 sm:py-2 rounded-full transition-colors",
                   "text-muted hover:text-primary",
                   isActive && "text-primary",
                 )}

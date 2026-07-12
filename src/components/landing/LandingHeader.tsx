@@ -106,7 +106,7 @@ export function LandingHeader() {
     <header
       className={cn(
         'fixed top-0 left-0 right-0 z-40 h-16',
-        'flex items-center justify-between px-6 md:px-10',
+        'flex items-center justify-between px-3 sm:px-6 md:px-10',
         'transition-all duration-300 ease-in-out',
         scrolled
           ? 'bg-background/95 border-b border-border shadow-sm backdrop-blur-md'
@@ -119,27 +119,27 @@ export function LandingHeader() {
       <Link
         href={ROUTES.landing}
         onClick={handleLogoClick}
-        className="flex items-center gap-3 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm shrink-0 animate-fade-in"
+        className="flex items-center gap-2 sm:gap-3 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm shrink-0 animate-fade-in"
         aria-label="VenueMind AI — home"
       >
         <div
           className={cn(
-            "w-8.5 h-8.5 rounded-lg bg-primary flex items-center justify-center shrink-0",
+            "w-7 h-7 sm:w-8.5 sm:h-8.5 rounded-lg bg-primary flex items-center justify-center shrink-0",
             "group-hover:brightness-110 active:scale-95 transition-all duration-200",
             "border border-primary-hover/20 dark:border-primary/30",
             "shadow-sm dark:shadow-[0_0_12px_rgba(16,185,129,0.25)]"
           )}
           aria-hidden="true"
         >
-          <Cpu size={18} strokeWidth={2.25} className="text-white dark:text-[#0b0f19] transition-transform duration-200 group-hover:scale-105" />
+          <Cpu size={16} strokeWidth={2.25} className="text-white dark:text-[#0b0f19] transition-transform duration-200 group-hover:scale-105 sm:w-[18px] sm:h-[18px]" />
         </div>
-        <span className="text-base font-extrabold text-foreground tracking-tight leading-none">
+        <span className="text-sm sm:text-base font-extrabold text-foreground tracking-tight leading-none">
           VenueMind <span className="text-primary">AI</span>
         </span>
       </Link>
 
       {/* Right Group: Navigation Links and CTA */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4 shrink-0">
         <NavBar
           items={navItems}
           activeTab={activeTab}
@@ -161,8 +161,8 @@ export function LandingHeader() {
         <Link
           href={ROUTES.dashboard}
           className={cn(
-            'inline-flex items-center justify-center rounded-full bg-primary text-white dark:text-[#0b0f19] font-black select-none',
-            'px-3 sm:px-4.5 py-1.5 text-[10px] sm:text-xs border border-primary-hover ring-1 ring-white/10',
+            'inline-flex items-center justify-center rounded-full bg-primary text-white dark:text-[#0b0f19] font-black select-none shrink-0',
+            'px-2.5 sm:px-4.5 py-1.5 text-[10px] sm:text-xs border border-primary-hover ring-1 ring-white/10',
             'hover:brightness-115 hover:-translate-y-px active:scale-[0.98] transition-all duration-200',
             'shadow-[0_4px_12px_rgba(15,81,50,0.25)] dark:shadow-[0_4px_12px_rgba(16,185,129,0.35)]'
           )}
