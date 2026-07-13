@@ -57,7 +57,6 @@ function AmbientBackground({ reduced }: { reduced: boolean }) {
 }
 
 /** Stylized product UI preview — faithful mini-recreation using real design tokens */
-/** Stylized product UI preview — faithful mini-recreation using real design tokens */
 function ProductPreview() {
   const reduced = useReducedMotion() ?? false;
   return (
