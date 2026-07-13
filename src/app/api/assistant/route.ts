@@ -72,6 +72,14 @@ const RATE_LIMIT_MAX_REQUESTS = 12;  // per IP per minute
  */
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
+
+  // Evict expired entries to prevent memory leaks (unbounded memory growth)
+  for (const [key, record] of rateLimitMap.entries()) {
+    if (now - record.windowStart > RATE_LIMIT_WINDOW_MS) {
+      rateLimitMap.delete(key);
+    }
+  }
+
   const record = rateLimitMap.get(ip);
 
   if (!record || now - record.windowStart > RATE_LIMIT_WINDOW_MS) {

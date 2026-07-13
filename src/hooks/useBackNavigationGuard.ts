@@ -38,6 +38,8 @@ interface UseBackNavigationGuardReturn {
  * 6. We intercept the popstate event, verify the guard state, trigger the alert dialog,
  *    and immediately call window.history.forward() to keep the user on the page.
  */
+let isGuardInitialized = false;
+
 export function useBackNavigationGuard({
   onGuardTriggered,
 }: UseBackNavigationGuardOptions): UseBackNavigationGuardReturn {
@@ -49,6 +51,7 @@ export function useBackNavigationGuard({
   // 1. Initialize the guard entry once at the very bottom of the app stack
   useEffect(() => {
     const initializeGuard = () => {
+      if (isGuardInitialized) return;
       const state = window.history.state || {};
       if (!state.isVenueMindReal && !state.isVenueMindGuard) {
         try {
@@ -56,6 +59,7 @@ export function useBackNavigationGuard({
           window.history.replaceState({ ...state, isVenueMindGuard: true }, '');
           // Push the real active page entry on top of the guard
           window.history.pushState({ ...state, isVenueMindReal: true }, '', window.location.href);
+          isGuardInitialized = true;
         } catch {
           // Fallback if history state operations fail in certain sandbox environments
         }
@@ -63,6 +67,10 @@ export function useBackNavigationGuard({
     };
 
     initializeGuard();
+
+    return () => {
+      isGuardInitialized = false;
+    };
   }, []);
 
   // 2. Listen to popstate and intercept when landing on the guard entry

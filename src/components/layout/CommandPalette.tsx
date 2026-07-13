@@ -138,6 +138,8 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
 
   // ─── Filter results ──────────────────────────────────────────────────────
   const results = useMemo<CommandResult[]>(() => {
+    if (!isOpen) return [];
+
     const q = query.trim().toLowerCase();
 
     const matchedNav: NavResult[] = q === ''
@@ -166,10 +168,12 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
       }));
 
     return [...matchedNav, ...matchedIncidents];
-  }, [query, navItems, incidents]);
+  }, [isOpen, query, navItems, incidents]);
 
   // ─── Focus and mount management ──────────────────────────────────────────
   useEffect(() => {
+    if (!isOpen) return;
+
     previousFocusRef.current = document.activeElement;
     const timer = setTimeout(() => inputRef.current?.focus(), 40);
     return () => {
@@ -178,7 +182,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
       }
       clearTimeout(timer);
     };
-  }, []);
+  }, [isOpen]);
 
   // ─── Scroll active item into view ────────────────────────────────────────
   useEffect(() => {
