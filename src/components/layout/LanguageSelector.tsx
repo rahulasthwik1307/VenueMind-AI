@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Languages } from 'lucide-react';
 import { m, AnimatePresence } from 'framer-motion';
 import { cn } from '@/utils/cn';
 import { useUIStore } from '@/store/modules/ui';
+import { useOutsideClick } from '@/hooks/useOutsideClick';
 import type { AssistantLanguage } from '@/types/assistant';
 
 export function LanguageSelector() {
@@ -11,16 +12,8 @@ export function LanguageSelector() {
   const language = useUIStore((state) => state.language);
   const setLanguage = useUIStore((state) => state.setLanguage);
 
-  // Close language dropdown on outside click
-  useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
-      if (langRef.current && !langRef.current.contains(e.target as Node)) {
-        setIsLangOpen(false);
-      }
-    };
-    if (isLangOpen) document.addEventListener('mousedown', handleOutsideClick);
-    return () => document.removeEventListener('mousedown', handleOutsideClick);
-  }, [isLangOpen]);
+  useOutsideClick(langRef, () => setIsLangOpen(false), isLangOpen);
+
 
   return (
     <div className="relative" ref={langRef}>

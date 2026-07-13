@@ -23,6 +23,7 @@ import { cn } from '@/utils/cn';
 import { useIncidentStore } from '@/store/modules/incident';
 import type { AssistantDomain } from '@/types/assistant';
 import { AnimatePresence, m } from 'framer-motion';
+import { useOutsideClick } from '@/hooks/useOutsideClick';
 
 export type StructuredMode = 'incident' | 'zone' | 'domain';
 
@@ -94,15 +95,7 @@ function CustomSelect({ id, value, options, placeholder, onChange, ariaLabel, no
   };
 
   // Close when clicking outside the component
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        closeDropdown();
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [options, value]);
+  useOutsideClick(containerRef, closeDropdown, isOpen);
 
   // Set keyboard focus to option elements
   useEffect(() => {
