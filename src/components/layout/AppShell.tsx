@@ -11,6 +11,8 @@ import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 import { CommandPalette } from './CommandPalette';
 import { DashboardSimulator } from '@/components/providers/DashboardSimulator';
 import { useBackNavigationGuard } from '@/hooks/useBackNavigationGuard';
+import { useRouter } from 'next/navigation';
+import { ROUTES } from '@/constants/routes';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -37,6 +39,7 @@ interface AppShellProps {
  * and shows a confirmation dialog instead of allowing silent exit.
  */
 export function AppShell({ children }: AppShellProps) {
+  const router = useRouter();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [isExitDialogOpen, setIsExitDialogOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
@@ -61,7 +64,12 @@ export function AppShell({ children }: AppShellProps) {
     onGuardTriggered: handleGuardTriggered,
   });
 
-  const handleCloseDialog = useCallback(() => {
+  const handleConfirmExit = useCallback(() => {
+    setIsExitDialogOpen(false);
+    router.push(ROUTES.landing);
+  }, [router]);
+
+  const handleCancelExit = useCallback(() => {
     setIsExitDialogOpen(false);
     closeDialog();
   }, [closeDialog]);
@@ -134,11 +142,12 @@ export function AppShell({ children }: AppShellProps) {
       <ConfirmDialog
         isOpen={isExitDialogOpen}
         title="No previous page available."
-        description="You have reached the beginning of your session history."
-        confirmLabel="OK"
-        showCancelButton={false}
-        onConfirm={handleCloseDialog}
-        onCancel={handleCloseDialog}
+        description="You have reached the beginning of your session history. Would you like to exit to the landing page?"
+        confirmLabel="Exit to Landing"
+        cancelLabel="Stay"
+        showCancelButton={true}
+        onConfirm={handleConfirmExit}
+        onCancel={handleCancelExit}
       />
     </div>
   );
