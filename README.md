@@ -163,7 +163,7 @@ Here is how VenueMind AI directly addresses the challenge criteria:
 
 ### The Problem: Dashboard Overload & Operational Fatigue
 
-Running a World Cup stadium means absorbing a constant, high-velocity stream of operational signals—crowd density shifting at Gate A, a medical call in Sector 104, a delayed metro train, and a volunteer radio request.
+Running a World Cup stadium means absorbing a constant, high-velocity stream of operational signals—crowd density shifting at Gate A, a medical call in Sector 104, a delayed metro train, and a volunteer request.
 
 - **Traditional tools are "passive monitoring-first."** They present charts, counts, and flashing red lights, but leave the cognitive load of triaging, connecting the dots, and determining the appropriate response entirely on an overloaded operator.
 - **Minutes cost lives.** During high-pressure scenarios (e.g., crowd congestion at a gate during a sudden storm), decision fatigue leads to delayed or incorrect dispatches.
@@ -643,15 +643,18 @@ The VenueMind AI platform is fully polished and ready for review. Here is our re
    git clone https://github.com/rahulasthwik1307/VenueMind-AI.git
    cd VenueMind-AI
    ```
+
 2. **Install Dependencies:**
    ```bash
    npm install
    ```
+
 3. **Configure Environment Variables:**
    Create a `.env.local` file in the root directory:
    ```env
    GROQ_API_KEY=your_groq_api_key_here
    ```
+
 4. **Start the Development Server:**
    ```bash
    npm run dev
@@ -677,43 +680,113 @@ npm run build
 
 ## 📸 Screenshot Gallery
 
-The following screenshot locations showcase the primary workspaces of the command console:
+The following screenshot gallery showcases the primary workspaces of the command console:
 
-### 1. Landing Page
+### Landing Page
 
-- <img width="1907" height="902" alt="Screenshot 2026-07-13 175202" src="https://github.com/user-attachments/assets/5f9d182a-bd01-45d2-8a82-d1c8fe164805" />
-- **Caption:** The welcoming tournament operations gateway.
-- **Business Value:** Explains the project vision and targets the single operator persona.
+<img src="https://github.com/user-attachments/assets/5f9d182a-bd01-45d2-8a82-d1c8fe164805" width="100%" alt="VenueMind AI Screenshot" />
 
-### 2. Main Dashboard
+**Purpose**
+The tournament operations gateway welcomes operators and initiates the stadium console.
 
-- <img width="1917" height="907" alt="Screenshot 2026-07-13 175529" src="https://github.com/user-attachments/assets/1e0b0350-6e11-456b-a45e-d686f147f9fb" />
-- **Caption:** Real-time operational command interface.
-- **Business Value:** Displays critical telemetry, weather, and incident metrics at a glance.
+**Key Features**
+- Clean layout introducing the project goals.
+- Action links targeting single operator terminal setup.
+- Explicit visual challenge parameters.
+- Linkage to local simulation configurations.
 
-### 3. Stadium Digital Twin
+**Business Value**
+Sets an elite, professional first impression for event hosts and tournament judges, signaling an operator-first design mindset.
 
-- <img width="1917" height="911" alt="Screenshot 2026-07-13 175711" src="https://github.com/user-attachments/assets/e25b898a-f869-4c96-80e8-2949ccd5410e" />
-- **Caption:** Interactive SVG map featuring active incident pins and crowd heatmap overlays.
-- **Business Value:** Provides direct spatial awareness and overlay routing for venue staff.
+---
 
-### 4. AI Command Center
+### Main Dashboard
 
-- <img width="1917" height="907" alt="Screenshot 2026-07-13 175905" src="https://github.com/user-attachments/assets/c50872ac-911d-4185-b145-6a4aadab81c0" />
-- **Caption:** Operational query engine running structured and free-form conversation modes.
-- **Business Value:** Acts as the central reasoning workspace, generating dispatchable decision cards.
+<img src="https://github.com/user-attachments/assets/1e0b0350-6e11-456b-a45e-d686f147f9fb" width="100%" alt="VenueMind AI Screenshot" />
 
-### 5. Live Incidents Console
+**Purpose**
+Aggregates live KPI sensors, active incidents, and weather data into a single operational command panel.
 
-- <img width="1917" height="912" alt="Screenshot 2026-07-13 180045" src="https://github.com/user-attachments/assets/9513a37f-ccfb-4791-aaaa-23ec9dc7ee0b" />
-- **Caption:** Grouped incident queue featuring multi-incident summary briefs.
-- **Business Value:** Enables quick triage, priority filtering, and consolidated incident summaries.
+**Key Features**
+- Active incidents summary graphs.
+- Live capacity count charts.
+- Weather status alerts and temperature trackers.
+- Match phase status timers and command dials.
 
-### 6. Accessibility Lens
+**Business Value**
+Fosters unified awareness across the entire venue staff, minimizing dispatcher reaction delay during critical tournament operations.
 
--<img width="1917" height="907" alt="Screenshot 2026-07-13 180137" src="https://github.com/user-attachments/assets/6a48b3ac-7803-4369-9f11-7a0816bc0f6c" />
-- **Caption:** Custom routing interface displaying step-by-step wheelchair accommodation routing.
-- **Business Value:** Resolves accessibility challenges by deploying targeted volunteer paths.
+---
+
+### Stadium Digital Twin
+
+<img src="https://github.com/user-attachments/assets/e25b898a-f869-4c96-80e8-2949ccd5410e" width="100%" alt="VenueMind AI Screenshot" />
+
+**Purpose**
+Provides a geographic layout view of the stadium and gates utilizing interactive vector maps.
+
+**Key Features**
+- Custom React SVG zone pathways.
+- Real-time color-coded density heatmap overlays.
+- Dynamic navigation polyline paths for standard and disabled visitors.
+- Coordinate-anchored warning markers for active incidents.
+
+**Business Value**
+Translates complex data grids into intuitive geographic contexts, allowing operators to visually track crowd movements and routes.
+
+---
+
+### AI Command Center
+
+<img src="https://github.com/user-attachments/assets/c50872ac-911d-4185-b145-6a4aadab81c0" width="100%" alt="VenueMind AI Screenshot" />
+
+**Purpose**
+Operates as the central assistant console, returning structured briefings or answering free-form requests.
+
+**Key Features**
+- Structured domain and zone-specific briefing selector.
+- Groq-validated conversational prompt playground.
+- High-confidence decision cards displaying risk assessments.
+- Fast dispatch buttons logging resolutions directly to the timeline.
+
+**Business Value**
+Eliminates guess-work by giving operators access to an intelligent assistant that synthesizes raw telemetry into clear actions.
+
+---
+
+### Live Incidents Console
+
+<img src="https://github.com/user-attachments/assets/9513a37f-ccfb-4791-aaaa-23ec9dc7ee0b" width="100%" alt="VenueMind AI Screenshot" />
+
+**Purpose**
+Provides a prioritized dashboard for triaging, recording details, and resolving logged incidents.
+
+**Key Features**
+- High-priority active incidents listing.
+- Consolidated multi-incident briefing generation.
+- Detailed inline event log drawer.
+- Resolution controls and status filters.
+
+**Business Value**
+Enables first responders and coordinators to prioritize work items, recognize related incident patterns, and record actions.
+
+---
+
+### Accessibility Lens
+
+<img src="https://github.com/user-attachments/assets/6a48b3ac-7803-4369-9f11-7a0816bc0f6c" width="100%" alt="VenueMind AI Screenshot" />
+
+**Purpose**
+Guarantees inclusive mobility by mapping custom routes avoiding physical obstacles like stairs.
+
+**Key Features**
+- Tactical Accessibility Dispatch Tool interface.
+- Custom step-by-step route directions utilizing elevators and ramps.
+- Dynamic route highlighting overlay on the Digital Twin SVG.
+- Direct dispatch updates notifying accessibility staff.
+
+**Business Value**
+Empowers volunteers to confidently assist wheelchair-using or mobility-challenged fans, meeting international accessibility standards.
 
 ---
 
