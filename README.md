@@ -132,6 +132,13 @@ Powered by a central Groq-enabled Llama 3.3 70B reasoning engine, the platform t
 
 VenueMind AI was built specifically to address the **Smart Stadiums & Tournament Operations** track. By choosing to focus entirely on the _venue staff and tournament organizer_ persona, we developed a production-ready, deep platform rather than a shallow, split-focus app.
 
+> [!IMPORTANT]
+> ### 🏆 Official FIFA World Cup 2026 Challenge Alignment
+> VenueMind AI directly solves the **Smart Stadiums & Tournament Operations** track, focusing on:
+> - **🏟️ Smart Stadium Operations** · **🤖 Generative AI** · **📊 Operational Intelligence**
+> - **👥 Crowd Management** · **🚑 Emergency Response** · **🚌 Transportation**
+> - **♿ Accessibility** · **🌍 Multilingual Assistance** · **⚡ Real-Time Decision Support**
+
 Here is how VenueMind AI directly addresses the challenge criteria:
 
 | Challenge Pillar                | Actual Implemented Functionality                                                                                                                      | Impact on Stadium Operations                                                                             |
@@ -203,18 +210,13 @@ Generative AI, when integrated as an **underlying reasoning layer**, shifts the 
 
 The centerpiece of VenueMind AI is the custom-built **Interactive Stadium Digital Twin**. Rather than integrating heavy, generic third-party mapping libraries that fail to capture stadium-specific layers, the Digital Twin is built using **highly optimized React SVGs**.
 
-```
-                        🏟️ STADIUM DIGITAL TWIN LAYERS
- ┌─────────────────────────────────────────────────────────────────────────┐
- │  [Live Incident Indicators]   🚨 Flash on active zones                  │
- ├─────────────────────────────────────────────────────────────────────────┤
- │  [Dynamic SVG Route Overlays] 🟩 Standard  🟨 Accessibility  🟥 Emergency│
- ├─────────────────────────────────────────────────────────────────────────┤
- │  [Crowd Density Heatmaps]     🟩 Low  🟨 Medium  🟧 High  🟥 Critical   │
- ├─────────────────────────────────────────────────────────────────────────┤
- │  [Zone Geometries]            Interactive click-to-focus SVG Paths      │
- └─────────────────────────────────────────────────────────────────────────┘
-```
+| Layer | Purpose | Status |
+| :--- | :--- | :--- |
+| **🚨 Incident Layer** | Displays active incidents directly on the stadium | Live |
+| **👥 Crowd Density Layer** | Visualizes crowd distribution | Dynamic |
+| **🛣️ Route Layer** | Standard, Emergency and Accessible routing | Interactive |
+| **🎥 Camera Layer** | CCTV coverage and monitoring | Live |
+| **🏟️ Stadium Geometry** | Interactive React SVG Digital Twin | Core |
 
 ### Key Capabilities & Architecture:
 
@@ -269,6 +271,13 @@ flowchart TD
 2. **Prompts Directory (`/src/prompts`):** Prompts are strictly separated from components. They consist of a structured **System Prompt** (establishing the Stadium Operator persona, tone, and safety rules), a **Persona Prompt** (custom rules for different operational domains), and **Templates** for structured JSON output.
 3. **Zod Validation Shield:** The server-side proxy enforces strict Zod validation schemas (`/src/schemas`). If the LLM generates a response that violates the expected JSON schema, the app catches the error, falls back to a typed error, and triggers a clean UI error boundary without breaking the application state.
 4. **Zustand Store Integration:** Once validated, the structured JSON payload updates the `assistantStore`, immediately reflecting in the UI through Framer Motion-guided transitions.
+
+| Key Architectural Decision | Rationale & Implementation Details |
+| :--- | :--- |
+| **One AI Brain, Many Entry Points** | The Digital Twin's AI panel, the AI Command Center, every lens page's Domain Copilot, and Live Incidents' consolidated briefing all funnel through the same context builder and reasoning pipeline, not separate implementations. |
+| **No Database (Simulation-Driven)** | The app is intentionally stateless and simulation-driven, with all "live" data coming from an in-memory simulation engine. This keeps the architecture small, auditable, and removes an entire class of security surface, while remaining structured to swap in real IoT/telemetry feeds without a rewrite. |
+| **Server-Only AI Calls** | The Groq API key is never exposed client-side; every AI request is proxied through a Next.js API route with input validation and schema-enforced output. |
+| **Type-Safe Throughout** | Strict TypeScript, Zod validation on every AI response before it reaches the UI, with no `any` usage. |
 
 ---
 
@@ -383,24 +392,14 @@ The platform contains ten operational workspaces covering the complete lifecycle
 
 VenueMind AI maps the operations console's interface focus and AI reasoning priorities to the actual timeline of a World Cup Match:
 
-```
-┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│  PRE-MATCH   │ ➔  │   KICKOFF    │ ➔  │  FIRST HALF  │ ➔  │  HALFTIME    │ ➔  │ SECOND HALF  │ ➔  │  POST-MATCH  │
-└──────┬───────┘    └──────┬───────┘    └──────┬───────┘    └──────┬───────┘    └──────┬───────┘    └──────┬───────┘
-       │                   │                   │                   │                   │                   │
-       ▼                   ▼                   ▼                   ▼                   ▼                   ▼
- [Egress/Gate]       [Seat Entry]        [Concessions]       [Peak Movement]       [Egress Ready]       [Mass Egress]
-  Monitoring          Monitoring          Monitoring          & WC/Food Lines       & Egress Prep        & Dispersion
-       │                   │                   │                   │                   │                   │
-       ▼                   ▼                   ▼                   ▼                   ▼                   ▼
-  Primary View:       Primary View:       Primary View:       Primary View:       Primary View:       Primary View:
-  Transport & Map     Digital Twin        Incidents Console   Crowd & Map         Transport Lens      Transport & Map
-       │                   │                   │                   │                   │                   │
-       ▼                   ▼                   ▼                   ▼                   ▼                   ▼
-  AI Focus:           AI Focus:           AI Focus:           AI Focus:           AI Focus:           AI Focus:
-  Gate crowding &     Transit delays &    Triage of medical   Concourse density   Dynamic egress      Egress flows,
-  transport links.    safety alerts.      & safety alerts.    bottleneck alert.   shuttle routing.    bus frequencies.
-```
+| Match Phase | Primary Operations Focus | AI Decision Support |
+| :--- | :--- | :--- |
+| **🟢 Pre-Match** | Gate Preparation & Ingress | Predict crowd inflow & gate bottlenecks |
+| **⚽ Kickoff** | Entry Monitoring & Seating | Detect congestion & routing conflicts |
+| **🏃 First Half** | Active Match & Minor Triage | Paramedic routing & incident resolution |
+| **🍔 Halftime** | Concourse & Restrooms | Predict bottlenecks & queue wait times |
+| **🛡️ Second Half** | Transit & Egress Prep | Dynamic egress & shuttle preparation |
+| **🚌 Post-Match** | Mass Egress & Dispersion | Optimize transportation & exit flow |
 
 ### Detailed Flow Matrix
 
@@ -483,39 +482,32 @@ VenueMind AI is engineered to production standards, showcasing the following pra
 ```text
 VenueMind-AI/
 ├── src/
-│   ├── app/                      # Next.js App Router (Routing only)
-│   │   ├── (marketing)/          # Clean landing page (no shell)
-│   │   ├── (app)/                # Operations console (AppShell-wrapped routes)
-│   │   │   ├── dashboard/        # Operational overview and metrics
-│   │   │   ├── incidents/        # Incident management console
-│   │   │   ├── ai-command/       # AI conversation dashboard
-│   │   │   ├── map/              # Dedicated Digital Twin page
-│   │   │   ├── crowd/            # Crowd telemetry lens
-│   │   │   ├── transport/        # Transit hubs lens
-│   │   │   ├── emergency/        # Critical emergency lens
-│   │   │   ├── accessibility/    # Disability support lens
-│   │   │   ├── timeline/         # Global operations timeline
-│   │   │   └── settings/         # Configuration console
-│   │   └── api/assistant/        # Server-side Groq proxy endpoint
-│   ├── components/               # Pure UI Layer (Separated by domain)
-│   │   ├── digitalTwin/          # Interactive SVG canvas, layers, overlays
-│   │   ├── incident/             # Incident lists, triage drawer, history
-│   │   ├── ai/                   # AI Command widgets, chat, decision cards
-│   │   ├── operations/           # Dashboard KPI widgets
-│   │   ├── layout/               # Sidebar, header, right-side panels
-│   │   └── shared/               # Reusable buttons, badges, loaders, error boundaries
-│   ├── services/                 # Business Logic Layer
-│   │   ├── ai/                   # Context compiler and Groq service
-│   │   └── simulation/           # Phase-driven telemetry simulator
-│   ├── store/modules/            # Modular Zustand state stores
-│   ├── prompts/                  # AI System, Persona, and Template Prompts
-│   ├── schemas/                  # Runtime Zod validation schemas
-│   ├── types/                    # Shared TypeScript interfaces
-│   ├── constants/                # Immutable config and static mock data
-│   └── utils/                    # Pure, stateless helper functions
-├── docs/                         # Repository standards and architecture guides
-└── public/                       # Static assets and local mock JSON data
+│   ├── app/                      # Routing & APIs
+│   ├── components/               # UI Layer components
+│   ├── services/                 # Business logic interfaces
+│   ├── store/                    # Zustand modules
+│   ├── prompts/                  # AI instruction formats
+│   ├── schemas/                  # Payload verification formats
+│   ├── types/                    # System interface contracts
+│   ├── constants/                # Immutable specifications
+│   └── utils/                    # Helper components
+├── docs/                         # Specifications guides
+└── public/                       # Image assets and mock jsons
 ```
+
+| Folder Path / Name | Responsibility & Technical Role |
+| :--- | :--- |
+| **`src/app`** | Next.js App Router endpoints, client routes, and server-side assistant Groq proxy endpoint (`/api/assistant/`). |
+| **`src/components`** | Reusable UI modules sorted by domain: `digitalTwin/` (SVGs & maps), `incident/` (triage drawer & logs), `ai/` (command widget & chat cards), `operations/` (metrics), `layout/` (sidebar & headers), and `shared/` (primitives). |
+| **`src/services`** | Service layers executing business logic: `ai/` (context compilation and Groq API orchestration) and `simulation/` (telemetry generation engine). |
+| **`src/store`** | Zustand module partitions (`incidentStore`, `assistantStore`, `uiStore`, `digitalTwinStore`) maintaining decoupled global states. |
+| **`src/prompts`** | Structured markdown prompt templates defining system constraints, multilingual modes, and JSON formatting. |
+| **`src/schemas`** | Validation schemas written in Zod enforcing data safety contracts on Groq responses. |
+| **`src/types`** | Explicit TypeScript interfaces for domain parameters (`Incident`, `TelemetryState`, `ZoneData`, `Recommendation`). |
+| **`src/constants`** | Static operational mock data, route definitions, and simulation configurations. |
+| **`src/utils`** | Pure, side-effect-free helper functions for parsing dates, counts, and styles. |
+| **`docs`** | Core guidelines detailing architecture specifications, visual styles, engineering rules, and testing strategies. |
+| **`public`** | Local mock data structures, vector logos, and screenshot files. |
 
 ---
 
@@ -557,17 +549,29 @@ VenueMind AI complies with WCAG AA accessibility standards:
 
 ### Testing Strategy
 
-The platform includes an automated unit testing suite utilizing **Vitest**:
+VenueMind AI follows a layered testing strategy to ensure correctness, maintainability, and production readiness. 
 
-- **Context Assembly Testing:** Validates that the Context Builder correctly maps incident data, telemetry, and language states.
-- **Validation Testing:** Confirms that Zod throws appropriate errors when presented with malformed AI response shapes.
-- **Response Normalization:** Verifies that raw LLM output is successfully coerced into structured JS objects.
-- **Sorting & Filtering:** Asserts that table filter utilities behave predictably under sorting commands.
+The test suite covers:
+- **AI Context Builder:** Verifies the correct compiler outputs for incident, zone, and domain context generation.
+- **Decision Logic:** Asserts recommended response outputs, risk evaluation, and confidence calibrations.
+- **Simulation Engine:** Checks that the phase changes (Pre-Match ➔ Post-Match) properly dispatch telemetry alerts.
+- **Zustand Stores:** Confirms action dispatches, active filters, and updates update the state consistently.
+- **Business Logic & Services:** Enforces correct async returns and payload processing.
+- **Utility Functions:** Standardizes formatting of dates, counts, and tailwind classes.
+- **Schema Validation:** Verifies Zod schemas accurately flag invalid payload parameters.
+- **State Management & Component Behaviour:** Ensures clean data flows between logic hooks and the presentation layer.
 
-To run the test suite:
+The repository currently contains **144 automated unit tests**. Developers can validate the codebase integrity using:
 
 ```bash
+# Verify code formatting and lint rules
+npm run lint
+
+# Run the Vitest unit tests suite
 npm run test:run
+
+# Verify production compilation builds
+npm run build
 ```
 
 ### 🧪 Verification Status Summary
