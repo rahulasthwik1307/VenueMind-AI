@@ -88,6 +88,15 @@ export function ConfirmDialog({
         return;
       }
 
+      if (e.key === 'Enter') {
+        if (document.activeElement === cancelButtonRef.current) {
+          return;
+        }
+        e.preventDefault();
+        onConfirm();
+        return;
+      }
+
       // Focus trap: keep Tab/Shift+Tab cycling within the two buttons
       if (e.key === 'Tab') {
         const focusable = [cancelButtonRef.current, confirmButtonRef.current].filter(
@@ -114,7 +123,7 @@ export function ConfirmDialog({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onCancel]);
+  }, [isOpen, onCancel, onConfirm]);
 
   // Animation variants — collapsed to no-op when user prefers reduced motion
   const backdropVariants = {
@@ -141,7 +150,7 @@ export function ConfirmDialog({
           animate="visible"
           exit="exit"
           variants={backdropVariants}
-          transition={{ duration: 0.15, ease: 'easeOut' }}
+          transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
           // Clicking the backdrop cancels
           onMouseDown={(e) => {
             if (e.target === e.currentTarget) onCancel?.();
@@ -169,7 +178,7 @@ export function ConfirmDialog({
               'p-6 flex flex-col gap-4',
             )}
             variants={cardVariants}
-            transition={{ duration: 0.18, ease: 'easeOut' }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
           >
             {/* Icon + Title */}
             <div className="flex items-start gap-3">
@@ -200,13 +209,15 @@ export function ConfirmDialog({
             </div>
 
             {/* Action buttons */}
-            <div className="flex items-center justify-end gap-2 pt-1">
-              {showCancelButton && (
-                <button
+            <div className="flex items-center justify-between gap-2 pt-2">
+              {showCancelButton ? (
+                <m.button
                   ref={cancelButtonRef}
                   onClick={onCancel}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.98 }}
                   className={cn(
-                    'px-3.5 py-2 rounded-md text-xs font-medium',
+                    'px-4 py-2.5 rounded-lg text-xs font-medium',
                     'bg-(--surface-2) text-(--foreground-muted)',
                     'hover:bg-(--surface-3) hover:text-(--foreground)',
                     'border border-(--border)',
@@ -215,21 +226,25 @@ export function ConfirmDialog({
                   )}
                 >
                   {cancelLabel}
-                </button>
+                </m.button>
+              ) : (
+                <div />
               )}
-              <button
+              <m.button
                 ref={confirmButtonRef}
                 onClick={onConfirm}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
                 className={cn(
-                  'px-3.5 py-2 rounded-md text-xs font-medium',
+                  'px-4 py-2.5 rounded-lg text-xs font-semibold',
                   'bg-(--primary) text-white',
                   'hover:bg-(--primary-hover)',
-                  'transition-colors duration-150 cursor-pointer',
+                  'transition-all duration-150 cursor-pointer',
                   'focus-visible:outline-(--focus-ring)',
                 )}
               >
                 {confirmLabel}
-              </button>
+              </m.button>
             </div>
           </m.div>
         </m.div>

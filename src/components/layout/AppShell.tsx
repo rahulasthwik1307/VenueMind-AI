@@ -141,10 +141,10 @@ export function AppShell({ children }: AppShellProps) {
        */}
       <ConfirmDialog
         isOpen={isExitDialogOpen}
-        title="No previous page available."
-        description="You have reached the beginning of your session history. Would you like to exit to the landing page?"
-        confirmLabel="Exit to Landing"
-        cancelLabel="Stay"
+        title="You're already at the first page"
+        description="There's no previous page to return to. Would you like to return to the VenueMind AI landing page?"
+        confirmLabel="Return to Landing"
+        cancelLabel="Cancel"
         showCancelButton={true}
         onConfirm={handleConfirmExit}
         onCancel={handleCancelExit}
