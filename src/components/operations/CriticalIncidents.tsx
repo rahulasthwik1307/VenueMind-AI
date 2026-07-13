@@ -8,6 +8,8 @@ import {
 import { cn } from '@/utils/cn';
 import { SectionHeader } from '@/components/shared/SectionHeader';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { useMemo } from 'react';
+import { useShallow } from 'zustand/shallow';
 import { useIncident } from '@/hooks/useIncident';
 import type { Incident } from '@/types/incident';
 import { m, AnimatePresence } from 'framer-motion';
@@ -112,42 +114,53 @@ export function CriticalIncidents({ className }: { className?: string }) {
     filter,
     setFilter,
     searchQuery,
-  } = useIncident();
+  } = useIncident(
+    useShallow((state) => ({
+      incidents: state.incidents,
+      activeIncidentId: state.activeIncidentId,
+      setActiveIncidentId: state.setActiveIncidentId,
+      filter: state.filter,
+      setFilter: state.setFilter,
+      searchQuery: state.searchQuery,
+    }))
+  );
 
   const isLoading = false;
 
   // Filter incidents locally for rendering based on search and filter parameters
-  const filteredIncidents = incidents.filter((inc) => {
-    // Apply Category/Severity/Status Filter
-    if (filter === 'critical') {
-      if (inc.severity !== 'critical') return false;
-    } else if (filter !== 'all') {
-      if (inc.status !== filter) return false;
-    }
+  const filteredIncidents = useMemo(() => {
+    return incidents.filter((inc) => {
+      // Apply Category/Severity/Status Filter
+      if (filter === 'critical') {
+        if (inc.severity !== 'critical') return false;
+      } else if (filter !== 'all') {
+        if (inc.status !== filter) return false;
+      }
 
-    // Apply Search Query
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      return (
-        inc.title.toLowerCase().includes(q) ||
-        inc.location.zone.toLowerCase().includes(q) ||
-        inc.category.toLowerCase().includes(q) ||
-        inc.description.toLowerCase().includes(q) ||
-        inc.severity.toLowerCase().includes(q) ||
-        (inc.assignedTeam && inc.assignedTeam.toLowerCase().includes(q))
-      );
-    }
+      // Apply Search Query
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        return (
+          inc.title.toLowerCase().includes(q) ||
+          inc.location.zone.toLowerCase().includes(q) ||
+          inc.category.toLowerCase().includes(q) ||
+          inc.description.toLowerCase().includes(q) ||
+          inc.severity.toLowerCase().includes(q) ||
+          (inc.assignedTeam && inc.assignedTeam.toLowerCase().includes(q))
+        );
+      }
 
-    return true;
-  });
+      return true;
+    });
+  }, [incidents, filter, searchQuery]);
 
-  const filterOptions: { value: typeof filter; label: string }[] = [
+  const filterOptions = useMemo<Array<{ value: typeof filter; label: string }>>(() => [
     { value: 'all', label: 'All' },
     { value: 'critical', label: 'Critical' },
     { value: 'open', label: 'Open' },
     { value: 'investigating', label: 'Investigating' },
     { value: 'resolved', label: 'Resolved' },
-  ];
+  ], []);
 
   return (
     <section

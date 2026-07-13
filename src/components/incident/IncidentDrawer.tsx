@@ -7,6 +7,7 @@ import { useIncident } from '@/hooks/useIncident';
 import { IncidentTimeline } from '@/components/incident/IncidentTimeline';
 import { m, AnimatePresence } from 'framer-motion';
 import { useUIStore } from '@/store/modules/ui';
+import { useShallow } from 'zustand/shallow';
 import { SharedNotes } from '@/components/shared/SharedNotes';
 import { IncidentDrawerHeader } from './IncidentDrawerHeader';
 import { RelatedSystemsBadges } from './RelatedSystemsBadges';
@@ -26,7 +27,21 @@ export function IncidentDrawer() {
     dismissRecommendation,
     addToast,
     addActivity,
-  } = useIncident();
+  } = useIncident(
+    useShallow((state) => ({
+      incidents: state.incidents,
+      analyses: state.analyses,
+      activeIncidentId: state.activeIncidentId,
+      filter: state.filter,
+      searchQuery: state.searchQuery,
+      setActiveIncidentId: state.setActiveIncidentId,
+      dispatchAction: state.dispatchAction,
+      markIncidentResolved: state.markIncidentResolved,
+      dismissRecommendation: state.dismissRecommendation,
+      addToast: state.addToast,
+      addActivity: state.addActivity,
+    }))
+  );
 
   const {
     incidentNotes,
@@ -34,7 +49,15 @@ export function IncidentDrawer() {
     setIncidentDraft,
     addIncidentNote,
     deleteIncidentNote,
-  } = useUIStore();
+  } = useUIStore(
+    useShallow((state) => ({
+      incidentNotes: state.incidentNotes,
+      incidentDrafts: state.incidentDrafts,
+      setIncidentDraft: state.setIncidentDraft,
+      addIncidentNote: state.addIncidentNote,
+      deleteIncidentNote: state.deleteIncidentNote,
+    }))
+  );
 
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 

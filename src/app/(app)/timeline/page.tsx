@@ -13,7 +13,7 @@
  * - Empty state handling
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { Filter, X, Search, Clock, Shield } from 'lucide-react';
 import { cn } from '@/utils/cn';
@@ -56,6 +56,8 @@ const DEFAULT_FILTERS: TimelineFilters = {
   searchQuery: '',
 };
 
+const TIMELINE_PHASES = ['pre-match', 'first-half', 'halftime', 'second-half', 'post-match'];
+
 function matchesActorSource(activity: ActivityItem, sources: string[]): boolean {
   if (sources.length === 0) return true;
   const actor = activity.actor.toLowerCase();
@@ -82,7 +84,7 @@ function matchesActorSource(activity: ActivityItem, sources: string[]): boolean 
 }
 
 export default function TimelinePage() {
-  const { activities } = useIncidentStore();
+  const activities = useIncidentStore((state) => state.activities);
   const [filters, setFilters] = useState<TimelineFilters>(DEFAULT_FILTERS);
   const [showFilters, setShowFilters] = useState(false);
 
@@ -122,53 +124,54 @@ export default function TimelinePage() {
     filters.sources.length > 0 ||
     filters.searchQuery.trim().length > 0;
 
-  // Filter activities
-  const q = filters.searchQuery.trim().toLowerCase();
-  const filteredActivities = activities.filter((act) => {
-    // 1. Severity filter
-    if (filters.severities.length > 0) {
-      if (!act.severity) return false;
-      const isCriticalOrHigh = act.severity === 'critical' || act.severity === 'high';
-      const hasCriticalFilter = filters.severities.includes('critical');
-      const hasOtherFilters = filters.severities.some(s => s !== 'critical' && s === act.severity);
-      if (hasCriticalFilter && isCriticalOrHigh) {
-        // match
-      } else if (hasOtherFilters) {
-        // match
-      } else {
+  // Filter and group activities by match phase
+  const { filteredActivities, activitiesByPhase } = useMemo(() => {
+    const q = filters.searchQuery.trim().toLowerCase();
+    const filtered = activities.filter((act) => {
+      // 1. Severity filter
+      if (filters.severities.length > 0) {
+        if (!act.severity) return false;
+        const isCriticalOrHigh = act.severity === 'critical' || act.severity === 'high';
+        const hasCriticalFilter = filters.severities.includes('critical');
+        const hasOtherFilters = filters.severities.some(s => s !== 'critical' && s === act.severity);
+        if (hasCriticalFilter && isCriticalOrHigh) {
+          // match
+        } else if (hasOtherFilters) {
+          // match
+        } else {
+          return false;
+        }
+      }
+      // 2. Source filter
+      if (!matchesActorSource(act, filters.sources)) {
         return false;
       }
-    }
-    // 2. Source filter
-    if (!matchesActorSource(act, filters.sources)) {
-      return false;
-    }
-    // 3. Search query
-    if (q) {
-      const searchable = [act.message, act.actor, act.severity ?? ''].join(' ').toLowerCase();
-      if (!searchable.includes(q)) return false;
-    }
-    return true;
-  });
-
-  // Group by match phase
-  const phases = ['pre-match', 'first-half', 'halftime', 'second-half', 'post-match'];
-  
-  const activitiesByPhase = phases.reduce((acc, phase) => {
-    acc[phase] = filteredActivities.filter((act) => {
-      const actPhase = act.matchPhase || 'pre-match';
-      return actPhase === phase;
+      // 3. Search query
+      if (q) {
+        const searchable = [act.message, act.actor, act.severity ?? ''].join(' ').toLowerCase();
+        if (!searchable.includes(q)) return false;
+      }
+      return true;
     });
-    return acc;
-  }, {} as Record<string, ActivityItem[]>);
 
-  // Group any remaining activities that don't match standard phases into "pre-match"
-  const generalActivities = filteredActivities.filter(
-    (act) => !phases.includes(act.matchPhase || '')
-  );
-  if (generalActivities.length > 0) {
-    activitiesByPhase['pre-match'] = [...activitiesByPhase['pre-match'], ...generalActivities];
-  }
+    const byPhase = TIMELINE_PHASES.reduce((acc, phase) => {
+      acc[phase] = filtered.filter((act) => {
+        const actPhase = act.matchPhase || 'pre-match';
+        return actPhase === phase;
+      });
+      return acc;
+    }, {} as Record<string, ActivityItem[]>);
+
+    // Group any remaining activities that don't match standard phases into "pre-match"
+    const generalActivities = filtered.filter(
+      (act) => !TIMELINE_PHASES.includes(act.matchPhase || '')
+    );
+    if (generalActivities.length > 0) {
+      byPhase['pre-match'] = [...byPhase['pre-match'], ...generalActivities];
+    }
+
+    return { filteredActivities: filtered, activitiesByPhase: byPhase };
+  }, [activities, filters]);
 
   const isEmpty = filteredActivities.length === 0;
 
@@ -439,7 +442,7 @@ export default function TimelinePage() {
               }
             />
           ) : (
-            phases.map((phase) => (
+            TIMELINE_PHASES.map((phase) => (
               <TimelinePhaseGroup
                 key={phase}
                 phase={phase}

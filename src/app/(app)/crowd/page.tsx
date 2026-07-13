@@ -6,7 +6,7 @@ import { Users, Eye, Zap, Flame } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import type { SystemStatusLevel } from '@/types/common';
 import { m } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 
 // Lightweight count-up number component for operational telemetry metrics
 function AnimatedNumber({
@@ -110,32 +110,34 @@ function TrendIndicator({
 // ── Page component ──────────────────────────────────────────────────────────────
 
 export default function CrowdMonitoringPage() {
-  const { stadiumStats } = useIncidentStore();
+  const stadiumStats = useIncidentStore((state) => state.stadiumStats);
   const baseDensity = stadiumStats.crowdDensity;
 
   // Dynamically calculate capacity per zone scaled from the live global density telemetry
-  const sectors = [
-    { id: 'z-north', name: 'North Stand', ratio: 1.25, type: 'General Admission' },
-    { id: 'z-south', name: 'South Stand', ratio: 1.01, type: 'General Admission' },
-    { id: 'z-east',  name: 'East Stand',  ratio: 0.93, type: 'Family / General' },
-    { id: 'z-west',  name: 'West Stand',  ratio: 1.13, type: 'General Admission' },
-    { id: 'z-vip',   name: 'VIP Lounge',  ratio: 0.79, type: 'Premium Suite' },
-    { id: 'z-press', name: 'Press Box',   ratio: 0.60, type: 'Media Tribune' },
-  ].map((sec, idx) => {
-    const rawVal = Math.round(baseDensity * sec.ratio);
-    const capacity = Math.min(100, Math.max(0, rawVal));
+  const sectors = useMemo(() => {
+    return [
+      { id: 'z-north', name: 'North Stand', ratio: 1.25, type: 'General Admission' },
+      { id: 'z-south', name: 'South Stand', ratio: 1.01, type: 'General Admission' },
+      { id: 'z-east',  name: 'East Stand',  ratio: 0.93, type: 'Family / General' },
+      { id: 'z-west',  name: 'West Stand',  ratio: 1.13, type: 'General Admission' },
+      { id: 'z-vip',   name: 'VIP Lounge',  ratio: 0.79, type: 'Premium Suite' },
+      { id: 'z-press', name: 'Press Box',   ratio: 0.60, type: 'Media Tribune' },
+    ].map((sec, idx) => {
+      const rawVal = Math.round(baseDensity * sec.ratio);
+      const capacity = Math.min(100, Math.max(0, rawVal));
 
-    let level: SystemStatusLevel = 'operational';
-    if (capacity >= 85) level = 'critical';
-    else if (capacity >= 70) level = 'degraded';
+      let level: SystemStatusLevel = 'operational';
+      if (capacity >= 85) level = 'critical';
+      else if (capacity >= 70) level = 'degraded';
 
-    return {
-      ...sec,
-      capacity,
-      level,
-      trend: SECTOR_TRENDS[idx],
-    };
-  });
+      return {
+        ...sec,
+        capacity,
+        level,
+        trend: SECTOR_TRENDS[idx],
+      };
+    });
+  }, [baseDensity]);
 
   const getProgressColor = (level: SystemStatusLevel) =>
     ({

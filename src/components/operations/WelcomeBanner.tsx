@@ -1,5 +1,7 @@
 'use client';
 
+import { useMemo } from 'react';
+import { useShallow } from 'zustand/shallow';
 import { Trophy, Calendar, ShieldAlert, Play, ArrowRight, Cloud } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { useIncident } from '@/hooks/useIncident';
@@ -14,7 +16,14 @@ function getGreeting(): string {
 }
 
 export function WelcomeBanner() {
-  const { incidents, analyses, setActiveIncidentId, telemetry } = useIncident();
+  const { incidents, analyses, setActiveIncidentId, telemetry } = useIncident(
+    useShallow((state) => ({
+      incidents: state.incidents,
+      analyses: state.analyses,
+      setActiveIncidentId: state.setActiveIncidentId,
+      telemetry: state.telemetry,
+    }))
+  );
   const greeting = getGreeting();
   
   const today = new Date().toLocaleDateString('en-US', {
@@ -24,51 +33,73 @@ export function WelcomeBanner() {
     day: 'numeric',
   });
 
-  // Match Info calculations from live telemetry
-  let matchPhaseLabel = 'Match In Ingress';
-  let matchScoreLabel = 'Brazil vs Argentina · Al Bayt Stadium';
-  let isLive = false;
+  const {
+    matchPhaseLabel,
+    matchScoreLabel,
+    isLive,
+    criticalCount,
+    activeCount,
+    highestPriorityIncident,
+    primaryRec,
+    stadiumStatus,
+  } = useMemo(() => {
+    // Match Info calculations from live telemetry
+    let phaseLabel = 'Match In Ingress';
+    let scoreLabel = 'Brazil vs Argentina · Al Bayt Stadium';
+    let live = false;
 
-  if (telemetry?.matchTimeline) {
-    const { minute, period, score } = telemetry.matchTimeline.value;
-    isLive = period === 'first-half' || period === 'second-half';
-    
-    if (period === 'pre-match') {
-      matchPhaseLabel = `Match In Ingress (Kickoff in ${Math.abs(minute)}m)`;
-    } else if (period === 'first-half') {
-      matchPhaseLabel = `1st Half · ${minute}'`;
-    } else if (period === 'halftime') {
-      matchPhaseLabel = `Halftime Interval`;
-    } else if (period === 'second-half') {
-      matchPhaseLabel = `2nd Half · ${minute}'`;
-    } else if (period === 'post-match') {
-      matchPhaseLabel = `Post-Match (Egress Active)`;
+    if (telemetry?.matchTimeline) {
+      const { minute, period, score } = telemetry.matchTimeline.value;
+      live = period === 'first-half' || period === 'second-half';
+      
+      if (period === 'pre-match') {
+        phaseLabel = `Match In Ingress (Kickoff in ${Math.abs(minute)}m)`;
+      } else if (period === 'first-half') {
+        phaseLabel = `1st Half · ${minute}'`;
+      } else if (period === 'halftime') {
+        phaseLabel = `Halftime Interval`;
+      } else if (period === 'second-half') {
+        phaseLabel = `2nd Half · ${minute}'`;
+      } else if (period === 'post-match') {
+        phaseLabel = `Post-Match (Egress Active)`;
+      }
+      
+      scoreLabel = `Brazil ${score.home} - Argentina ${score.away} · Al Bayt Stadium`;
     }
-    
-    matchScoreLabel = `Brazil ${score.home} - Argentina ${score.away} · Al Bayt Stadium`;
-  }
 
-  const criticalCount = incidents.filter(i => i.severity === 'critical' && i.status !== 'resolved').length;
-  const activeCount = incidents.filter(i => i.status !== 'resolved').length;
+    const critical = incidents.filter(i => i.severity === 'critical' && i.status !== 'resolved').length;
+    const active = incidents.filter(i => i.status !== 'resolved').length;
 
-  // Sort active incidents by severity: critical > high > medium > low
-  const sortedActive = [...incidents]
-    .filter(i => i.status !== 'resolved')
-    .sort((a, b) => {
-      const weight = { critical: 4, high: 3, medium: 2, low: 1 };
-      return weight[b.severity] - weight[a.severity];
-    });
+    // Sort active incidents by severity: critical > high > medium > low
+    const sortedActive = [...incidents]
+      .filter(i => i.status !== 'resolved')
+      .sort((a, b) => {
+        const weight = { critical: 4, high: 3, medium: 2, low: 1 };
+        return weight[b.severity] - weight[a.severity];
+      });
 
-  const highestPriorityIncident = sortedActive[0];
-  const primaryRec = highestPriorityIncident 
-    ? analyses[highestPriorityIncident.id]?.recommendations.find(r => !r.executed && !r.dismissed)
-    : null;
+    const highest = sortedActive[0];
+    const rec = highest 
+      ? analyses[highest.id]?.recommendations.find(r => !r.executed && !r.dismissed)
+      : null;
 
-  const stadiumStatus = criticalCount > 0 
-    ? `Level 2 Triage` 
-    : activeCount > 0 
-      ? `Level 1 Monitoring`
-      : "Nominal Operations";
+    const status = critical > 0 
+      ? `Level 2 Triage` 
+      : active > 0 
+        ? `Level 1 Monitoring`
+        : "Nominal Operations";
+
+    return {
+      matchPhaseLabel: phaseLabel,
+      matchScoreLabel: scoreLabel,
+      isLive: live,
+      criticalCount: critical,
+      activeCount: active,
+      highestPriorityIncident: highest,
+      primaryRec: rec,
+      stadiumStatus: status,
+    };
+  }, [incidents, telemetry, analyses]);
 
   const handleOpenHighestPriority = () => {
     if (highestPriorityIncident) {

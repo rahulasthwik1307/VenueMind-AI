@@ -1,5 +1,7 @@
 'use client';
 
+import { useMemo } from 'react';
+
 import { useIncidentStore } from '@/store/modules/incident';
 import { Brain, Sparkles, ChevronRight, Activity } from 'lucide-react';
 import { cn } from '@/utils/cn';
@@ -9,14 +11,17 @@ interface StickyMiniAIQueueProps {
 }
 
 export function StickyMiniAIQueue({ onClick }: StickyMiniAIQueueProps) {
-  const { incidents } = useIncidentStore();
+  const incidents = useIncidentStore((state) => state.incidents);
 
-  const openIncidents = incidents.filter((i) => i.status !== 'resolved');
-  const totalOpenCount = openIncidents.length;
-  const criticalOpenCount = openIncidents.filter((i) => i.severity === 'critical').length;
-  const avgAiConfidence = totalOpenCount > 0
-    ? Math.round(openIncidents.reduce((sum, current) => sum + (current.aiConfidence ?? 85), 0) / totalOpenCount)
-    : 98;
+  const { totalOpenCount, criticalOpenCount, avgAiConfidence } = useMemo(() => {
+    const openIncidents = incidents.filter((i) => i.status !== 'resolved');
+    const totalOpenCount = openIncidents.length;
+    const criticalOpenCount = openIncidents.filter((i) => i.severity === 'critical').length;
+    const avgAiConfidence = totalOpenCount > 0
+      ? Math.round(openIncidents.reduce((sum, current) => sum + (current.aiConfidence ?? 85), 0) / totalOpenCount)
+      : 98;
+    return { totalOpenCount, criticalOpenCount, avgAiConfidence };
+  }, [incidents]);
 
   return (
     <button

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useShallow } from 'zustand/shallow';
 import { useUIStore } from '@/store/modules/ui';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { useIncidentStore } from '@/store/modules/incident';
@@ -31,9 +32,21 @@ const LANGS: Array<{ value: AssistantLanguage; label: string; desc: string }> = 
 ];
 
 export default function SettingsPage() {
-  const { telemetryFaultActive, setTelemetryFault, language, setLanguage } = useUIStore();
+  const { telemetryFaultActive, setTelemetryFault, language, setLanguage } = useUIStore(
+    useShallow((state) => ({
+      telemetryFaultActive: state.telemetryFaultActive,
+      setTelemetryFault: state.setTelemetryFault,
+      language: state.language,
+      setLanguage: state.setLanguage,
+    }))
+  );
   const { theme, setTheme } = useTheme();
-  const { resetAll, addToast } = useIncidentStore();
+  const { resetAll, addToast } = useIncidentStore(
+    useShallow((state) => ({
+      resetAll: state.resetAll,
+      addToast: state.addToast,
+    }))
+  );
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const triggerRef = useRef<HTMLButtonElement | null>(null);

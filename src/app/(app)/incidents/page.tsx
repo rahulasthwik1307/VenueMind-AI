@@ -17,6 +17,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { AnimatePresence, m } from 'framer-motion';
+import { useShallow } from 'zustand/shallow';
 import { useIncidentStore } from '@/store/modules/incident';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { SectionHeader } from '@/components/shared/SectionHeader';
@@ -32,7 +33,14 @@ import type { IncidentFilters } from '@/utils/incidentTableUtils';
 
 export default function IncidentsPage() {
   const { incidents, searchQuery, setSearchQuery, setActiveIncidentId } =
-    useIncidentStore();
+    useIncidentStore(
+      useShallow((state) => ({
+        incidents: state.incidents,
+        searchQuery: state.searchQuery,
+        setSearchQuery: state.setSearchQuery,
+        setActiveIncidentId: state.setActiveIncidentId,
+      }))
+    );
 
   const [filters, setFilters] = useState<IncidentFilters>(DEFAULT_FILTERS);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);

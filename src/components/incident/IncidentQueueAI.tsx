@@ -20,6 +20,7 @@ import { useCallback, useState, useEffect } from 'react';
 import { AnimatePresence, m } from 'framer-motion';
 import { Brain, Sparkles } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import { useShallow } from 'zustand/shallow';
 import { useIncidentStore } from '@/store/modules/incident';
 import { useAssistantStore } from '@/store/modules/assistant';
 import { AnalyzingState } from '@/components/ai/AnalyzingState';
@@ -71,9 +72,25 @@ function AnimatedNumber({
 }
 
 export function IncidentQueueAI() {
-  const { incidents, addActivity, addToast } = useIncidentStore();
+  const { incidents, addActivity, addToast } = useIncidentStore(
+    useShallow((state) => ({
+      incidents: state.incidents,
+      addActivity: state.addActivity,
+      addToast: state.addToast,
+    }))
+  );
   const { lastResponse, isAnalyzing, error, submitQuery, clearHistory, clearError } =
-    useAssistantStore();
+    useAssistantStore(
+      useShallow((state) => ({
+        lastResponse: state.lastResponse,
+        isAnalyzing: state.isAnalyzing,
+        error: state.error,
+        conversationHistory: state.conversationHistory,
+        submitQuery: state.submitQuery,
+        clearHistory: state.clearHistory,
+        clearError: state.clearError,
+      }))
+    );
 
   const [hasRequested, setHasRequested] = useState(false);
 

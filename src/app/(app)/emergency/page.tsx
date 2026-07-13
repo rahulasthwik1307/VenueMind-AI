@@ -1,5 +1,7 @@
 'use client';
 
+import { useMemo } from 'react';
+import { useShallow } from 'zustand/shallow';
 import { useIncidentStore } from '@/store/modules/incident';
 import { LensPageLayout } from '@/components/operations/LensPageLayout';
 import { ShieldAlert, HeartPulse, Shield, Eye, Flame, AlertCircle, CheckCircle, Brain } from 'lucide-react';
@@ -8,20 +10,28 @@ import type { SystemStatusLevel } from '@/types/common';
 import { getTimeAgo } from '@/utils/incidentUtils';
 
 export default function EmergencyPage() {
-  const { stadiumStats, incidents } = useIncidentStore();
+  const { stadiumStats, incidents } = useIncidentStore(
+    useShallow((state) => ({
+      stadiumStats: state.stadiumStats,
+      incidents: state.incidents,
+    }))
+  );
   const medicalStandby = stadiumStats.medicalStandby; // Deployed/available count
 
   // Calculate active emergency indicators
-  const activeCriticalIncident = incidents.find((i) => i.severity === 'critical' && i.status !== 'resolved');
-  const isAlertActive = activeCriticalIncident !== undefined;
-  const activeCritical = incidents.filter((i) => i.severity === 'critical' && i.status !== 'resolved').length;
-  
-  const systemHealth = {
-    perimeter: isAlertActive ? 'degraded' as const : 'operational' as const,
-    medical: medicalStandby > 4 ? 'operational' as const : 'degraded' as const,
-    fireAlarms: 'operational' as const,
-    evacPaths: 'operational' as const,
-  };
+  const { activeCriticalIncident, isAlertActive, activeCritical, systemHealth } = useMemo(() => {
+    const activeCriticalIncident = incidents.find((i) => i.severity === 'critical' && i.status !== 'resolved');
+    const isAlertActive = activeCriticalIncident !== undefined;
+    const activeCritical = incidents.filter((i) => i.severity === 'critical' && i.status !== 'resolved').length;
+    
+    const systemHealth = {
+      perimeter: isAlertActive ? 'degraded' as const : 'operational' as const,
+      medical: medicalStandby > 4 ? 'operational' as const : 'degraded' as const,
+      fireAlarms: 'operational' as const,
+      evacPaths: 'operational' as const,
+    };
+    return { activeCriticalIncident, isAlertActive, activeCritical, systemHealth };
+  }, [incidents, medicalStandby]);
 
   const getStatusBadgeStyle = (level: SystemStatusLevel) => {
     const styles = {

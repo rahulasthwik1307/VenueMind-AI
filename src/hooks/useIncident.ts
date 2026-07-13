@@ -1,56 +1,37 @@
-import { useIncidentStore } from '../store/modules/incident';
+import { useShallow } from 'zustand/shallow';
+import { useIncidentStore, IncidentState } from '../store/modules/incident';
 
-export function useIncident() {
-  const incidents = useIncidentStore((state) => state.incidents);
-  const analyses = useIncidentStore((state) => state.analyses);
-  const activeIncidentId = useIncidentStore((state) => state.activeIncidentId);
-  const filter = useIncidentStore((state) => state.filter);
-  const searchQuery = useIncidentStore((state) => state.searchQuery);
-  const activities = useIncidentStore((state) => state.activities);
-  const readNotifIds = useIncidentStore((state) => state.readNotifIds);
-  const toasts = useIncidentStore((state) => state.toasts);
-  const stadiumStats = useIncidentStore((state) => state.stadiumStats);
-  const telemetry = useIncidentStore((state) => state.telemetry);
-  
-  const setIncidents = useIncidentStore((state) => state.setIncidents);
-  const setActiveIncidentId = useIncidentStore((state) => state.setActiveIncidentId);
-  const setFilter = useIncidentStore((state) => state.setFilter);
-  const setSearchQuery = useIncidentStore((state) => state.setSearchQuery);
-  const dispatchAction = useIncidentStore((state) => state.dispatchAction);
-  const markIncidentResolved = useIncidentStore((state) => state.markIncidentResolved);
-  const updateIncidentNotes = useIncidentStore((state) => state.updateIncidentNotes);
-  const dismissRecommendation = useIncidentStore((state) => state.dismissRecommendation);
-  const addToast = useIncidentStore((state) => state.addToast);
-  const removeToast = useIncidentStore((state) => state.removeToast);
-  const addActivity = useIncidentStore((state) => state.addActivity);
-  const markNotifRead = useIncidentStore((state) => state.markNotifRead);
-  const markAllNotifsRead = useIncidentStore((state) => state.markAllNotifsRead);
-  const fluctuateStats = useIncidentStore((state) => state.fluctuateStats);
+const defaultSelector = (state: IncidentState) => ({
+  incidents: state.incidents,
+  analyses: state.analyses,
+  activeIncidentId: state.activeIncidentId,
+  filter: state.filter,
+  searchQuery: state.searchQuery,
+  activities: state.activities,
+  readNotifIds: state.readNotifIds,
+  toasts: state.toasts,
+  stadiumStats: state.stadiumStats,
+  telemetry: state.telemetry,
+  setIncidents: state.setIncidents,
+  setActiveIncidentId: state.setActiveIncidentId,
+  setFilter: state.setFilter,
+  setSearchQuery: state.setSearchQuery,
+  dispatchAction: state.dispatchAction,
+  markIncidentResolved: state.markIncidentResolved,
+  updateIncidentNotes: state.updateIncidentNotes,
+  dismissRecommendation: state.dismissRecommendation,
+  addToast: state.addToast,
+  removeToast: state.removeToast,
+  addActivity: state.addActivity,
+  markNotifRead: state.markNotifRead,
+  markAllNotifsRead: state.markAllNotifsRead,
+  fluctuateStats: state.fluctuateStats,
+});
 
-  return {
-    incidents,
-    analyses,
-    activeIncidentId,
-    filter,
-    searchQuery,
-    activities,
-    readNotifIds,
-    toasts,
-    stadiumStats,
-    telemetry,
-    setIncidents,
-    setActiveIncidentId,
-    setFilter,
-    setSearchQuery,
-    dispatchAction,
-    markIncidentResolved,
-    updateIncidentNotes,
-    dismissRecommendation,
-    addToast,
-    removeToast,
-    addActivity,
-    markNotifRead,
-    markAllNotifsRead,
-    fluctuateStats,
-  };
+export function useIncident<T = ReturnType<typeof defaultSelector>>(
+  selector?: (state: IncidentState) => T
+): T {
+  const defaultShallow = useShallow(defaultSelector);
+  const activeSelector = selector ?? (defaultShallow as unknown as (state: IncidentState) => T);
+  return useIncidentStore(activeSelector);
 }

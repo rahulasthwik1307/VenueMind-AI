@@ -2,6 +2,8 @@
 
 import { cn } from '@/utils/cn';
 import { SectionHeader } from '@/components/shared/SectionHeader';
+import { useMemo } from 'react';
+import { useShallow } from 'zustand/shallow';
 import { useIncident } from '@/hooks/useIncident';
 import type { Severity } from '@/types/common';
 import { m, AnimatePresence } from 'framer-motion';
@@ -35,7 +37,11 @@ function getActivityTimeAgo(isoString: string) {
 }
 
 export function RecentActivity() {
-  const { activities } = useIncident();
+  const activities = useIncident(
+    useShallow((state) => state.activities)
+  );
+
+  const visibleActivities = useMemo(() => activities.slice(0, 5), [activities]);
 
   return (
     <section
@@ -52,7 +58,7 @@ export function RecentActivity() {
       <div className="overflow-hidden min-h-60">
         <ul className="relative space-y-0" aria-label="Activity timeline" role="list">
           <AnimatePresence initial={false}>
-            {activities.slice(0, 5).map((item, index) => (
+            {visibleActivities.map((item, index) => (
               <m.li
                 key={item.id}
                 initial={{ opacity: 0, height: 0, y: -10 }}
@@ -62,7 +68,7 @@ export function RecentActivity() {
                 className="relative flex items-start gap-3 pb-4 last:pb-0"
               >
                 {/* Timeline line */}
-                {index < Math.min(activities.length, 5) - 1 && (
+                {index < visibleActivities.length - 1 && (
                   <span
                     className="absolute left-1.75 top-4 bottom-0 w-px bg-(--border)"
                     aria-hidden="true"

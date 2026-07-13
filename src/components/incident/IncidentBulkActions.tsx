@@ -18,6 +18,7 @@ import { useState, useCallback } from 'react';
 import { AnimatePresence, m } from 'framer-motion';
 import { CheckCircle, Users, Brain, X } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import { useShallow } from 'zustand/shallow';
 import { useIncidentStore } from '@/store/modules/incident';
 import { useAssistantStore } from '@/store/modules/assistant';
 import { AnalyzingState } from '@/components/ai/AnalyzingState';
@@ -30,9 +31,24 @@ interface IncidentBulkActionsProps {
 }
 
 export function IncidentBulkActions({ selectedIds, onClearSelection }: IncidentBulkActionsProps) {
-  const { bulkUpdateIncidents, addToast } = useIncidentStore();
+  const { bulkUpdateIncidents, addToast } = useIncidentStore(
+    useShallow((state) => ({
+      bulkUpdateIncidents: state.bulkUpdateIncidents,
+      addToast: state.addToast,
+    }))
+  );
   const { lastResponse, isAnalyzing, error, submitQuery, clearHistory, clearError } =
-    useAssistantStore();
+    useAssistantStore(
+      useShallow((state) => ({
+        lastResponse: state.lastResponse,
+        isAnalyzing: state.isAnalyzing,
+        error: state.error,
+        conversationHistory: state.conversationHistory,
+        submitQuery: state.submitQuery,
+        clearHistory: state.clearHistory,
+        clearError: state.clearError,
+      }))
+    );
 
   const [assignInput, setAssignInput] = useState('');
   const [showAssignInput, setShowAssignInput] = useState(false);

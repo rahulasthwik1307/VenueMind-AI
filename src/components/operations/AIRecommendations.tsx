@@ -4,6 +4,8 @@ import { Brain, Sparkles, ShieldAlert, HeartPulse, Bus, ArrowRight, HelpCircle, 
 import { cn } from '@/utils/cn';
 import { SectionHeader } from '@/components/shared/SectionHeader';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { useMemo } from 'react';
+import { useShallow } from 'zustand/shallow';
 import { useIncident } from '@/hooks/useIncident';
 import { DecisionCard } from '@/components/cards/DecisionCard';
 
@@ -20,32 +22,47 @@ const CATEGORY_ICONS: Record<string, typeof Shield> = {
 };
 
 export function AIRecommendations({ className }: { className?: string }) {
-  const { activeIncidentId, incidents, analyses, dispatchAction, setActiveIncidentId, dismissRecommendation } = useIncident();
+  const { activeIncidentId, incidents, analyses, dispatchAction, setActiveIncidentId, dismissRecommendation } = useIncident(
+    useShallow((state) => ({
+      activeIncidentId: state.activeIncidentId,
+      incidents: state.incidents,
+      analyses: state.analyses,
+      dispatchAction: state.dispatchAction,
+      setActiveIncidentId: state.setActiveIncidentId,
+      dismissRecommendation: state.dismissRecommendation,
+    }))
+  );
   const isLoading = false;
 
-  const activeIncident = incidents.find((inc) => inc.id === activeIncidentId);
-  const analysis = activeIncident ? analyses[activeIncident.id] : null;
-
-  // Filter recommendations that are NOT dismissed
-  const activeRecommendations = analysis && analysis.recommendations
-    ? analysis.recommendations.filter(r => !r.dismissed)
-    : [];
+  const { activeIncident, activeRecommendations } = useMemo(() => {
+    const activeIncident = incidents.find((inc) => inc.id === activeIncidentId);
+    const analysis = activeIncident ? analyses[activeIncident.id] : null;
+    const activeRecommendations = analysis && analysis.recommendations
+      ? analysis.recommendations.filter((r) => !r.dismissed)
+      : [];
+    return { activeIncident, activeRecommendations };
+  }, [incidents, activeIncidentId, analyses]);
 
   // Calculate briefing stats for the idle state
-  const totalActive = incidents.filter((i) => i.status !== 'resolved').length;
-  const criticalActive = incidents.filter((i) => i.severity === 'critical' && i.status !== 'resolved').length;
-  const medicalActive = incidents.filter((i) => i.category === 'medical' && i.status !== 'resolved').length;
-  const transportActive = incidents.filter((i) => i.category === 'transport' && i.status !== 'resolved').length;
+  const { totalActive, criticalActive, medicalActive, transportActive, highestPriorityIncident } = useMemo(() => {
+    const active = incidents.filter((i) => i.status !== 'resolved');
+    const totalActive = active.length;
+    const criticalActive = active.filter((i) => i.severity === 'critical').length;
+    const medicalActive = active.filter((i) => i.category === 'medical').length;
+    const transportActive = active.filter((i) => i.category === 'transport').length;
 
-  // Find the highest priority active incident
-  const sortedActive = [...incidents]
-    .filter((i) => i.status !== 'resolved')
-    .sort((a, b) => {
+    const sortedActive = [...active].sort((a, b) => {
       const weight = { critical: 4, high: 3, medium: 2, low: 1 };
       return weight[b.severity] - weight[a.severity];
     });
-
-  const highestPriorityIncident = sortedActive[0];
+    return {
+      totalActive,
+      criticalActive,
+      medicalActive,
+      transportActive,
+      highestPriorityIncident: sortedActive[0],
+    };
+  }, [incidents]);
   const highestPriorityAnalysis = highestPriorityIncident ? analyses[highestPriorityIncident.id] : null;
   const primaryRec = highestPriorityAnalysis?.recommendations.find(r => !r.executed && !r.dismissed);
 

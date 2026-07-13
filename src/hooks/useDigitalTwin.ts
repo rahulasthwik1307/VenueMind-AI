@@ -15,7 +15,8 @@
 
 'use client';
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useMemo } from 'react';
+import { useShallow } from 'zustand/shallow';
 import { useIncidentStore } from '@/store/modules/incident';
 import { useDigitalTwinStore } from '@/store/modules/digitalTwin';
 import { STADIUM_ZONES, getZoneById } from '@/data/stadium/stadiumZones';
@@ -29,12 +30,12 @@ import {
 import type { StadiumZoneConfig } from '@/types/digitalTwin';
 
 export function useDigitalTwin() {
-  // ── Operational state from existing Incident Intelligence Layer ────────────
+  // ── Store access using useShallow for complex slices to minimize render churn ──
   const incidents = useIncidentStore((s) => s.incidents);
-  const analyses = useIncidentStore((s) => s.analyses);
+  const analyses = useIncidentStore(useShallow((s) => s.analyses));
   const activeIncidentId = useIncidentStore((s) => s.activeIncidentId);
   const telemetry = useIncidentStore((s) => s.telemetry);
-  const stadiumStats = useIncidentStore((s) => s.stadiumStats);
+  const stadiumStats = useIncidentStore(useShallow((s) => s.stadiumStats));
   const activities = useIncidentStore((s) => s.activities);
   const setActiveIncidentId = useIncidentStore((s) => s.setActiveIncidentId);
   const storeDispatchAction = useIncidentStore((s) => s.dispatchAction);
@@ -44,8 +45,8 @@ export function useDigitalTwin() {
   // ── UI-only state from Digital Twin store ─────────────────────────────────
   const selectedZoneId = useDigitalTwinStore((s) => s.selectedZoneId);
   const hoveredZoneId = useDigitalTwinStore((s) => s.hoveredZoneId);
-  const activeOverlays = useDigitalTwinStore((s) => s.activeOverlays);
-  const activeRoutes = useDigitalTwinStore((s) => s.activeRoutes);
+  const activeOverlays = useDigitalTwinStore(useShallow((s) => s.activeOverlays));
+  const activeRoutes = useDigitalTwinStore(useShallow((s) => s.activeRoutes));
   const isCameraFollowActive = useDigitalTwinStore((s) => s.isCameraFollowActive);
 
   const selectZone = useDigitalTwinStore((s) => s.selectZone);
@@ -57,39 +58,59 @@ export function useDigitalTwin() {
   const setCameraFollow = useDigitalTwinStore((s) => s.setCameraFollow);
 
   // ── Derived: active incident and analysis ─────────────────────────────────
-  const activeIncident = incidents.find((i) => i.id === activeIncidentId) ?? null;
-  const activeAnalysis = activeIncidentId ? analyses[activeIncidentId] ?? null : null;
+  const activeIncident = useMemo(
+    () => incidents.find((i) => i.id === activeIncidentId) ?? null,
+    [incidents, activeIncidentId]
+  );
+  const activeAnalysis = useMemo(
+    () => (activeIncidentId ? analyses[activeIncidentId] ?? null : null),
+    [analyses, activeIncidentId]
+  );
 
   // ── Derived: zone for active incident ────────────────────────────────────
-  const zoneForActiveIncident = activeIncident
-    ? mapIncidentLocationToZoneId(activeIncident.location.zone)
-    : null;
+  const zoneForActiveIncident = useMemo(
+    () => (activeIncident ? mapIncidentLocationToZoneId(activeIncident.location.zone) : null),
+    [activeIncident]
+  );
 
   // Effective selected zone: explicit selection || derived from active incident
   const effectiveSelectedZoneId = selectedZoneId ?? zoneForActiveIncident;
 
   // ── Derived: zone config for effective selection ──────────────────────────
-  const selectedZone: StadiumZoneConfig | null =
-    effectiveSelectedZoneId ? (getZoneById(effectiveSelectedZoneId) ?? null) : null;
+  const selectedZone = useMemo<StadiumZoneConfig | null>(
+    () => (effectiveSelectedZoneId ? getZoneById(effectiveSelectedZoneId) ?? null : null),
+    [effectiveSelectedZoneId]
+  );
 
-  // ── Derived: per-zone crowd density (memoized ref to avoid re-compute) ────
-  const zoneCrowdDensity = computeZoneCrowdDensity(telemetry, incidents);
+  // ── Derived: per-zone crowd density (memoized to avoid re-compute) ────
+  const zoneCrowdDensity = useMemo(
+    () => computeZoneCrowdDensity(telemetry, incidents),
+    [telemetry, incidents]
+  );
 
   // ── Derived: incidents in selected zone ───────────────────────────────────
-  const incidentsInSelectedZone = effectiveSelectedZoneId
-    ? incidents.filter(
-        (i) => mapIncidentLocationToZoneId(i.location.zone) === effectiveSelectedZoneId,
-      )
-    : [];
+  const incidentsInSelectedZone = useMemo(
+    () =>
+      effectiveSelectedZoneId
+        ? incidents.filter(
+            (i) => mapIncidentLocationToZoneId(i.location.zone) === effectiveSelectedZoneId
+          )
+        : [],
+    [incidents, effectiveSelectedZoneId]
+  );
 
   // ── Derived: zone status ──────────────────────────────────────────────────
-  const selectedZoneStatus = effectiveSelectedZoneId
-    ? deriveZoneStatus(
-        effectiveSelectedZoneId,
-        zoneCrowdDensity[effectiveSelectedZoneId] ?? 30,
-        incidents,
-      )
-    : null;
+  const selectedZoneStatus = useMemo(
+    () =>
+      effectiveSelectedZoneId
+        ? deriveZoneStatus(
+            effectiveSelectedZoneId,
+            zoneCrowdDensity[effectiveSelectedZoneId] ?? 30,
+            incidents
+          )
+        : null,
+    [effectiveSelectedZoneId, zoneCrowdDensity, incidents]
+  );
 
   // ── Sync: active incident → select its zone ───────────────────────────────
   const prevActiveIncidentId = useRef<string | null>(null);
@@ -189,13 +210,15 @@ export function useDigitalTwin() {
   );
 
   // ── Sorted incidents for the Incident Queue ───────────────────────────────
-  const sortedIncidents = [...incidents].sort((a, b) => {
-    // Open/investigating before mitigated/resolved
-    const statusOrder = { open: 0, investigating: 1, mitigated: 2, resolved: 3 };
-    const statusDiff = (statusOrder[a.status] ?? 3) - (statusOrder[b.status] ?? 3);
-    if (statusDiff !== 0) return statusDiff;
-    return severityWeight(b.severity) - severityWeight(a.severity);
-  });
+  const sortedIncidents = useMemo(() => {
+    return [...incidents].sort((a, b) => {
+      // Open/investigating before mitigated/resolved
+      const statusOrder = { open: 0, investigating: 1, mitigated: 2, resolved: 3 };
+      const statusDiff = (statusOrder[a.status] ?? 3) - (statusOrder[b.status] ?? 3);
+      if (statusDiff !== 0) return statusDiff;
+      return severityWeight(b.severity) - severityWeight(a.severity);
+    });
+  }, [incidents]);
 
   return {
     // ── Operational state (from existing stores) ──────────────────────────

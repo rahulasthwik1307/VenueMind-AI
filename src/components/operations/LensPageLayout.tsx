@@ -9,6 +9,7 @@ import { PageContainer } from '@/components/layout/PageContainer';
 import { SectionHeader } from '@/components/shared/SectionHeader';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { ErrorState } from '@/components/shared/ErrorState';
+import { useShallow } from 'zustand/shallow';
 import { useIncidentStore } from '@/store/modules/incident';
 import { useAssistantStore } from '@/store/modules/assistant';
 import { useUIStore } from '@/store/modules/ui';
@@ -48,8 +49,25 @@ export function LensPageLayout({
   incidentFilter,
 }: LensPageLayoutProps) {
   // ── Store access ─────────────────────────────────────────────────────────────
-  const { incidents, activeIncidentId, setActiveIncidentId, addActivity, addToast } = useIncidentStore();
-  const { lastResponse, isAnalyzing, error, submitQuery, clearHistory, clearError } = useAssistantStore();
+  const { incidents, activeIncidentId, setActiveIncidentId, addActivity, addToast } = useIncidentStore(
+    useShallow((state) => ({
+      incidents: state.incidents,
+      activeIncidentId: state.activeIncidentId,
+      setActiveIncidentId: state.setActiveIncidentId,
+      addActivity: state.addActivity,
+      addToast: state.addToast,
+    }))
+  );
+  const { lastResponse, isAnalyzing, error, submitQuery, clearHistory, clearError } = useAssistantStore(
+    useShallow((state) => ({
+      lastResponse: state.lastResponse,
+      isAnalyzing: state.isAnalyzing,
+      error: state.error,
+      submitQuery: state.submitQuery,
+      clearHistory: state.clearHistory,
+      clearError: state.clearError,
+    }))
+  );
 
   // Local state to keep AI briefings isolated per page
   const [activeQueryDomain, setActiveQueryDomain] = useState<AssistantDomain | null>(null);

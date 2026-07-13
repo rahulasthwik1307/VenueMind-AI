@@ -1,12 +1,15 @@
 'use client';
 
+import { useShallow } from 'zustand/shallow';
 import { useIncident } from '@/hooks/useIncident';
 import { m, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle, Info, AlertTriangle, AlertOctagon } from 'lucide-react';
 import { useEffect } from 'react';
 
 export function ToastContainer() {
-  const { toasts } = useIncident();
+  const toasts = useIncident(
+    useShallow((state) => state.toasts)
+  );
 
   // Show at most 4 toasts at a time to prevent clutter
   const visibleToasts = toasts.slice(-4);
@@ -31,7 +34,7 @@ interface ToastItemProps {
 }
 
 function ToastItem({ toast }: ToastItemProps) {
-  const { removeToast } = useIncident();
+  const removeToast = useIncident((state) => state.removeToast);
 
   useEffect(() => {
     // 4 seconds app-wide for auto-dismiss

@@ -1,11 +1,21 @@
+import { useShallow } from 'zustand/shallow';
 import { useUIStore } from '@/store/modules/ui';
 import { useIncidentStore } from '@/store/modules/incident';
 import { SharedNotes } from '@/components/shared/SharedNotes';
 import { PanelSection } from './PanelSection';
 
 export function OperationsNotesSection() {
-  const { operationsNotes, setOperationsNotes, shiftNotes, addShiftNote, deleteShiftNote } = useUIStore();
-  const { addToast, addActivity } = useIncidentStore();
+  const { operationsNotes, setOperationsNotes, shiftNotes, addShiftNote, deleteShiftNote } = useUIStore(
+    useShallow((state) => ({
+      operationsNotes: state.operationsNotes,
+      setOperationsNotes: state.setOperationsNotes,
+      shiftNotes: state.shiftNotes,
+      addShiftNote: state.addShiftNote,
+      deleteShiftNote: state.deleteShiftNote,
+    }))
+  );
+  const addToast = useIncidentStore((state) => state.addToast);
+  const addActivity = useIncidentStore((state) => state.addActivity);
 
   const handleSave = () => {
     if (!operationsNotes.trim()) return;

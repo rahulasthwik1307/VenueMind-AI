@@ -4,7 +4,8 @@ import { cn } from '@/utils/cn';
 import { PanelSection } from './PanelSection';
 
 export function QuickActionsSection() {
-  const { addToast, addActivity } = useIncidentStore();
+  const addToast = useIncidentStore((state) => state.addToast);
+  const addActivity = useIncidentStore((state) => state.addActivity);
   const actions = [
     {
       id: 'deploy',

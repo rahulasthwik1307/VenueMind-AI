@@ -21,10 +21,11 @@
  * See DESIGN.md — Design Philosophy (trust, clarity, speed, precision)
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { AnimatePresence, m } from 'framer-motion';
 import { Layers, MessageCircle } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import { useShallow } from 'zustand/shallow';
 import { useAssistantStore } from '@/store/modules/assistant';
 import { useIncidentStore } from '@/store/modules/incident';
 import { useUIStore } from '@/store/modules/ui';
@@ -61,15 +62,33 @@ const LANGUAGE_LABELS: Record<string, string> = {
 export default function AICommandPage() {
   // ── Store access ─────────────────────────────────────────────────────────────
   const { lastResponse, isAnalyzing, error, conversationHistory, submitQuery, clearError } =
-    useAssistantStore();
-  const { incidents, addActivity, addToast, activities } = useIncidentStore();
+    useAssistantStore(
+      useShallow((state) => ({
+        lastResponse: state.lastResponse,
+        isAnalyzing: state.isAnalyzing,
+        error: state.error,
+        conversationHistory: state.conversationHistory,
+        submitQuery: state.submitQuery,
+        clearError: state.clearError,
+      }))
+    );
+  const { incidents, addActivity, addToast, activities } = useIncidentStore(
+    useShallow((state) => ({
+      incidents: state.incidents,
+      addActivity: state.addActivity,
+      addToast: state.addToast,
+      activities: state.activities,
+    }))
+  );
   const language = useUIStore((state) => state.language);
 
   // Filter AI Command dispatches for the idle state recent activity strip
-  const aiActivities = activities
-    .filter((act) => act.actor === 'AI Command Center')
-    .slice(-3)
-    .reverse();
+  const aiActivities = useMemo(() => {
+    return activities
+      .filter((act) => act.actor === 'AI Command Center')
+      .slice(-3)
+      .reverse();
+  }, [activities]);
 
   // ── Interaction mode state ────────────────────────────────────────────────────
   const [interactionMode, setInteractionMode] = useState<InteractionMode>('structured');

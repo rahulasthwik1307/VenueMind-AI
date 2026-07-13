@@ -6,6 +6,7 @@
  * Exported pure function `computeAvgResponseTime` is unit-tested separately.
  */
 
+import { useMemo } from 'react';
 import { Users, CheckCircle, AlertTriangle, Clock } from 'lucide-react';
 import { useIncidentStore } from '@/store/modules/incident';
 import type { Incident } from '@/types/incident';
@@ -77,14 +78,17 @@ function StatCard({ label, value, icon, accent = 'primary' }: StatCardProps) {
 }
 
 export function IncidentStatsStrip() {
-  const { incidents } = useIncidentStore();
+  const incidents = useIncidentStore((state) => state.incidents);
 
-  const totalActive = incidents.filter((i) => i.status !== 'resolved').length;
-  const criticalOpen = incidents.filter(
-    (i) => i.severity === 'critical' && i.status !== 'resolved'
-  ).length;
-  const resolvedToday = incidents.filter((i) => i.status === 'resolved').length;
-  const avgResponseTime = computeAvgResponseTime(incidents);
+  const { totalActive, criticalOpen, resolvedToday, avgResponseTime } = useMemo(() => {
+    const totalActive = incidents.filter((i) => i.status !== 'resolved').length;
+    const criticalOpen = incidents.filter(
+      (i) => i.severity === 'critical' && i.status !== 'resolved'
+    ).length;
+    const resolvedToday = incidents.filter((i) => i.status === 'resolved').length;
+    const avgResponseTime = computeAvgResponseTime(incidents);
+    return { totalActive, criticalOpen, resolvedToday, avgResponseTime };
+  }, [incidents]);
 
   return (
     <div
