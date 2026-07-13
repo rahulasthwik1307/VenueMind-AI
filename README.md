@@ -681,39 +681,39 @@ The following screenshot locations showcase the primary workspaces of the comman
 
 ### 1. Landing Page
 
-- <img width="1907" height="902" alt="image" src="https://github.com/user-attachments/assets/63fa63cc-93be-4268-b49b-71e88b427d33" />
+- **Path/File:** `public/screenshots/landing.png`
 - **Caption:** The welcoming tournament operations gateway.
 - **Business Value:** Explains the project vision and targets the single operator persona.
 
 ### 2. Main Dashboard
 
-- <img width="1917" height="907" alt="image" src="https://github.com/user-attachments/assets/a7617209-7161-48f2-a9cf-c90bed39402b" />
+- **Path/File:** `public/screenshots/dashboard.png`
 - **Caption:** Real-time operational command interface.
 - **Business Value:** Displays critical telemetry, weather, and incident metrics at a glance.
 
 ### 3. Stadium Digital Twin
 
-- <img width="1917" height="911" alt="image" src="https://github.com/user-attachments/assets/f9effefb-4c85-43dc-aa8e-33c5f9109c70" />
+- **Path/File:** `public/screenshots/digital-twin.png`
 - **Caption:** Interactive SVG map featuring active incident pins and crowd heatmap overlays.
 - **Business Value:** Provides direct spatial awareness and overlay routing for venue staff.
 
 ### 4. AI Command Center
 
-<img width="1917" height="907" alt="image" src="https://github.com/user-attachments/assets/5486a960-ced9-486f-a894-3cfc8896f489" />
-* **Caption:** Operational query engine running structured and free-form conversation modes.
-* **Business Value:** Acts as the central reasoning workspace, generating dispatchable decision cards.
+- **Path/File:** `public/screenshots/ai-command.png`
+- **Caption:** Operational query engine running structured and free-form conversation modes.
+- **Business Value:** Acts as the central reasoning workspace, generating dispatchable decision cards.
 
 ### 5. Live Incidents Console
 
-<img width="1917" height="912" alt="image" src="https://github.com/user-attachments/assets/3e000b71-3a27-4bf8-9f95-3a81b7231fce" />
-* **Caption:** Grouped incident queue featuring multi-incident summary briefs.
-* **Business Value:** Enables quick triage, priority filtering, and consolidated incident summaries.
+- **Path/File:** `public/screenshots/incidents.png`
+- **Caption:** Grouped incident queue featuring multi-incident summary briefs.
+- **Business Value:** Enables quick triage, priority filtering, and consolidated incident summaries.
 
 ### 6. Accessibility Lens
 
-<img width="1917" height="907" alt="image" src="https://github.com/user-attachments/assets/69d06ba1-e144-40a4-859c-e681303b586f" />
-* **Caption:** Custom routing interface displaying step-by-step wheelchair accommodation routing.
-* **Business Value:** Resolves accessibility challenges by deploying targeted volunteer paths.
+- **Path/File:** `public/screenshots/accessibility.png`
+- **Caption:** Custom routing interface displaying step-by-step wheelchair accommodation routing.
+- **Business Value:** Resolves accessibility challenges by deploying targeted volunteer paths.
 
 ---
 
