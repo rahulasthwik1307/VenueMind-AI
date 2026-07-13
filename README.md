@@ -681,37 +681,37 @@ The following screenshot locations showcase the primary workspaces of the comman
 
 ### 1. Landing Page
 
-- **Path/File:** `public/screenshots/landing.png`
+- <img width="1907" height="902" alt="Screenshot 2026-07-13 175202" src="https://github.com/user-attachments/assets/5f9d182a-bd01-45d2-8a82-d1c8fe164805" />
 - **Caption:** The welcoming tournament operations gateway.
 - **Business Value:** Explains the project vision and targets the single operator persona.
 
 ### 2. Main Dashboard
 
-- **Path/File:** `public/screenshots/dashboard.png`
+- <img width="1917" height="907" alt="Screenshot 2026-07-13 175529" src="https://github.com/user-attachments/assets/1e0b0350-6e11-456b-a45e-d686f147f9fb" />
 - **Caption:** Real-time operational command interface.
 - **Business Value:** Displays critical telemetry, weather, and incident metrics at a glance.
 
 ### 3. Stadium Digital Twin
 
-- **Path/File:** `public/screenshots/digital-twin.png`
+- <img width="1917" height="911" alt="Screenshot 2026-07-13 175711" src="https://github.com/user-attachments/assets/e25b898a-f869-4c96-80e8-2949ccd5410e" />
 - **Caption:** Interactive SVG map featuring active incident pins and crowd heatmap overlays.
 - **Business Value:** Provides direct spatial awareness and overlay routing for venue staff.
 
 ### 4. AI Command Center
 
-- **Path/File:** `public/screenshots/ai-command.png`
+- <img width="1917" height="907" alt="Screenshot 2026-07-13 175905" src="https://github.com/user-attachments/assets/c50872ac-911d-4185-b145-6a4aadab81c0" />
 - **Caption:** Operational query engine running structured and free-form conversation modes.
 - **Business Value:** Acts as the central reasoning workspace, generating dispatchable decision cards.
 
 ### 5. Live Incidents Console
 
-- **Path/File:** `public/screenshots/incidents.png`
+- <img width="1917" height="912" alt="Screenshot 2026-07-13 180045" src="https://github.com/user-attachments/assets/9513a37f-ccfb-4791-aaaa-23ec9dc7ee0b" />
 - **Caption:** Grouped incident queue featuring multi-incident summary briefs.
 - **Business Value:** Enables quick triage, priority filtering, and consolidated incident summaries.
 
 ### 6. Accessibility Lens
 
-- **Path/File:** `public/screenshots/accessibility.png`
+-<img width="1917" height="907" alt="Screenshot 2026-07-13 180137" src="https://github.com/user-attachments/assets/6a48b3ac-7803-4369-9f11-7a0816bc0f6c" />
 - **Caption:** Custom routing interface displaying step-by-step wheelchair accommodation routing.
 - **Business Value:** Resolves accessibility challenges by deploying targeted volunteer paths.
 
