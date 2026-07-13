@@ -57,19 +57,14 @@ export function AppShell({ children }: AppShellProps) {
     setIsExitDialogOpen(true);
   }, []);
 
-  const { confirmExit, cancelExit } = useBackNavigationGuard({
+  const { closeDialog } = useBackNavigationGuard({
     onGuardTriggered: handleGuardTriggered,
   });
 
-  const handleConfirmExit = useCallback(() => {
+  const handleCloseDialog = useCallback(() => {
     setIsExitDialogOpen(false);
-    confirmExit();
-  }, [confirmExit]);
-
-  const handleCancelExit = useCallback(() => {
-    setIsExitDialogOpen(false);
-    cancelExit();
-  }, [cancelExit]);
+    closeDialog();
+  }, [closeDialog]);
 
   return (
     <div
@@ -138,12 +133,12 @@ export function AppShell({ children }: AppShellProps) {
        */}
       <ConfirmDialog
         isOpen={isExitDialogOpen}
-        title="Leave the Operations Console?"
-        description="You are about to return to the landing page. Any unsaved work may be lost."
-        confirmLabel="Exit to Landing"
-        cancelLabel="Stay"
-        onConfirm={handleConfirmExit}
-        onCancel={handleCancelExit}
+        title="No previous page available."
+        description="You have reached the beginning of your session history."
+        confirmLabel="OK"
+        showCancelButton={false}
+        onConfirm={handleCloseDialog}
+        onCancel={handleCloseDialog}
       />
     </div>
   );

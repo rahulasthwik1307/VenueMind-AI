@@ -19,7 +19,9 @@ interface ConfirmDialogProps {
   /** Called when the user confirms the action. */
   onConfirm: () => void;
   /** Called when the user cancels (Escape key, Cancel button, or backdrop click). */
-  onCancel: () => void;
+  onCancel?: () => void;
+  /** Whether to show the cancel button. Defaults to true. */
+  showCancelButton?: boolean;
 }
 
 /**
@@ -45,6 +47,7 @@ export function ConfirmDialog({
   cancelLabel = 'Cancel',
   onConfirm,
   onCancel,
+  showCancelButton = true,
 }: ConfirmDialogProps) {
   const prefersReducedMotion = useReducedMotion();
 
@@ -58,7 +61,13 @@ export function ConfirmDialog({
     if (isOpen) {
       previousFocusRef.current = document.activeElement;
       // Delay to ensure AnimatePresence has rendered the dialog
-      const timer = setTimeout(() => cancelButtonRef.current?.focus(), 50);
+      const timer = setTimeout(() => {
+        if (showCancelButton && cancelButtonRef.current) {
+          cancelButtonRef.current.focus();
+        } else {
+          confirmButtonRef.current?.focus();
+        }
+      }, 50);
       return () => clearTimeout(timer);
     } else {
       // Return focus to the element that was active before the dialog opened
@@ -66,7 +75,7 @@ export function ConfirmDialog({
         previousFocusRef.current.focus();
       }
     }
-  }, [isOpen]);
+  }, [isOpen, showCancelButton]);
 
   // Keyboard handling: Escape → cancel, Tab → trap focus
   useEffect(() => {
@@ -75,7 +84,7 @@ export function ConfirmDialog({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault();
-        onCancel();
+        onCancel?.();
         return;
       }
 
@@ -135,7 +144,7 @@ export function ConfirmDialog({
           transition={{ duration: 0.15, ease: 'easeOut' }}
           // Clicking the backdrop cancels
           onMouseDown={(e) => {
-            if (e.target === e.currentTarget) onCancel();
+            if (e.target === e.currentTarget) onCancel?.();
           }}
           aria-hidden="false"
         >
@@ -192,20 +201,22 @@ export function ConfirmDialog({
 
             {/* Action buttons */}
             <div className="flex items-center justify-end gap-2 pt-1">
-              <button
-                ref={cancelButtonRef}
-                onClick={onCancel}
-                className={cn(
-                  'px-3.5 py-2 rounded-md text-xs font-medium',
-                  'bg-(--surface-2) text-(--foreground-muted)',
-                  'hover:bg-(--surface-3) hover:text-(--foreground)',
-                  'border border-(--border)',
-                  'transition-colors duration-150 cursor-pointer',
-                  'focus-visible:outline-(--focus-ring)',
-                )}
-              >
-                {cancelLabel}
-              </button>
+              {showCancelButton && (
+                <button
+                  ref={cancelButtonRef}
+                  onClick={onCancel}
+                  className={cn(
+                    'px-3.5 py-2 rounded-md text-xs font-medium',
+                    'bg-(--surface-2) text-(--foreground-muted)',
+                    'hover:bg-(--surface-3) hover:text-(--foreground)',
+                    'border border-(--border)',
+                    'transition-colors duration-150 cursor-pointer',
+                    'focus-visible:outline-(--focus-ring)',
+                  )}
+                >
+                  {cancelLabel}
+                </button>
+              )}
               <button
                 ref={confirmButtonRef}
                 onClick={onConfirm}
